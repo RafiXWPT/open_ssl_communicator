@@ -1,0 +1,25 @@
+# =============== #
+#   TRASH ITEMS	  #
+# =============== #
+Ikaros/obj/
+Ikaros/bin/
+IkarosServer/obj/
+IkarosServer/bin/
+IkarosInstaller/
+testClient/
+Json80r3/
+
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+*.exe
+*.msi
+*.config
