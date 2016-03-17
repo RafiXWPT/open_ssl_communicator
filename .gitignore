@@ -1,11 +1,10 @@
 # =============== #
 #   TRASH ITEMS	  #
 # =============== #
-Ikaros/obj/
-Ikaros/bin/
-IkarosServer/obj/
-IkarosServer/bin/
-IkarosInstaller/
+Client/obj/
+Client/bin/
+Server/obj/
+Server/bin/
 testClient/
 Json80r3/
 
