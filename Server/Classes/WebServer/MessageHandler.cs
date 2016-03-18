@@ -13,19 +13,26 @@ namespace Server
         public void handleMessage(HttpListenerContext messageToHandle)
         {
             string wantedUrl = messageToHandle.Request.RawUrl;
+            string sender = messageToHandle.Request.RemoteEndPoint.Address.ToString();
             string response = string.Empty;
             try
             {
-                Console.WriteLine(messageToHandle.Request.Headers["messageContent"]);
                 Message message = new Message();
                 message.loadJson(messageToHandle.Request.Headers["messageContent"]);
-                Console.WriteLine(message.MessageType);
-                Console.WriteLine(message.MessageSender);
-                Console.WriteLine(message.MessageDestination);
-                Console.WriteLine(message.MessageContent);
+
                 if (wantedUrl == "/connectionCheck/")
                 {
-                    response = "spr. polaczenie";
+                    Console.WriteLine("Client: " + sender + " is checking connection.");
+                    if(message.MessageType == "CHECK_CONNECTION" && message.MessageContent == "CONN_CHECK")
+                    {
+                        Console.WriteLine("Connection check was confirmed for: " + sender);
+                        response = "CONN_AVAIL";
+                    }
+                    else
+                    {
+                        Console.WriteLine("Connection check message of " + sender + " has bad content");
+                        response = "BAD_CONTENT";
+                    }
                 }
                 else if (wantedUrl == "/register/")
                 {
@@ -37,7 +44,10 @@ namespace Server
                 }
                 else if(wantedUrl == "/sendChatMessage/")
                 {
-                    response = "wyslij chat message";
+                    if(message.MessageContent != null)
+                    {
+                        response = "ECHO: " + message.MessageContent;
+                    }
                 }
                 else
                 {

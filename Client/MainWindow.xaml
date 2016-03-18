@@ -5,12 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525" Loaded="Window_Loaded">
     <Grid>
-        <Button x:Name="button" Content="checkConnection" HorizontalAlignment="Left" Margin="348,46,0,0" VerticalAlignment="Top" Width="128" Height="69" Click="button_Click"/>
-        <Button x:Name="button1" Content="register" HorizontalAlignment="Left" Margin="105,64,0,0" VerticalAlignment="Top" Width="101" Height="51" Click="button1_Click"/>
-        <Button x:Name="button2" Content="login" HorizontalAlignment="Left" Margin="34,178,0,0" VerticalAlignment="Top" Width="96" Height="56" Click="button2_Click"/>
-        <Button x:Name="button3" Content="chatMessage" HorizontalAlignment="Left" Margin="285,212,0,0" VerticalAlignment="Top" Width="106" Height="58" Click="button3_Click"/>
+        <Button x:Name="button1" Content="register" HorizontalAlignment="Left" Margin="264,147,0,0" VerticalAlignment="Top" Width="101" Height="51" Click="button1_Click"/>
+        <Button x:Name="button2" Content="login" HorizontalAlignment="Left" Margin="163,147,0,0" VerticalAlignment="Top" Width="96" Height="56" Click="button2_Click"/>
+        <Button x:Name="button3" Content="chatMessage" HorizontalAlignment="Left" Margin="370,144,0,0" VerticalAlignment="Top" Width="106" Height="58" Click="button3_Click"/>
 
     </Grid>
 </Window>

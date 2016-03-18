@@ -47,12 +47,7 @@ namespace Client
 
         void sendMessage()
         {
-            Message message = new Message("10.0.0.1", "CHAT_MESSAGE", "WHATEVER", chatText.Text);
-            MessageBox.Show(message.MessageContent);
-            MessageBox.Show(message.MessageDestination);
-            MessageBox.Show(message.MessageSender);
-            MessageBox.Show(message.MessageType);
-
+            Message message = new Message("THATS ME", "CHAT_MESSAGE", "WHATEVER", chatText.Text);
             using (var wb = new WebClient())
             {
                 wb.Proxy = null;
@@ -64,6 +59,7 @@ namespace Client
 
                 response = wb.UploadValues(talkingTo, "POST", data);
                 listBox.Items.Add(Encoding.UTF8.GetString(response));
+                chatText.Text = string.Empty;
             }
         }
     }

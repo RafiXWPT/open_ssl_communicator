@@ -1,18 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using SystemMessage;
+﻿using System.Windows;
 
 namespace Client
 {
@@ -21,27 +7,30 @@ namespace Client
     /// </summary>
     public partial class MainWindow : Window
     {
+        private ConnectionChecker connectionChecker;
+        private NetworkController networkController;
+
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ChatWindow chatWindow = new ChatWindow("http://localhost:11069/connectionCheck/");
-            chatWindow.Show();
+            connectionChecker = new ConnectionChecker();
+            networkController = new NetworkController();
+
+            connectionChecker.startCheckConnection();
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            ChatWindow chatWindow = new ChatWindow("http://localhost:11069/register/");
-            chatWindow.Show();
+
         }
 
         private void button2_Click(object sender, RoutedEventArgs e)
         {
-            ChatWindow chatWindow = new ChatWindow("http://localhost:11069/logIn/");
-            chatWindow.Show();
+
         }
 
         private void button3_Click(object sender, RoutedEventArgs e)
@@ -49,5 +38,7 @@ namespace Client
             ChatWindow chatWindow = new ChatWindow("http://localhost:11069/sendChatMessage/");
             chatWindow.Show();
         }
+
+
     }
 }
