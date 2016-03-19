@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using Newtonsoft.Json;
 
-namespace SystemMessage
+namespace CommunicatorCore.Classes.Model
 {
     public class Message
     {
@@ -9,6 +9,7 @@ namespace SystemMessage
         public string MessageType { get; set; }
         public string MessageDestination { get; set; }
         public string MessageContent { get; set; }
+        public DateTime MessageDate;
 
         public Message(string messageSender, string messageType = "NO_TYPE", string messageDestination = "NO_DESTINATION", string messageContent = "NO_CONTENT")
         {
@@ -16,9 +17,11 @@ namespace SystemMessage
             MessageType = messageType;
             MessageDestination = messageDestination;
             MessageContent = messageContent;
+            MessageDate = DateTime.Now;
         }
 
-        public Message() { }
+        public Message(): this(null)
+        {}
 
         public void LoadJson(string jsonString)
         {
@@ -30,9 +33,9 @@ namespace SystemMessage
                 this.MessageDestination = tmp.MessageDestination;
                 this.MessageContent = tmp.MessageContent;
             }
-            catch(Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
+
             }
         }
 

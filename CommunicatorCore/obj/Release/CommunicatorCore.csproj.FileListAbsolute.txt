@@ -1,0 +1,6 @@
+D:\GitProjects\BSK\CommunicatorCore\bin\Release\CommunicatorCore.dll
+D:\GitProjects\BSK\CommunicatorCore\bin\Release\CommunicatorCore.pdb
+D:\GitProjects\BSK\CommunicatorCore\bin\Release\Newtonsoft.Json.dll
+D:\GitProjects\BSK\CommunicatorCore\obj\Release\CommunicatorCore.dll
+D:\GitProjects\BSK\CommunicatorCore\obj\Release\CommunicatorCore.pdb
+D:\GitProjects\BSK\CommunicatorCore\obj\Release\CommunicatorCore.csprojResolveAssemblyReference.cache

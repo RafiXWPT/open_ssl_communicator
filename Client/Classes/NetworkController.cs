@@ -2,7 +2,7 @@
 using System.Collections.Specialized;
 using System.Net;
 using System.Text;
-using SystemMessage;
+using CommunicatorCore.Classes.Model;
 
 namespace Client
 {
@@ -40,8 +40,7 @@ namespace Client
             NameValueCollection data = new NameValueCollection();
             data["data"] = DateTime.Now.ToShortDateString();
 
-            byte[] response;
-            response = client.UploadValues(address, "POST", data);
+            byte[] response = client.UploadValues(address, "POST", data);
             return Encoding.UTF8.GetString(response);
         }
     }

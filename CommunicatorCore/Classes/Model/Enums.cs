@@ -11,20 +11,20 @@
         FAILURE
     }
 
-    public enum CIPHER_TYPE
+    public enum CiherType
     {
         AES,
         BLOWFISH,
         CAST5
     }
 
-    public enum CIPHER_MODE
+    public enum CipherMode
     {
         CBC,
         ECB
     }
 
-    public enum CIPHER_SIZE
+    public enum CipherSize
     {
         SIZE_128,
         SIZE_192,

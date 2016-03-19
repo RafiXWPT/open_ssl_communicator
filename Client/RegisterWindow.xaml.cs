@@ -13,11 +13,11 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using DiffieHellman;
 using System.Net;
-using SystemMessage;
 using System.Threading;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using SystemSecurity;
+using CommunicatorCore.Classes.Model;
 
 namespace Client
 {

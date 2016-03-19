@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
-using SystemMessage;
+using CommunicatorCore.Classes.Model;
 
 namespace Client
 {

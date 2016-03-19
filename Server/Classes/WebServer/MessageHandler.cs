@@ -4,8 +4,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using SystemMessage;
 using SystemSecurity;
+﻿using CommunicatorCore.Classes.Model;
 
 namespace Server
 {

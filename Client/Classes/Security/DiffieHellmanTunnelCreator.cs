@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using DiffieHellman;
 using System.Net;
-using SystemMessage;
 using System.Windows.Controls;
 using System.Windows;
 using System.Threading;
 using SystemSecurity;
+using CommunicatorCore.Classes.Model;
 
 namespace Client
 {
@@ -30,7 +30,7 @@ namespace Client
                 client.Proxy = null;
                 string reply = string.Empty;
 
-                reply = GetTemporaryID(client);
+                reply = GetTemporaryId(client);
                 if (reply.Length > 0)
                 {
                     ConnectionInfo.Sender = reply;
@@ -41,7 +41,7 @@ namespace Client
                 }
 
                 reply = ExchangePublicKeys(client);
-                if(reply != null && reply != string.Empty)
+                if( !string.IsNullOrEmpty(reply) )
                 {
                     tunnel.CreateKey(reply);
                 }
@@ -70,7 +70,7 @@ namespace Client
             return tunnel;
         }
 
-        string GetTemporaryID(WebClient client)
+        string GetTemporaryId(WebClient client)
         {
             tunnel.Status = DiffieHellmanTunnelStatus.ASKING_FOR_ID;
 
