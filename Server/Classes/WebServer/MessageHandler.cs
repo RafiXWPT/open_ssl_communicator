@@ -4,9 +4,10 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using SystemMessage;
+using CommunicatorCore.Classes;
+using CommunicatorCore.Classes.Model;
 
-namespace Server
+namespace Server.Classes.WebServer
 {
     public class MessageHandler
     {
@@ -18,7 +19,7 @@ namespace Server
             {
                 Console.WriteLine(messageToHandle.Request.Headers["messageContent"]);
                 Message message = new Message();
-                message.loadJson(messageToHandle.Request.Headers["messageContent"]);
+                message.LoadJson(messageToHandle.Request.Headers["messageContent"]);
                 Console.WriteLine(message.MessageType);
                 Console.WriteLine(message.MessageSender);
                 Console.WriteLine(message.MessageDestination);

@@ -4,18 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A545C151-EFD7-4375-AA91-7CFFB838ED9E}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{C9D712B8-90DB-48E0-BD9E-0A6D1D06ED49}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Server</RootNamespace>
-    <AssemblyName>Server</AssemblyName>
+    <RootNamespace>CommunicatorCore</RootNamespace>
+    <AssemblyName>CommunicatorCore</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -34,11 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ManagedOpenSsl, Version=0.6.0.0, Culture=neutral, processorArchitecture=AMD64" />
-    <Reference Include="MongoDB.Bson, Version=2.2.0.262, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="MongoDB.Driver, Version=2.2.0.262, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="MongoDB.Driver.Core, Version=2.2.0.262, Culture=neutral, PublicKeyToken=null" />
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\Libraries\NET\NewtonsoftJson\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -49,26 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\DbAccess\ContactsDao.cs" />
-    <Compile Include="Classes\DbAccess\MessageDao.cs" />
-    <Compile Include="Classes\DbAccess\MongoDbAccess.cs" />
-    <Compile Include="Classes\DbAccess\UsersDao.cs" />
-    <Compile Include="Classes\WebServer\MessageHandler.cs" />
-    <Compile Include="Classes\WebServer\WebServerCore.cs" />
-    <Compile Include="Server.cs" />
+    <Compile Include="Classes\Model\Contact.cs" />
+    <Compile Include="Classes\Model\Enums.cs" />
+    <Compile Include="Classes\Exceptions\UnsuccessfulQueryException.cs" />
+    <Compile Include="Classes\Model\Message.cs" />
+    <Compile Include="Classes\Model\UserPasswordData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CommunicatorCore\CommunicatorCore.csproj">
-      <Project>{c9d712b8-90db-48e0-bd9e-0a6d1d06ed49}</Project>
-      <Name>CommunicatorCore</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

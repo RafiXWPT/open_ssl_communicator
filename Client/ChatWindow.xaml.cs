@@ -1,5 +1,4 @@
 ﻿using System;
-using SystemMessage;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -14,6 +13,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using CommunicatorCore.Classes;
+using CommunicatorCore.Classes.Model;
 
 namespace Client
 {
@@ -57,12 +58,10 @@ namespace Client
             {
                 wb.Proxy = null;
 
-                headers["messageContent"] = message.getJsonString();
+                headers["messageContent"] = message.GetJsonString();
                 wb.Headers.Add(headers);
                 data["DateTime"] = DateTime.Now.ToShortDateString();
-                byte[] response;
-
-                response = wb.UploadValues(talkingTo, "POST", data);
+                byte[] response = wb.UploadValues(talkingTo, "POST", data);
                 listBox.Items.Add(Encoding.UTF8.GetString(response));
             }
         }

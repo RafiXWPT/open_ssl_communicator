@@ -1,12 +1,16 @@
 ﻿using System;
+using Server.Classes.WebServer;
 
 namespace Server
 {
     class Server
     {
+        
+        public const string Prefix = "http://localhost:11069";
+
         static void Main(string[] args)
         {
-            string[] prefixes = { "http://localhost:11069/connectionCheck/", "http://localhost:11069/register/", "http://localhost:11069/logIn/", "http://localhost:11069/sendChatMessage/" };
+            string[] prefixes = { Prefix + "/connectionCheck/", Prefix + "/register/", Prefix + "/logIn/", Prefix + "/sendChatMessage/" };
 
             WebServerCore WSC = new WebServerCore(prefixes);
             WSC.Run();

@@ -36,13 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ManagedOpenSsl">
-      <HintPath>..\OpenSSLWrapper\ManagedOpenSsl.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Json80r3\Bin\Net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -71,15 +64,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="..\Server\Classes\Message.cs">
-      <Link>Classes\Message.cs</Link>
-    </Compile>
-    <Compile Include="..\Server\Classes\Security\Enums.cs">
-      <Link>Classes\Security\Enums.cs</Link>
-    </Compile>
-    <Compile Include="..\Server\Classes\Security\SymetricCipher.cs">
-      <Link>Classes\Security\SymetricCipher.cs</Link>
-    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -119,7 +103,15 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Classes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommunicatorCore\CommunicatorCore.csproj">
+      <Project>{c9d712b8-90db-48e0-bd9e-0a6d1d06ed49}</Project>
+      <Name>CommunicatorCore</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
