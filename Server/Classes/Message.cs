@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace SystemMessage
 {
@@ -29,9 +30,9 @@ namespace SystemMessage
                 this.MessageDestination = tmp.MessageDestination;
                 this.MessageContent = tmp.MessageContent;
             }
-            catch
+            catch(Exception ex)
             {
-
+                Console.WriteLine(ex.ToString());
             }
         }
 

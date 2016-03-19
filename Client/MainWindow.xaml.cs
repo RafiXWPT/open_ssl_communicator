@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Threading;
+using System.Windows;
 
 namespace Client
 {
@@ -21,11 +23,15 @@ namespace Client
             networkController = new NetworkController();
 
             connectionChecker.startCheckConnection();
+
+            Thread test = new Thread(testThread);
+            test.Start();
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-
+            RegisterWindow wnd = new RegisterWindow();
+            wnd.ShowDialog();
         }
 
         private void button2_Click(object sender, RoutedEventArgs e)
@@ -37,6 +43,11 @@ namespace Client
         {
             ChatWindow chatWindow = new ChatWindow("http://localhost:11069/sendChatMessage/");
             chatWindow.Show();
+        }
+
+        void testThread()
+        {
+            
         }
 
 

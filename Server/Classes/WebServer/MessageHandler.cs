@@ -22,21 +22,15 @@ namespace Server
 
                 if (wantedUrl == "/connectionCheck/")
                 {
-                    Console.WriteLine("Client: " + sender + " is checking connection.");
-                    if(message.MessageType == "CHECK_CONNECTION" && message.MessageContent == "CONN_CHECK")
-                    {
-                        Console.WriteLine("Connection check was confirmed for: " + sender);
-                        response = "CONN_AVAIL";
-                    }
-                    else
-                    {
-                        Console.WriteLine("Connection check message of " + sender + " has bad content");
-                        response = "BAD_CONTENT";
-                    }
+                    connectionCheck(message, sender, out response);
+                }
+                else if (wantedUrl == "/diffieTunnel/")
+                {
+                    diffieTunnel(message, out response);
                 }
                 else if (wantedUrl == "/register/")
                 {
-                    response = "rejestruj sie";
+
                 }
                 else if (wantedUrl == "/logIn/")
                 {
@@ -59,6 +53,81 @@ namespace Server
             catch { }
 
             closeResponseStream(messageToHandle);
+        }
+
+        void connectionCheck(Message message, string sender, out string response)
+        {
+            response = string.Empty;
+            User usr = UserControll.Instance.getUserFromDatabase(message.MessageSender);
+            if(usr != null)
+            {
+                usr.updateLastConnectionCheck(DateTime.Now);
+                usr.updateAddress(sender);
+            }
+
+            Console.WriteLine("Client: " + sender + " is checking connection.");
+            if (message.MessageType == "CHECK_CONNECTION" && message.MessageContent == "CONN_CHECK")
+            {
+                Console.WriteLine("Connection check was confirmed for: " + sender);
+                response = "CONN_AVAIL";
+            }
+            else
+            {
+                Console.WriteLine("Connection check message of " + sender + " has bad content");
+                response = "BAD_CONTENT";
+            }
+        }
+
+        void diffieTunnel(Message message, out string response)
+        {
+            response = string.Empty;
+            User user = null;
+
+            if (message.MessageSender == "UNKNOWN")
+            {
+                string newGuid = "TMPUSER_" + Guid.NewGuid().ToString();
+                user = new User(newGuid, "UNKNOWN");
+                UserControll.Instance.addTemporaryUserToDatabase(user);
+            }
+            else
+            {
+                user = UserControll.Instance.getUserFromDatabase(message.MessageSender);
+            }
+
+            if(message.MessageType == "REQUEST_FOR_ID")
+            {
+                Console.WriteLine(message.MessageSender + " request for id.");
+                response = user.ID;
+            }
+            else if(message.MessageType == "PUBLIC_KEY_EXCHANGE")
+            {
+                Console.WriteLine(message.MessageSender + " exchange pkey.");
+                user.Tunnel.CreateKey(message.MessageContent);
+                response = user.Tunnel.getPublicPart();  
+            }
+            else if(message.MessageType == "IV_EXCHANGE")
+            {
+                Console.WriteLine(message.MessageSender + " exchange iv.");
+                user.Tunnel.loadIV(message.MessageContent);
+                response = "CHECK";
+            }
+            else if(message.MessageType == "CHECK_TUNNEL")
+            {
+                Console.WriteLine(message.MessageSender + " checking tunnel.");
+                if(user.Tunnel.diffieDecrypt(message.MessageContent) == "OK")
+                {
+                    response = "RDY";
+                    user.Tunnel.Established = true;
+                }
+                else
+                {
+                    response = "BAD_TUNNEL";
+                }
+            }
+            else
+            {
+                response = "404";
+            }
         }
 
         void sendResponse(HttpListenerContext context, string response)

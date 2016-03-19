@@ -14,6 +14,8 @@ namespace Server
         private readonly MessageHandler _handler = new MessageHandler();
         private string[] prefixes;
 
+        private readonly UserControll controll = new UserControll();
+
         public WebServerCore(string[] prefixes)
         {
             this.prefixes = prefixes;
@@ -37,7 +39,7 @@ namespace Server
                     {
                         ThreadPool.QueueUserWorkItem((c) =>
                         {
-                            Console.WriteLine("New request received.");
+                            //Console.WriteLine("New request received.");
                             HttpListenerContext ctx = c as HttpListenerContext;
                             _handler.handleMessage(ctx);
                             

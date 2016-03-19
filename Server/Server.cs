@@ -6,7 +6,7 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            string[] prefixes = { "http://localhost:11069/connectionCheck/", "http://localhost:11069/register/", "http://localhost:11069/logIn/", "http://localhost:11069/sendChatMessage/" };
+            string[] prefixes = { "http://localhost:11069/connectionCheck/", "http://localhost:11069/diffieTunnel/", "http://localhost:11069/register/", "http://localhost:11069/logIn/", "http://localhost:11069/sendChatMessage/" };
 
             WebServerCore WSC = new WebServerCore(prefixes);
             WSC.Run();

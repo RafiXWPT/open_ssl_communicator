@@ -52,8 +52,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Message.cs" />
+    <Compile Include="Classes\Security\DiffieHellmanTunnel.cs" />
     <Compile Include="Classes\Security\Enums.cs" />
     <Compile Include="Classes\Security\SymetricCipher.cs" />
+    <Compile Include="Classes\User.cs" />
+    <Compile Include="Classes\UserControll.cs" />
     <Compile Include="Classes\WebServer\MessageHandler.cs" />
     <Compile Include="Classes\WebServer\WebServerCore.cs" />
     <Compile Include="Server.cs" />
