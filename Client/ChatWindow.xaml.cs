@@ -37,7 +37,7 @@ namespace Client
         {
             try
             {
-                sendMessage();
+                SendMessage();
             }
             catch(Exception ex)
             {
@@ -45,14 +45,14 @@ namespace Client
             }
         }
 
-        void sendMessage()
+        void SendMessage()
         {
             Message message = new Message("THATS ME", "CHAT_MESSAGE", "WHATEVER", chatText.Text);
             using (var wb = new WebClient())
             {
                 wb.Proxy = null;
 
-                headers["messageContent"] = message.getJsonString();
+                headers["messageContent"] = message.GetJsonString();
                 wb.Headers.Add(headers);
                 data["DateTime"] = DateTime.Now.ToShortDateString();
                 byte[] response;

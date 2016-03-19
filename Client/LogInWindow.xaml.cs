@@ -31,7 +31,7 @@ namespace Client
             InitializeComponent();
         }
 
-        void establishTunnelThread()
+        void EstablishTunnelThread()
         {
             while (tunnel.Status != DiffieHellmanTunnelStatus.ESTABLISHED)
             {
@@ -39,7 +39,7 @@ namespace Client
                     Thread.Sleep(1000 * 1);
 
                 DiffieHellmanTunnelCreator tunnelCreator = new DiffieHellmanTunnelCreator();
-                tunnel = tunnelCreator.establishTunnel();
+                tunnel = tunnelCreator.EstablishTunnel();
 
                 if (tunnel.Status != DiffieHellmanTunnelStatus.ESTABLISHED)
                     Thread.Sleep(5 * 1000);
@@ -51,16 +51,16 @@ namespace Client
             connectionChecker = new ConnectionChecker();
             networkController = new NetworkController();
 
-            connectionChecker.startCheckConnection();
+            connectionChecker.StartCheckConnection();
 
-            Thread tunnelCreator = new Thread(establishTunnelThread);
+            Thread tunnelCreator = new Thread(EstablishTunnelThread);
             tunnelCreator.IsBackground = true;
             tunnelCreator.Start();
         }
 
         private void registerBtn_Click(object sender, RoutedEventArgs e)
         {
-            if(checkConnectionStatus())
+            if(CheckConnectionStatus())
             {
                 RegisterWindow registerWindow = new RegisterWindow(tunnel);
                 registerWindow.Show();
@@ -69,13 +69,13 @@ namespace Client
 
         private void confirmBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (checkConnectionStatus())
+            if (CheckConnectionStatus())
             {
 
             }
         }
 
-        bool checkConnectionStatus()
+        bool CheckConnectionStatus()
         {
             if (!ConnectionInfo.Connected)
             {

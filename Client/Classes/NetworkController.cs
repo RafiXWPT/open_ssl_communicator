@@ -22,20 +22,20 @@ namespace Client
             instance = this;
         }
 
-        public string sendMessage(Uri address, WebClient client, Message message)
+        public string SendMessage(Uri address, WebClient client, Message message)
         {
             NameValueCollection headers = new NameValueCollection();
 
             if (client.Headers.Count > 0)
                 client.Headers.Clear();
 
-            headers["messageContent"] = message.getJsonString();
+            headers["messageContent"] = message.GetJsonString();
             client.Headers.Add(headers);
 
-            return readMessage(address, client);
+            return ReadMessage(address, client);
         }
 
-        string readMessage(Uri address, WebClient client)
+        string ReadMessage(Uri address, WebClient client)
         {
             NameValueCollection data = new NameValueCollection();
             data["data"] = DateTime.Now.ToShortDateString();

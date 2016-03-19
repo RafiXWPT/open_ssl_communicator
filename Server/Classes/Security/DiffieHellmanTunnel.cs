@@ -34,22 +34,22 @@ namespace DiffieHellman
             aes.Key = TunnelKey;
         }
 
-        public void loadIV(string iv)
+        public void LoadIV(string iv)
         {
             aes.IV = Convert.FromBase64String(iv);
         }
 
-        public string getPublicPart()
+        public string GetPublicPart()
         {
             return Convert.ToBase64String(PublicKey);
         }
 
-        public string getIV()
+        public string GetIV()
         {
             return Convert.ToBase64String(aes.IV);
         }
 
-        public string diffieEncrypt(string message)
+        public string DiffieEncrypt(string message)
         {
             string encryptedMessage = string.Empty;
 
@@ -65,7 +65,7 @@ namespace DiffieHellman
             return encryptedMessage;
         }
 
-        public string diffieDecrypt(string cipher)
+        public string DiffieDecrypt(string cipher)
         {
             string decryptedMessage = string.Empty;
             byte[] cipherMessage = Convert.FromBase64String(cipher);

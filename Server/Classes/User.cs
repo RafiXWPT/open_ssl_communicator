@@ -33,22 +33,22 @@ namespace Server
             Tunnel = new DiffieHellmanTunnel();
         }
 
-        public void updateAddress(string address)
+        public void UpdateAddress(string address)
         {
             Address = address;
         }
 
-        public void updateLastConnectionCheck(DateTime time)
+        public void UpdateLastConnectionCheck(DateTime time)
         {
             LastConnectionCheck = time;
         }
 
-        public void updateStatus(UserStatus status)
+        public void UpdateStatus(UserStatus status)
         {
             Status = status;
         }
 
-        public DateTime lastConCheck()
+        public DateTime LastConCheck()
         {
             return LastConnectionCheck;
         }

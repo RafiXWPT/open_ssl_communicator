@@ -11,11 +11,11 @@ namespace Client
             config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
         }
 
-        public static string getValueFromKey(string key)
+        public static string GetValueFromKey(string key)
         {
             try
             {
-                if (hasValueOnKey(key))
+                if (HasValueOnKey(key))
                     return config.AppSettings.Settings[key].Value;
                 else
                     return string.Empty;
@@ -26,7 +26,7 @@ namespace Client
             }
         }
 
-        public static void setValueOnKey(string key, string value)
+        public static void SetValueOnKey(string key, string value)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace Client
                 else
                     config.AppSettings.Settings[key].Value = "NULL";
 
-                saveConfiguration();
+                SaveConfiguration();
             }
             catch
             {
@@ -43,7 +43,7 @@ namespace Client
             }
         }
 
-        public static bool hasValueOnKey(string key)
+        public static bool HasValueOnKey(string key)
         {
             try
             {
@@ -58,7 +58,7 @@ namespace Client
             }
         }
 
-        public static void saveConfiguration()
+        public static void SaveConfiguration()
         {
             config.Save(ConfigurationSaveMode.Modified);
         }

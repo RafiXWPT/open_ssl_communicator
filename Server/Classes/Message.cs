@@ -20,7 +20,7 @@ namespace SystemMessage
 
         public Message() { }
 
-        public void loadJson(string jsonString)
+        public void LoadJson(string jsonString)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace SystemMessage
             }
         }
 
-        public string getJsonString()
+        public string GetJsonString()
         {
             return JsonConvert.SerializeObject(this);
         }

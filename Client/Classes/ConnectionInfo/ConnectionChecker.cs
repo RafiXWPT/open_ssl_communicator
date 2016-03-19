@@ -17,22 +17,22 @@ namespace Client
             CheckConnection = false;
         }
 
-        public void startCheckConnection()
+        public void StartCheckConnection()
         {
             checkConnection_event = new ManualResetEvent(false);
-            checkConnectionThread = new Thread(checkConnection_thread);
+            checkConnectionThread = new Thread(CheckConnection_thread);
             checkConnectionThread.IsBackground = true;
             CheckConnection = true;
             checkConnectionThread.Start();
         }
 
-        public void stopCheckConnection()
+        public void StopCheckConnection()
         {
             CheckConnection = false;
             checkConnection_event.Set();
         }
 
-        void checkConnection_thread()
+        void CheckConnection_thread()
         {
             CHECK_CONNECTION:
             try
@@ -46,19 +46,19 @@ namespace Client
                     {
                         client.Proxy = null;
 
-                        Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.getValueFromKey("CHECK_CONNECTION_API") + "/");
+                        Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("CHECK_CONNECTION_API") + "/");
 
                         watch.Restart();
-                        string response = NetworkController.Instance.sendMessage(uriString, client, message);
+                        string response = NetworkController.Instance.SendMessage(uriString, client, message);
                         watch.Stop();
 
                         if (response == "CONN_AVAIL")
                         {
-                            ConnectionInfo.updateConnection(Convert.ToDouble(watch.ElapsedMilliseconds));
+                            ConnectionInfo.UpdateConnection(Convert.ToDouble(watch.ElapsedMilliseconds));
                         }
                         else
                         {
-                            ConnectionInfo.updateConnection(9999, true);
+                            ConnectionInfo.UpdateConnection(9999, true);
                             CheckConnection = !checkConnection_event.WaitOne(TimeSpan.FromSeconds(10));
                         }
                     }
@@ -68,7 +68,7 @@ namespace Client
             }
             catch
             {
-                ConnectionInfo.updateConnection(9999, true);
+                ConnectionInfo.UpdateConnection(9999, true);
                 CheckConnection = !checkConnection_event.WaitOne(TimeSpan.FromSeconds(10));
                 goto CHECK_CONNECTION;
             } 

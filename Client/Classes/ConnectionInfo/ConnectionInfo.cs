@@ -17,13 +17,13 @@ namespace Client
         static ConnectionInfo()
         {
             Sender = "UNKNOWN";
-            Port = Convert.ToInt32(ConfigurationHandler.getValueFromKey("PORT"));
-            Address = ConfigurationHandler.getValueFromKey("ADDRESS");
+            Port = Convert.ToInt32(ConfigurationHandler.GetValueFromKey("PORT"));
+            Address = ConfigurationHandler.GetValueFromKey("ADDRESS");
             Connected = false;
             Latency = 9999;
         }
 
-        public static void updateConnection(double connectionTick, bool lostConnection = false)
+        public static void UpdateConnection(double connectionTick, bool lostConnection = false)
         {
             if (ticks.Count > 10)
                 ticks.RemoveAt(0);

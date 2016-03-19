@@ -16,21 +16,21 @@ namespace Client
     public class DiffieHellmanTunnelCreator
     {
         private readonly DiffieHellmanTunnel tunnel;
-        private readonly Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.getValueFromKey("DIFFIE_API") + "/");
+        private readonly Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("DIFFIE_API") + "/");
 
         public DiffieHellmanTunnelCreator()
         {
             tunnel = new DiffieHellmanTunnel();
         }
 
-        public DiffieHellmanTunnel establishTunnel()
+        public DiffieHellmanTunnel EstablishTunnel()
         {
             using (WebClient client = new WebClient())
             {
                 client.Proxy = null;
                 string reply = string.Empty;
 
-                reply = getTemporaryID(client);
+                reply = GetTemporaryID(client);
                 if (reply.Length > 0)
                 {
                     ConnectionInfo.Sender = reply;
@@ -40,7 +40,7 @@ namespace Client
                     tunnel.Status = DiffieHellmanTunnelStatus.FAILURE;
                 }
 
-                reply = exchangePublicKeys(client);
+                reply = ExchangePublicKeys(client);
                 if(reply != null && reply != string.Empty)
                 {
                     tunnel.CreateKey(reply);
@@ -50,13 +50,13 @@ namespace Client
                     tunnel.Status = DiffieHellmanTunnelStatus.FAILURE;
                 }
 
-                reply = exchangeIV(client);
+                reply = ExchangeIV(client);
                 if (reply != null && reply != "CHECK")
                 {
                     tunnel.Status = DiffieHellmanTunnelStatus.FAILURE;
                 }
 
-                reply = checkTunnel(client);
+                reply = CheckTunnel(client);
                 if (reply != null && reply == "RDY")
                 {
                     tunnel.Status = DiffieHellmanTunnelStatus.ESTABLISHED;
@@ -70,7 +70,7 @@ namespace Client
             return tunnel;
         }
 
-        string getTemporaryID(WebClient client)
+        string GetTemporaryID(WebClient client)
         {
             tunnel.Status = DiffieHellmanTunnelStatus.ASKING_FOR_ID;
 
@@ -78,7 +78,7 @@ namespace Client
             try
             {
                 Message message = new Message("UNKNOWN", "REQUEST_FOR_ID", "NO_DESTINATION", "NO_CONTENT");
-                reply = NetworkController.Instance.sendMessage(uriString, client, message);
+                reply = NetworkController.Instance.SendMessage(uriString, client, message);
             }
             catch
             {
@@ -88,7 +88,7 @@ namespace Client
             return reply;
         }
 
-        string exchangePublicKeys(WebClient client)
+        string ExchangePublicKeys(WebClient client)
         {
             if (tunnel.Status == DiffieHellmanTunnelStatus.FAILURE)
                 return null;
@@ -99,8 +99,8 @@ namespace Client
 
             try
             {
-                Message message = new Message(ConnectionInfo.Sender, "PUBLIC_KEY_EXCHANGE", "NO_DESTINTAION", tunnel.getPublicPart());
-                reply = NetworkController.Instance.sendMessage(uriString, client, message);
+                Message message = new Message(ConnectionInfo.Sender, "PUBLIC_KEY_EXCHANGE", "NO_DESTINTAION", tunnel.GetPublicPart());
+                reply = NetworkController.Instance.SendMessage(uriString, client, message);
             }
             catch
             {
@@ -110,7 +110,7 @@ namespace Client
             return reply;
         }
 
-        string exchangeIV(WebClient client)
+        string ExchangeIV(WebClient client)
         {
             if (tunnel.Status == DiffieHellmanTunnelStatus.FAILURE)
                 return null;
@@ -120,8 +120,8 @@ namespace Client
             string reply = string.Empty;
             try
             {
-                Message message = new Message(ConnectionInfo.Sender, "IV_EXCHANGE", "NO_DESTINTAION", tunnel.getIV());
-                reply = NetworkController.Instance.sendMessage(uriString, client, message);
+                Message message = new Message(ConnectionInfo.Sender, "IV_EXCHANGE", "NO_DESTINTAION", tunnel.GetIV());
+                reply = NetworkController.Instance.SendMessage(uriString, client, message);
             }
             catch
             {
@@ -131,7 +131,7 @@ namespace Client
             return reply;
         }
 
-        string checkTunnel(WebClient client)
+        string CheckTunnel(WebClient client)
         {
             if (tunnel.Status == DiffieHellmanTunnelStatus.FAILURE)
                 return null;
@@ -141,8 +141,8 @@ namespace Client
             string reply = string.Empty;
             try
             {
-                Message message = new Message(ConnectionInfo.Sender, "CHECK_TUNNEL", "NO_DESTINTAION", tunnel.diffieEncrypt("OK"));
-                reply = NetworkController.Instance.sendMessage(uriString, client, message);
+                Message message = new Message(ConnectionInfo.Sender, "CHECK_TUNNEL", "NO_DESTINTAION", tunnel.DiffieEncrypt("OK"));
+                reply = NetworkController.Instance.SendMessage(uriString, client, message);
             }
             catch
             {

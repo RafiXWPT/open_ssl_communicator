@@ -24,10 +24,10 @@ namespace Server
         public UserControll()
         {
             instance = this;
-            loadUsersFromDatabase();
+            LoadUsersFromDatabase();
         }
 
-        void loadUsersFromDatabase()
+        void LoadUsersFromDatabase()
         {
             // NIBYLADOWANIE
             users.Add(user1);
@@ -35,19 +35,19 @@ namespace Server
             users.Add(user3);
         }
 
-        public void addUserToDatabase(User user)
+        public void AddUserToDatabase(User user)
         {
             //DODAWANIE DO BAZY
             users.Add(user);
         }
 
-        public void addTemporaryUserToDatabase(User user)
+        public void AddTemporaryUserToDatabase(User user)
         {
             //DODAWANIE TYLKO DO LOKALNEGO OBIEKTU
             users.Add(user);
         }
 
-        public User getUserFromDatabase(string id)
+        public User GetUserFromDatabase(string id)
         {
             return users.Find(user => user.ID == id);
         }

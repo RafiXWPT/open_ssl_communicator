@@ -11,7 +11,7 @@ namespace Server
 {
     public class MessageHandler
     {
-        public void handleMessage(HttpListenerContext messageToHandle)
+        public void HandleMessage(HttpListenerContext messageToHandle)
         {
             string wantedUrl = messageToHandle.Request.RawUrl;
             string sender = messageToHandle.Request.RemoteEndPoint.Address.ToString();
@@ -19,19 +19,19 @@ namespace Server
             try
             {
                 Message message = new Message();
-                message.loadJson(messageToHandle.Request.Headers["messageContent"]);
+                message.LoadJson(messageToHandle.Request.Headers["messageContent"]);
 
                 if (wantedUrl == "/connectionCheck/")
                 {
-                    connectionCheck(message, sender, out response);
+                    ConnectionCheck(message, sender, out response);
                 }
                 else if (wantedUrl == "/diffieTunnel/")
                 {
-                    diffieTunnel(message, out response);
+                    DiffieTunnel(message, out response);
                 }
                 else if (wantedUrl == "/register/")
                 {
-                    register(message, out response);
+                    Register(message, out response);
                 }
                 else if (wantedUrl == "/logIn/")
                 {
@@ -49,21 +49,21 @@ namespace Server
                     response = string.Empty;
                 }
 
-                sendResponse(messageToHandle, response);
+                SendResponse(messageToHandle, response);
             }
             catch { }
 
-            closeResponseStream(messageToHandle);
+            CloseResponseStream(messageToHandle);
         }
 
-        void connectionCheck(Message message, string sender, out string response)
+        void ConnectionCheck(Message message, string sender, out string response)
         {
             response = string.Empty;
-            User user = UserControll.Instance.getUserFromDatabase(message.MessageSender);
+            User user = UserControll.Instance.GetUserFromDatabase(message.MessageSender);
             if (user != null)
             {
-                user.updateLastConnectionCheck(DateTime.Now);
-                user.updateAddress(sender);
+                user.UpdateLastConnectionCheck(DateTime.Now);
+                user.UpdateAddress(sender);
             }
 
             if (message.MessageType == "CHECK_CONNECTION" && message.MessageContent == "CONN_CHECK")
@@ -76,7 +76,7 @@ namespace Server
             }
         }
 
-        void diffieTunnel(Message message, out string response)
+        void DiffieTunnel(Message message, out string response)
         {
             response = string.Empty;
             User user = null;
@@ -85,11 +85,11 @@ namespace Server
             {
                 string newGuid = "TMPUSER_" + Guid.NewGuid().ToString();
                 user = new User(newGuid, "UNKNOWN");
-                UserControll.Instance.addTemporaryUserToDatabase(user);
+                UserControll.Instance.AddTemporaryUserToDatabase(user);
             }
             else
             {
-                user = UserControll.Instance.getUserFromDatabase(message.MessageSender);
+                user = UserControll.Instance.GetUserFromDatabase(message.MessageSender);
             }
 
             if(message.MessageType == "REQUEST_FOR_ID")
@@ -101,18 +101,18 @@ namespace Server
             {
                 Console.WriteLine(message.MessageSender + " exchange pkey.");
                 user.Tunnel.CreateKey(message.MessageContent);
-                response = user.Tunnel.getPublicPart();  
+                response = user.Tunnel.GetPublicPart();  
             }
             else if(message.MessageType == "IV_EXCHANGE")
             {
                 Console.WriteLine(message.MessageSender + " exchange iv.");
-                user.Tunnel.loadIV(message.MessageContent);
+                user.Tunnel.LoadIV(message.MessageContent);
                 response = "CHECK";
             }
             else if(message.MessageType == "CHECK_TUNNEL")
             {
                 Console.WriteLine(message.MessageSender + " checking tunnel.");
-                if(user.Tunnel.diffieDecrypt(message.MessageContent) == "OK")
+                if(user.Tunnel.DiffieDecrypt(message.MessageContent) == "OK")
                 {
                     response = "RDY";
                     user.Tunnel.Status = DiffieHellmanTunnelStatus.ESTABLISHED;
@@ -128,19 +128,19 @@ namespace Server
             }
         }
 
-        void register(Message message, out string response)
+        void Register(Message message, out string response)
         {
             response = string.Empty;
             User user = null;
 
-            user = UserControll.Instance.getUserFromDatabase(message.MessageSender);
+            user = UserControll.Instance.GetUserFromDatabase(message.MessageSender);
 
             if (user != null)
             {
                 if(message.MessageType == "REGISTER_ME")
                 {
                     Console.WriteLine(message.MessageSender + " is about to register.");
-                    string[] registrationInfo = user.Tunnel.diffieDecrypt(message.MessageContent).Split('|');
+                    string[] registrationInfo = user.Tunnel.DiffieDecrypt(message.MessageContent).Split('|');
                     string login = registrationInfo[0];
                     string password = registrationInfo[1];
                     string email = registrationInfo[2];
@@ -155,7 +155,7 @@ namespace Server
                 return;
         }
 
-        void sendResponse(HttpListenerContext context, string response)
+        void SendResponse(HttpListenerContext context, string response)
         {
             try
             {
@@ -166,7 +166,7 @@ namespace Server
             catch { }
         }
 
-        void closeResponseStream(HttpListenerContext context)
+        void CloseResponseStream(HttpListenerContext context)
         {
             try
             {

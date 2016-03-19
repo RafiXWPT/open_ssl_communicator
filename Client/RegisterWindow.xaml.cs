@@ -27,7 +27,7 @@ namespace Client
     public partial class RegisterWindow : Window
     {
         DiffieHellmanTunnel tunnel;
-        private readonly Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.getValueFromKey("REGISTER_API") + "/");
+        private readonly Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("REGISTER_API") + "/");
 
         public RegisterWindow(DiffieHellmanTunnel tunnel)
         {
@@ -47,11 +47,11 @@ namespace Client
                 string toSend = loginTextBox.Text + "|" +
                                 passwordBox.Password + "|" +
                                 emailTextBox.Text;
-                Message registrationMessage = new Message(ConnectionInfo.Sender, "REGISTER_ME", "NO_DESTINATION", tunnel.diffieEncrypt(toSend));
+                Message registrationMessage = new Message(ConnectionInfo.Sender, "REGISTER_ME", "NO_DESTINATION", tunnel.DiffieEncrypt(toSend));
                 using (WebClient client = new WebClient())
                 {
                     client.Proxy = null;
-                    string reply = NetworkController.Instance.sendMessage(uriString, client, registrationMessage);
+                    string reply = NetworkController.Instance.SendMessage(uriString, client, registrationMessage);
                     MessageBox.Show(reply);
                 }
 

@@ -40,7 +40,7 @@ namespace Server
                         ThreadPool.QueueUserWorkItem((c) =>
                         {
                             HttpListenerContext ctx = c as HttpListenerContext;
-                            _handler.handleMessage(ctx);
+                            _handler.HandleMessage(ctx);
                             
                         }, _listener.GetContext());
                     }
