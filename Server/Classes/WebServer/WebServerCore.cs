@@ -39,7 +39,6 @@ namespace Server
                     {
                         ThreadPool.QueueUserWorkItem((c) =>
                         {
-                            //Console.WriteLine("New request received.");
                             HttpListenerContext ctx = c as HttpListenerContext;
                             _handler.handleMessage(ctx);
                             

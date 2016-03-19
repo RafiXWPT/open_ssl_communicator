@@ -12,26 +12,21 @@ namespace Client
         private ConnectionChecker connectionChecker;
         private NetworkController networkController;
 
-        public MainWindow()
+        public MainWindow(ConnectionChecker connectionChecker, NetworkController networkController)
         {
             InitializeComponent();
+            this.connectionChecker = connectionChecker;
+            this.networkController = networkController;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            connectionChecker = new ConnectionChecker();
-            networkController = new NetworkController();
 
-            connectionChecker.startCheckConnection();
-
-            Thread test = new Thread(testThread);
-            test.Start();
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            RegisterWindow wnd = new RegisterWindow();
-            wnd.ShowDialog();
+
         }
 
         private void button2_Click(object sender, RoutedEventArgs e)

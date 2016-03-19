@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="ChatWindow" Height="346.023" Width="300" MaxHeight="350" MaxWidth="300">
+        Title="ChatWindow" Height="346.023" Width="300" MaxHeight="350" MaxWidth="300" Icon="programIcon.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="200" MinHeight="150" MaxHeight="250"/>

@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using SystemMessage;
+using SystemSecurity;
 
 namespace Server
 {
@@ -30,7 +31,7 @@ namespace Server
                 }
                 else if (wantedUrl == "/register/")
                 {
-
+                    register(message, out response);
                 }
                 else if (wantedUrl == "/logIn/")
                 {
@@ -45,7 +46,7 @@ namespace Server
                 }
                 else
                 {
-                    response = "404";
+                    response = string.Empty;
                 }
 
                 sendResponse(messageToHandle, response);
@@ -58,22 +59,19 @@ namespace Server
         void connectionCheck(Message message, string sender, out string response)
         {
             response = string.Empty;
-            User usr = UserControll.Instance.getUserFromDatabase(message.MessageSender);
-            if(usr != null)
+            User user = UserControll.Instance.getUserFromDatabase(message.MessageSender);
+            if (user != null)
             {
-                usr.updateLastConnectionCheck(DateTime.Now);
-                usr.updateAddress(sender);
+                user.updateLastConnectionCheck(DateTime.Now);
+                user.updateAddress(sender);
             }
 
-            Console.WriteLine("Client: " + sender + " is checking connection.");
             if (message.MessageType == "CHECK_CONNECTION" && message.MessageContent == "CONN_CHECK")
             {
-                Console.WriteLine("Connection check was confirmed for: " + sender);
                 response = "CONN_AVAIL";
             }
             else
             {
-                Console.WriteLine("Connection check message of " + sender + " has bad content");
                 response = "BAD_CONTENT";
             }
         }
@@ -117,7 +115,7 @@ namespace Server
                 if(user.Tunnel.diffieDecrypt(message.MessageContent) == "OK")
                 {
                     response = "RDY";
-                    user.Tunnel.Established = true;
+                    user.Tunnel.Status = DiffieHellmanTunnelStatus.ESTABLISHED;
                 }
                 else
                 {
@@ -126,8 +124,35 @@ namespace Server
             }
             else
             {
-                response = "404";
+                response = string.Empty;
             }
+        }
+
+        void register(Message message, out string response)
+        {
+            response = string.Empty;
+            User user = null;
+
+            user = UserControll.Instance.getUserFromDatabase(message.MessageSender);
+
+            if (user != null)
+            {
+                if(message.MessageType == "REGISTER_ME")
+                {
+                    Console.WriteLine(message.MessageSender + " is about to register.");
+                    string[] registrationInfo = user.Tunnel.diffieDecrypt(message.MessageContent).Split('|');
+                    string login = registrationInfo[0];
+                    string password = registrationInfo[1];
+                    string email = registrationInfo[2];
+
+                    Console.WriteLine("Login: " + login);
+                    Console.WriteLine("Password: " + password);
+                    Console.WriteLine("Mail: " + email);
+                    response = "ECHO: " + login + "," + password + "," + email ;
+                }
+            }
+            else
+                return;
         }
 
         void sendResponse(HttpListenerContext context, string response)
