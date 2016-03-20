@@ -13,6 +13,7 @@ namespace Server.Classes.DbAccess
 {
     public class UsersDao
     {
+
         public bool IsUserExist(string username)
         {
             IMongoCollection<BsonDocument> usersCollection = MongoDbAccess.GetUsersCollection();
@@ -44,6 +45,21 @@ namespace Server.Classes.DbAccess
             return result.Any();
         }
 
+        public List<User> LoadUsers()
+        {
+            List<User> users = new List<User>();
+            IMongoCollection<BsonDocument> usersCollection = MongoDbAccess.GetUsersCollection();
+            using (var cursor = usersCollection.Find(new BsonDocument()).ToCursor())
+            {
+                while (cursor.MoveNext())
+                {
+                    var batch = cursor.Current;
+                    users.AddRange(batch.ToList().ConvertAll(document => new User(document["_id"].AsString)));
+                }
+            }
+            return users;
+        } 
+
         public void RemoveUser(UserPasswordData userPasswordData)
         {
             IMongoCollection<BsonDocument> usersCollection = MongoDbAccess.GetUsersCollection();
@@ -51,7 +67,7 @@ namespace Server.Classes.DbAccess
             DeleteResult result = usersCollection.DeleteOne(filter);
             if (!result.IsAcknowledged)
             {
-                throw new UnsuccessfulQueryException("User was not deleted successfully");
+                throw new UnsuccessfulQueryException("User " + userPasswordData.Username + " was not deleted successfully");
             }
         }
 

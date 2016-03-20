@@ -1,27 +1,28 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CommunicatorCore.Classes.Model
 {
-    public class Message
+    public class Message: INetworkMessage
     {
         public string MessageSender { get; set; }
-        public string MessageType { get; set; }
         public string MessageDestination { get; set; }
         public string MessageContent { get; set; }
-        public DateTime MessageDate;
+        public DateTime MessageDate { get; set; }
 
-        public Message(string messageSender, string messageType = "NO_TYPE", string messageDestination = "NO_DESTINATION", string messageContent = "NO_CONTENT")
+        public Message(string sender, string destionation, string content)
         {
-            MessageSender = messageSender;
-            MessageType = messageType;
-            MessageDestination = messageDestination;
-            MessageContent = messageContent;
-            MessageDate = DateTime.Now;
+            this.MessageSender = sender;
+            this.MessageDestination = destionation;
+            this.MessageContent = content;
+            this.MessageDate = DateTime.Now;
         }
 
-        public Message(): this(null)
-        {}
+        public Message() { }
 
         public void LoadJson(string jsonString)
         {
@@ -29,7 +30,6 @@ namespace CommunicatorCore.Classes.Model
             {
                 Message tmp = JsonConvert.DeserializeObject<Message>(jsonString);
                 this.MessageSender = tmp.MessageSender;
-                this.MessageType = tmp.MessageType;
                 this.MessageDestination = tmp.MessageDestination;
                 this.MessageContent = tmp.MessageContent;
             }

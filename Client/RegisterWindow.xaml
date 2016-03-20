@@ -7,12 +7,10 @@
         mc:Ignorable="d"
         Title="Register" Height="270" Width="190" Loaded="Window_Loaded" Icon="programIcon.ico" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FFCDCDCD">
     <Grid>
-        <Label x:Name="loginLabel" Content="Login" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top"/>
-            <TextBox x:Name="loginTextBox" HorizontalAlignment="Center" Height="23" Margin="0,40,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="emailLabel" Content="Email" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top"/>
+            <TextBox x:Name="emailTextBox" HorizontalAlignment="Center" Height="23" Margin="0,40,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
             <Label x:Name="passwordLabel" Content="Password" HorizontalAlignment="Center" Margin="0,70,0,0" VerticalAlignment="Top"/>
             <PasswordBox x:Name="passwordBox" HorizontalAlignment="Center" Height="23" Margin="0,100,0,0" VerticalAlignment="Top" Width="120"/>
-            <Label x:Name="emailLabel" Content="Email" HorizontalAlignment="Center" Margin="0,130,0,0" VerticalAlignment="Top"/>
-            <TextBox x:Name="emailTextBox" HorizontalAlignment="Center" Height="23" Margin="0,160,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
         <Button x:Name="sendBtn" Content="SEND" HorizontalAlignment="Center" Margin="0,190,0,0" VerticalAlignment="Top" Width="120" Click="SEND_Click"/>
     </Grid>
 </Window>

@@ -47,6 +47,8 @@
     <Compile Include="Classes\Model\Contact.cs" />
     <Compile Include="Classes\Model\Enums.cs" />
     <Compile Include="Classes\Exceptions\UnsuccessfulQueryException.cs" />
+    <Compile Include="Classes\Model\ControlMessage.cs" />
+    <Compile Include="Classes\Model\INetworkMessage.cs" />
     <Compile Include="Classes\Model\Message.cs" />
     <Compile Include="Classes\Model\UserPasswordData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

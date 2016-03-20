@@ -4,13 +4,14 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace CommunicatorCore.Classes.Model
 {
-    public class UserPasswordData
+    public class UserPasswordData: INetworkMessage
     {
-        public readonly string Username;
-        public readonly string HashedPassword;
+        public string Username;
+        public string HashedPassword;
 
         public UserPasswordData(string username, string password)
         {
@@ -18,8 +19,31 @@ namespace CommunicatorCore.Classes.Model
             using (var sha1 = SHA1.Create())
             {
                 byte[] hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(password));
-                this.HashedPassword = Encoding.UTF8.GetString(hashBytes);
+                HashedPassword = Encoding.UTF8.GetString(hashBytes);
             }
+        }
+
+        public UserPasswordData()
+        {
+        }
+
+        public void LoadJson(string jsonString)
+        {
+            try
+            {
+                UserPasswordData tmp = JsonConvert.DeserializeObject<UserPasswordData>(jsonString);
+                this.Username = tmp.Username;
+                this.HashedPassword = tmp.HashedPassword;
+            }
+            catch
+            {
+
+            }
+        }
+
+        public string GetJsonString()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 }

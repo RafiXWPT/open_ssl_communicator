@@ -11,6 +11,11 @@
         FAILURE
     }
 
+    public enum ControlMessageType
+    {
+
+    }
+
     public enum CiherType
     {
         AES,

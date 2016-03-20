@@ -44,10 +44,10 @@ namespace Client
         {
             if(tunnel.Status == DiffieHellmanTunnelStatus.ESTABLISHED)
             {
-                string toSend = loginTextBox.Text + "|" +
-                                passwordBox.Password + "|" +
-                                emailTextBox.Text;
-                Message registrationMessage = new Message(ConnectionInfo.Sender, "REGISTER_ME", "NO_DESTINATION", tunnel.DiffieEncrypt(toSend));
+                // We should validate input somehow
+                UserPasswordData userPasswordData = new UserPasswordData(emailTextBox.Text, passwordBox.Password);
+                string toSend = userPasswordData.GetJsonString();
+                ControlMessage registrationMessage = new ControlMessage(ConnectionInfo.Sender, "REGISTER_ME", tunnel.DiffieEncrypt(toSend));
                 using (WebClient client = new WebClient())
                 {
                     client.Proxy = null;

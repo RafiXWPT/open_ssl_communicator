@@ -39,7 +39,7 @@ namespace Client
             {
                 while (CheckConnection)
                 {
-                    Message message = new Message(ConnectionInfo.Sender, "CHECK_CONNECTION", "NO_DESTINATION", "CONN_CHECK");
+                    ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "CHECK_CONNECTION", "CONN_CHECK");
                     Stopwatch watch = new Stopwatch();
 
                     using (WebClient client = new WebClient())

@@ -22,7 +22,7 @@ namespace Client
             instance = this;
         }
 
-        public string SendMessage(Uri address, WebClient client, Message message)
+        public string SendMessage(Uri address, WebClient client, ControlMessage message)
         {
             NameValueCollection headers = new NameValueCollection();
 

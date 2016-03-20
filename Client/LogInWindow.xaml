@@ -15,7 +15,7 @@
         <TextBox x:Name="loginBox" HorizontalAlignment="Left" Height="30" Margin="95,121,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
         <PasswordBox x:Name="passwordBox" HorizontalAlignment="Left" Height="30" Width="120" Margin="95,156,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
         <Button x:Name="confirmBtn" Content="Confirm" HorizontalAlignment="Left" Margin="95,191,0,0" VerticalAlignment="Top" Width="120" Height="30" Click="confirmBtn_Click"/>
-        <Label x:Name="dnthvaccLabel" Content="Don't have account?" HorizontalAlignment="Left" Margin="48,226,0,0" VerticalAlignment="Top" Height="30" VerticalContentAlignment="Center"/>
+        <Label x:Name="dnthvaccLabel" Content="Don't have an account?" HorizontalAlignment="Left" Margin="48,226,0,0" VerticalAlignment="Top" Height="30" VerticalContentAlignment="Center"/>
         <Button x:Name="registerBtn" Content="Register" HorizontalAlignment="Left" Margin="185,226,0,0" VerticalAlignment="Top" Width="60" Height="30" Click="registerBtn_Click"/>
 
     </Grid>

@@ -14,9 +14,8 @@ namespace Server
         Online
     }
 
-    class User
+    public class User
     {
-        public string ID { get; }
         public string Name { get; }
         string Address { get; set; }
         DateTime LastConnectionCheck { get; set; }
@@ -26,11 +25,16 @@ namespace Server
         public DiffieHellmanTunnel Tunnel { get; }
         //
 
-        public User(string ID, string name)
+        public User(string name)
         {
-            this.ID = ID;
             Name = name;
             Tunnel = new DiffieHellmanTunnel();
+        }
+
+        public User(string name, DiffieHellmanTunnel tunnel)
+        {
+            this.Name = name;
+            this.Tunnel = tunnel;
         }
 
         public void UpdateAddress(string address)
@@ -51,6 +55,29 @@ namespace Server
         public DateTime LastConCheck()
         {
             return LastConnectionCheck;
+        }
+
+        public bool IsActive()
+        {
+            return DateTime.Now.AddMinutes(-10).CompareTo(LastConnectionCheck) > 0;
+        }
+
+
+     // Risky methods?
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            if (obj.GetType() != this.GetType())
+                return false;
+            User other = (User) obj;
+            return Name.Equals(other.Name);
+        }
+
+        
+        public override int GetHashCode()
+        {
+            return 31 + Name.GetHashCode();
         }
     }
 }

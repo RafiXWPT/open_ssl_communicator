@@ -11,7 +11,7 @@ namespace Server
     class WebServerCore
     {
         private readonly HttpListener _listener = new HttpListener();
-        private readonly MessageHandler _handler = new MessageHandler();
+        private readonly RequestHandler _handler = new RequestHandler();
         private string[] prefixes;
 
         private readonly UserControll controll = new UserControll();
@@ -40,7 +40,7 @@ namespace Server
                         ThreadPool.QueueUserWorkItem((c) =>
                         {
                             HttpListenerContext ctx = c as HttpListenerContext;
-                            _handler.HandleMessage(ctx);
+                            _handler.HandleRequest(ctx);
                             
                         }, _listener.GetContext());
                     }

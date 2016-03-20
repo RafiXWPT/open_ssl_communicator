@@ -54,10 +54,12 @@
     <Reference Include="MongoDB.Driver.Core, Version=2.2.0.262, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\ContactControl.cs" />
+    <Compile Include="Classes\MessageControl.cs" />
     <Compile Include="Classes\Security\DiffieHellmanTunnel.cs" />
     <Compile Include="Classes\User.cs" />
     <Compile Include="Classes\UserControll.cs" />
-    <Compile Include="Classes\WebServer\MessageHandler.cs" />
+    <Compile Include="Classes\WebServer\RequestHandler.cs" />
     <Compile Include="Classes\WebServer\WebServerCore.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

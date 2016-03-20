@@ -77,7 +77,7 @@ namespace Client
             string reply = string.Empty;
             try
             {
-                Message message = new Message("UNKNOWN", "REQUEST_FOR_ID", "NO_DESTINATION", "NO_CONTENT");
+                ControlMessage message = new ControlMessage("UNKNOWN", "REQUEST_FOR_ID", "NO_CONTENT");
                 reply = NetworkController.Instance.SendMessage(uriString, client, message);
             }
             catch
@@ -99,7 +99,7 @@ namespace Client
 
             try
             {
-                Message message = new Message(ConnectionInfo.Sender, "PUBLIC_KEY_EXCHANGE", "NO_DESTINTAION", tunnel.GetPublicPart());
+                ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "PUBLIC_KEY_EXCHANGE", tunnel.GetPublicPart());
                 reply = NetworkController.Instance.SendMessage(uriString, client, message);
             }
             catch
@@ -120,7 +120,7 @@ namespace Client
             string reply = string.Empty;
             try
             {
-                Message message = new Message(ConnectionInfo.Sender, "IV_EXCHANGE", "NO_DESTINTAION", tunnel.GetIV());
+                ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "IV_EXCHANGE", tunnel.GetIV());
                 reply = NetworkController.Instance.SendMessage(uriString, client, message);
             }
             catch
@@ -141,7 +141,7 @@ namespace Client
             string reply = string.Empty;
             try
             {
-                Message message = new Message(ConnectionInfo.Sender, "CHECK_TUNNEL", "NO_DESTINTAION", tunnel.DiffieEncrypt("OK"));
+                ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "CHECK_TUNNEL", tunnel.DiffieEncrypt("OK"));
                 reply = NetworkController.Instance.SendMessage(uriString, client, message);
             }
             catch

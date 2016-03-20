@@ -47,7 +47,7 @@ namespace Client
 
         void SendMessage()
         {
-            Message message = new Message("THATS ME", "CHAT_MESSAGE", "WHATEVER", chatText.Text);
+            Message message = new Message("THATS ME", "TO ANYONE", chatText.Text);
             using (var wb = new WebClient())
             {
                 wb.Proxy = null;
@@ -55,9 +55,7 @@ namespace Client
                 headers["messageContent"] = message.GetJsonString();
                 wb.Headers.Add(headers);
                 data["DateTime"] = DateTime.Now.ToShortDateString();
-                byte[] response;
-
-                response = wb.UploadValues(talkingTo, "POST", data);
+                byte[] response = wb.UploadValues(talkingTo, "POST", data);
                 listBox.Items.Add(Encoding.UTF8.GetString(response));
                 chatText.Text = string.Empty;
             }

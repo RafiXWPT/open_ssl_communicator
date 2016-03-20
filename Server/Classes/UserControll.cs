@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CommunicatorCore.Classes.Model;
+using Server.Classes.DbAccess;
 
 namespace Server
 {
@@ -14,42 +16,51 @@ namespace Server
             get { return instance; }
         }
 
-        List<User> users = new List<User>();
-        // NIBYDATABASE!!
-        User user1 = new User("1", "Rafał Palej");
-        User user2 = new User("2", "Mateusz Flis");
-        User user3 = new User("3", "Szymon Dąbrowski");
-        //
+        private readonly UsersDao _usersDao;
+
+        ISet<User> users = new HashSet<User>();
 
         public UserControll()
         {
             instance = this;
+            _usersDao = new UsersDao();
             LoadUsersFromDatabase();
         }
 
         void LoadUsersFromDatabase()
         {
-            // NIBYLADOWANIE
-            users.Add(user1);
-            users.Add(user2);
-            users.Add(user3);
+            users = new HashSet<User>(_usersDao.LoadUsers());
         }
 
-        public void AddUserToDatabase(User user)
+        public void AddUserToDatabase(UserPasswordData userPasswordData)
         {
-            //DODAWANIE DO BAZY
-            users.Add(user);
+            _usersDao.InsertUser(userPasswordData);
+
         }
 
-        public void AddTemporaryUserToDatabase(User user)
+        public void AddTemporaryUserToApplication(User user)
         {
             //DODAWANIE TYLKO DO LOKALNEGO OBIEKTU
             users.Add(user);
         }
 
-        public User GetUserFromDatabase(string id)
+        public User GetUserFromApplication(string username)
         {
-            return users.Find(user => user.ID == id);
+            return users.ToList().Find(user => user.Name == username);
         }
+
+        public bool CheckIsUserExist(string username)
+        {
+            return _usersDao.IsUserExist(username);
+        }
+
+//        Do we really need to copy tunnel value?
+        public void AddUserToApplication(string tempUserName, string loggedUserName)
+        {
+            User tempUser = users.ToList().Find(user => user.Name == tempUserName);
+            User newUser = new User(loggedUserName, tempUser.Tunnel);
+            users.Add(newUser);
+        }
+        
     }
 }
