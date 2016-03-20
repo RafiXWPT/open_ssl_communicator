@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,6 +15,7 @@ using System.Windows.Shapes;
 using DiffieHellman;
 using SystemSecurity;
 using System.Threading;
+using CommunicatorCore.Classes.Model;
 
 namespace Client
 {
@@ -26,6 +28,7 @@ namespace Client
         private DiffieHellmanTunnelCreator tunnelCreator = new DiffieHellmanTunnelCreator();
         private ConnectionChecker connectionChecker;
         private NetworkController networkController;
+        private readonly Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("LOGIN_API") + "/");
 
         public LogInWindow()
         {
@@ -76,7 +79,15 @@ namespace Client
         {
             if (CheckConnectionStatus())
             {
-
+                UserPasswordData userPasswordData = new UserPasswordData(loginBox.Text, passwordBox.Password);
+                string toSend = userPasswordData.GetJsonString();
+                ControlMessage loginMessage = new ControlMessage(ConnectionInfo.Sender, "LOG_IN", tunnel.DiffieEncrypt(toSend));
+                using (WebClient client = new WebClient())
+                {
+                    client.Proxy = null;
+                    string reply = NetworkController.Instance.SendMessage(uriString, client, loginMessage);
+                    MessageBox.Show(reply);
+                }
             }
         }
 

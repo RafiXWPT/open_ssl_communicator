@@ -52,7 +52,6 @@ namespace Client
 
             if(creator.isTunnelActive(tunnel))
             {
-                // We should validate input somehow
                 UserPasswordData userPasswordData = new UserPasswordData(emailTextBox.Text, passwordBox.Password);
                 string toSend = userPasswordData.GetJsonString();
                 ControlMessage registrationMessage = new ControlMessage(ConnectionInfo.Sender, "REGISTER_ME", tunnel.DiffieEncrypt(toSend));
@@ -60,13 +59,33 @@ namespace Client
                 {
                     client.Proxy = null;
                     string reply = NetworkController.Instance.SendMessage(uriString, client, registrationMessage);
-                    MessageBox.Show(reply);
+                    HandleRegisterResponse(reply);
                 }
             }
             else
             {
                 MessageBox.Show("Diffie Hellman Tunnel is not established. Establishing new one.");
                 tunnel = creator.EstablishTunnel();
+            }
+        }
+
+        private void HandleRegisterResponse(string reply)
+        {
+            ControlMessage returnedControlMessage = new ControlMessage();
+            returnedControlMessage.LoadJson(reply);
+            MessageBox.Show(tunnel.DiffieDecrypt(returnedControlMessage.MessageContent));
+            string messageType = returnedControlMessage.MessageType;
+            if (messageType == "REGISTER_OK")
+            {
+                // We should dispose of this window
+            }
+            else if (messageType == "REGISTER_INVALID")
+            {
+                // As below i think   
+            }
+            else
+            {
+                // We should encourage user to try use different username etc
             }
         }
     }
