@@ -54,6 +54,11 @@ namespace Server
             return _usersDao.IsUserExist(username);
         }
 
+        public bool IsUserValid(UserPasswordData userPassword)
+        {
+            return _usersDao.ValidateUserCredentials(userPassword);
+        }
+
 //        Do we really need to copy tunnel value?
         public void AddUserToApplication(string tempUserName, string loggedUserName)
         {

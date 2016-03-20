@@ -67,7 +67,6 @@ namespace DiffieHellman
 
         public string DiffieDecrypt(string cipher)
         {
-            string decryptedMessage = string.Empty;
             byte[] cipherMessage = Convert.FromBase64String(cipher);
 
             using (MemoryStream plaintext = new MemoryStream())
@@ -75,10 +74,8 @@ namespace DiffieHellman
             {
                     cs.Write(cipherMessage, 0, cipherMessage.Length);
                     cs.Close();
-                    decryptedMessage = Encoding.UTF8.GetString(plaintext.ToArray());
+                    return Encoding.UTF8.GetString(plaintext.ToArray());
             }
-
-            return decryptedMessage;
         }
     }
 }

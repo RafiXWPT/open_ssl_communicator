@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SystemSecurity;
 ﻿using CommunicatorCore.Classes.Model;
+using MongoDB.Driver;
 using Server.Classes;
 
 namespace Server
@@ -140,20 +141,28 @@ namespace Server
 
             if (user != null)
             {
-                if(message.MessageType == "REGISTER_ME")
+                if (message.MessageType == "REGISTER_ME")
                 {
                     Console.WriteLine(message.MessageSender + " is about to register.");
                     UserPasswordData userPasswordData = new UserPasswordData();
                     userPasswordData.LoadJson(user.Tunnel.DiffieDecrypt(message.MessageContent));
+                    ControlMessage controlMessage;
+                    // We should check if credentials are in valid format                 
+                    // if ( !RegisterFormatValidator.IsValid(userPasswordData.Username)) {
+                    // Some action here
+                    // }
                     if (UserControll.Instance.CheckIsUserExist(userPasswordData.Username))
                     {
-                        response = "ECHO: Fuck off, taki user już istnieje";
+                        string responseContent = user.Tunnel.DiffieEncrypt("Taki użytkownik już istnieje");
+                        controlMessage = new ControlMessage("SERVER", "REGISTER_INVALID", responseContent);
                     }
                     else
                     {
                         UserControll.Instance.AddUserToDatabase(userPasswordData);
-                        response = "ECHO: " + userPasswordData.Username + "," + userPasswordData.HashedPassword;
+                        string responseContent = user.Tunnel.DiffieEncrypt("Użytkownik zarejestrowany pomyślnie. Sprawdź swój email w celu załadowania kluczy.");
+                        controlMessage = new ControlMessage("SERVER", "REGISTER_OK", responseContent);
                     }
+                    response = controlMessage.GetJsonString();
                 }
             }
         }
@@ -171,6 +180,10 @@ namespace Server
                 if (!UserControll.Instance.CheckIsUserExist(userPasswordData.Username))
                 {
                     response = "ECHO: taki user nie istnieje";
+                }
+                else if (!UserControll.Instance.IsUserValid(userPasswordData))
+                {
+                    response = "ECHO: niepoprawne credentiale";
                 }
                 else
                 {
