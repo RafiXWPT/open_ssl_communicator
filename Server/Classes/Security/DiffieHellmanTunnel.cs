@@ -67,14 +67,13 @@ namespace DiffieHellman
 
         public string DiffieDecrypt(string cipher)
         {
-            byte[] cipherMessage = Convert.FromBase64String(cipher);
-
             using (MemoryStream plaintext = new MemoryStream())
             using (CryptoStream cs = new CryptoStream(plaintext, aes.CreateDecryptor(), CryptoStreamMode.Write))
             {
-                    cs.Write(cipherMessage, 0, cipherMessage.Length);
-                    cs.Close();
-                    return Encoding.UTF8.GetString(plaintext.ToArray());
+                byte[] cipherMessage = Convert.FromBase64String(cipher);
+                cs.Write(cipherMessage, 0, cipherMessage.Length);
+                cs.Close();
+                return Encoding.UTF8.GetString(plaintext.ToArray());
             }
         }
     }

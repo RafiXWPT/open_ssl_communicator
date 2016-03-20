@@ -16,6 +16,8 @@ using DiffieHellman;
 using SystemSecurity;
 using System.Threading;
 using CommunicatorCore.Classes.Model;
+using WpfAnimatedGif;
+
 
 namespace Client
 {
@@ -86,8 +88,28 @@ namespace Client
                 {
                     client.Proxy = null;
                     string reply = NetworkController.Instance.SendMessage(uriString, client, loginMessage);
-                    MessageBox.Show(reply);
+                    HandleLogInResponse(reply);
                 }
+            }
+        }
+
+        private void HandleLogInResponse(string reply)
+        {
+            ControlMessage returnedControlMessage = new ControlMessage();
+            returnedControlMessage.LoadJson(reply);
+            MessageBox.Show(tunnel.DiffieDecrypt(returnedControlMessage.MessageContent));
+            string messageType = returnedControlMessage.MessageType;
+            if (messageType == "REGISTER_OK")
+            {
+                // We should dispose of this window
+            }
+            else if (messageType == "REGISTER_INVALID")
+            {
+                // As below i think   
+            }
+            else
+            {
+                // We should encourage user to try use different username etc
             }
         }
 

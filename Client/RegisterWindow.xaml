@@ -4,13 +4,23 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
-        Title="Register" Height="270" Width="190" Loaded="Window_Loaded" Icon="programIcon.ico" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FFCDCDCD">
+        Title="Register" Height="249.091" Width="303.693" Loaded="Window_Loaded" Icon="programIcon.ico" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FFCDCDCD">
     <Grid>
-        <Label x:Name="emailLabel" Content="Email" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top"/>
-            <TextBox x:Name="emailTextBox" HorizontalAlignment="Center" Height="23" Margin="0,40,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
-            <Label x:Name="passwordLabel" Content="Password" HorizontalAlignment="Center" Margin="0,70,0,0" VerticalAlignment="Top"/>
-            <PasswordBox x:Name="passwordBox" HorizontalAlignment="Center" Height="23" Margin="0,100,0,0" VerticalAlignment="Top" Width="120"/>
-        <Button x:Name="sendBtn" Content="SEND" HorizontalAlignment="Center" Margin="0,190,0,0" VerticalAlignment="Top" Width="120" Click="SEND_Click"/>
+        <Label x:Name="emailLabel" Content="Email:" HorizontalAlignment="Left" Margin="10,10,30,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="emailTextBox" HorizontalAlignment="Left" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="30" Margin="10,40,30,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="200" KeyUp="emailTextBox_KeyUp" KeyDown="emailTextBox_KeyDown"/>
+        <Label x:Name="passwordLabel" Content="Password:" HorizontalAlignment="Left" Margin="10,70,30,0" VerticalAlignment="Top"/>
+        <PasswordBox x:Name="passwordBox" HorizontalAlignment="Left" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="30" Margin="10,100,30,0" VerticalAlignment="Top" Width="200" KeyDown="passwordBox_KeyDown" KeyUp="passwordBox_KeyUp" />
+        <Button x:Name="sendBtn" Content="Register" HorizontalAlignment="Left" Margin="10,152,0,0" VerticalAlignment="Top" Height="30" Width="200" Click="SEND_Click"/>
+
+        <Image x:Name="emailImageValid" HorizontalAlignment="Left" Height="30" Margin="215,40,0,0" VerticalAlignment="Top" Width="30" Source="bad.png" Visibility="Hidden"/>
+        <Image x:Name="passwordImageValid" HorizontalAlignment="Left" Height="30" Margin="215,100,0,0" VerticalAlignment="Top" Width="30" Source="bad.png" Visibility="Hidden"/>
+
+        <Image x:Name="checkingEmail" gif:ImageBehavior.RepeatBehavior="Forever" gif:ImageBehavior.AnimatedSource="checking.gif" Margin="215,35,30,135" gif:ImageBehavior.AutoStart="True" Visibility="Hidden" Stretch="Fill"/>
+        <Image x:Name="checkingPassword" gif:ImageBehavior.RepeatBehavior="Forever" gif:ImageBehavior.AnimatedSource="checking.gif" Margin="215,95,30,75" gif:ImageBehavior.AutoStart="True" Visibility="Hidden" Stretch="Fill"/>
+        
+        <Label x:Name="emailToolTip" Content="Use ProtonMail address" HorizontalAlignment="Left" Margin="48,18,0,0" VerticalAlignment="Top" FontSize="10" FontStyle="Italic"/>
+        <Label x:Name="passwordToolTip" Content="At least one big, number and special character" HorizontalAlignment="Left" Margin="70,79,0,0" VerticalAlignment="Top" FontSize="10" FontStyle="Italic"/>
     </Grid>
 </Window>

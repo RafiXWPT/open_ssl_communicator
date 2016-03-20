@@ -13,41 +13,47 @@ namespace Server
 {
     public class RequestHandler
     {
-        public void HandleRequest(HttpListenerContext messageToHandle)
+        public void HandleRequest(HttpListenerContext userToHandle)
         {
-            string wantedUrl = messageToHandle.Request.RawUrl;
-            string sender = messageToHandle.Request.RemoteEndPoint.Address.ToString();
+            string wantedUrl = userToHandle.Request.RawUrl;
+            string sender = userToHandle.Request.RemoteEndPoint.Address.ToString();
             string response = string.Empty;
-            string messageContent = messageToHandle.Request.Headers["messageContent"];
+            string messageContent = userToHandle.Request.Headers["messageContent"];
             try
             {
-                ControlMessage message = ParseMessageContent(messageContent);
                 if (wantedUrl == "/connectionCheck/")
                 {
+                    ControlMessage message = ParseMessageContent(messageContent);
                     ConnectionCheck(message, sender, out response);
                 }
                 else if (wantedUrl == "/diffieTunnel/")
                 {
+                    ControlMessage message = ParseMessageContent(messageContent);
                     DiffieTunnel(message, out response);
                 }
                 else if (wantedUrl == "/register/")
                 {
+                    ControlMessage message = ParseMessageContent(messageContent);
                     Register(message, out response);
                 }
                 else if (wantedUrl == "/logIn/")
                 {
+                    ControlMessage message = ParseMessageContent(messageContent);
                     LogIn(message, out response);
                 }
                 else if(wantedUrl == "/sendChatMessage/")
                 {
+                    ControlMessage message = ParseMessageContent(messageContent);
                     SendChatMessage(message, out response);
                 }
                 else if (wantedUrl == "/contacts/")
                 {
+                    ControlMessage message = ParseMessageContent(messageContent);
                     HandleContactMessage(message, out response);
                 }
                 else if (wantedUrl == "/history/")
                 {
+                    ControlMessage message = ParseMessageContent(messageContent);
                     HandleMessageHistory(message, out response);
                 }
                 else
@@ -55,17 +61,18 @@ namespace Server
                     response = string.Empty;
                 }
 
-                SendResponse(messageToHandle, response);
+                SendResponse(userToHandle, response);
             }
             catch { }
 
-            CloseResponseStream(messageToHandle);
+            CloseResponseStream(userToHandle);
         }
 
         void ConnectionCheck(ControlMessage message, string sender, out string response)
         {
             response = string.Empty;
             User user = UserControll.Instance.GetUserFromApplication(message.MessageSender);
+
             if (user != null)
             {
                 user.UpdateLastConnectionCheck(DateTime.Now);
@@ -89,7 +96,7 @@ namespace Server
 
             if (message.MessageSender == "UNKNOWN")
             {
-                string newGuid = "TMPUSER_" + Guid.NewGuid();
+                string newGuid = "TMP_" + Guid.NewGuid();
                 user = new User(newGuid);
                 UserControll.Instance.AddTemporaryUserToApplication(user);
             }
@@ -147,21 +154,24 @@ namespace Server
                     UserPasswordData userPasswordData = new UserPasswordData();
                     userPasswordData.LoadJson(user.Tunnel.DiffieDecrypt(message.MessageContent));
                     ControlMessage controlMessage;
-                    // We should check if credentials are in valid format                 
-                    // if ( !RegisterFormatValidator.IsValid(userPasswordData.Username)) {
-                    // Some action here
-                    // }
+
+                    string responseContent;
                     if (UserControll.Instance.CheckIsUserExist(userPasswordData.Username))
                     {
-                        string responseContent = user.Tunnel.DiffieEncrypt("Taki użytkownik już istnieje");
-                        controlMessage = new ControlMessage("SERVER", "REGISTER_INVALID", responseContent);
+                        Console.WriteLine("Requested user already exist.");
+                        responseContent = user.Tunnel.DiffieEncrypt("REGISTER_INVALID");
                     }
                     else
                     {
+                        Console.WriteLine("User added to database, registration succesfull");
+                        string[] keys = KeyGenerator.GenerateKeyPair();
+                        EmailMessage emailMessage = new EmailMessage("OpenSSL Registration", keys, userPasswordData.Username);
                         UserControll.Instance.AddUserToDatabase(userPasswordData);
-                        string responseContent = user.Tunnel.DiffieEncrypt("Użytkownik zarejestrowany pomyślnie. Sprawdź swój email w celu załadowania kluczy.");
-                        controlMessage = new ControlMessage("SERVER", "REGISTER_OK", responseContent);
+                        responseContent = user.Tunnel.DiffieEncrypt("REGISTER_OK");
+                        emailMessage.Send();
                     }
+
+                    controlMessage = new ControlMessage("SERVER", "REGISTER_INFO", responseContent);
                     response = controlMessage.GetJsonString();
                 }
             }
@@ -176,20 +186,27 @@ namespace Server
             {
                 Console.WriteLine(message.MessageSender + " is trying to log in.");
                 UserPasswordData userPasswordData = new UserPasswordData();
+                string responseContent  = string.Empty;
                 userPasswordData.LoadJson(user.Tunnel.DiffieDecrypt(message.MessageContent));
                 if (!UserControll.Instance.CheckIsUserExist(userPasswordData.Username))
                 {
-                    response = "ECHO: taki user nie istnieje";
+                    Console.WriteLine("user not exist");
+                    responseContent = user.Tunnel.DiffieEncrypt("USER_NOT_EXIST");
                 }
                 else if (!UserControll.Instance.IsUserValid(userPasswordData))
                 {
-                    response = "ECHO: niepoprawne credentiale";
+                    Console.WriteLine("badpass");
+                    responseContent = user.Tunnel.DiffieEncrypt("BAD_LOGIN_OR_PASSWORD");
                 }
                 else
                 {
+                    Console.WriteLine("logged in!");
+                    responseContent = user.Tunnel.DiffieEncrypt("LOGIN_SUCCESFULL");
                     UserControll.Instance.AddUserToApplication(message.MessageSender, userPasswordData.Username);
-                    response = "ECHO: " + userPasswordData.Username + "," + userPasswordData.HashedPassword;
                 }
+
+                ControlMessage replyMessage = new ControlMessage("SERVER", "LOGIN_INFO", responseContent);
+                response = replyMessage.GetJsonString();
             }
         }
 
