@@ -70,6 +70,27 @@ namespace Client
             return tunnel;
         }
 
+        public bool isTunnelActive(DiffieHellmanTunnel checkingTunnel)
+        {
+            using (WebClient client = new WebClient())
+            {
+                client.Proxy = null;
+                string reply = string.Empty;
+
+                reply = CheckTunnel(client, checkingTunnel);
+                if (reply != null && reply == "RDY")
+                {
+                    return true;
+                }
+                else if (reply == string.Empty || reply != "RDY")
+                {
+                    return false;
+                }
+            }
+
+            return false;
+        }
+
         string GetTemporaryId(WebClient client)
         {
             tunnel.Status = DiffieHellmanTunnelStatus.ASKING_FOR_ID;
@@ -131,17 +152,23 @@ namespace Client
             return reply;
         }
 
-        string CheckTunnel(WebClient client)
+        string CheckTunnel(WebClient client, DiffieHellmanTunnel checkingTunnel = null)
         {
-            if (tunnel.Status == DiffieHellmanTunnelStatus.FAILURE)
+            DiffieHellmanTunnel tunnelToCheck;
+            if (checkingTunnel != null)
+                tunnelToCheck = checkingTunnel;
+            else
+                tunnelToCheck = tunnel;
+
+            if (tunnelToCheck.Status == DiffieHellmanTunnelStatus.FAILURE)
                 return null;
 
-            tunnel.Status = DiffieHellmanTunnelStatus.CHECKING_TUNNEL;
+            tunnelToCheck.Status = DiffieHellmanTunnelStatus.CHECKING_TUNNEL;
 
             string reply = string.Empty;
             try
             {
-                ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "CHECK_TUNNEL", tunnel.DiffieEncrypt("OK"));
+                ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "CHECK_TUNNEL", tunnelToCheck.DiffieEncrypt("OK"));
                 reply = NetworkController.Instance.SendMessage(uriString, client, message);
             }
             catch

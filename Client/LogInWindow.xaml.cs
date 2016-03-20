@@ -23,6 +23,7 @@ namespace Client
     public partial class LogInWindow : Window
     {
         private DiffieHellmanTunnel tunnel = new DiffieHellmanTunnel();
+        private DiffieHellmanTunnelCreator tunnelCreator = new DiffieHellmanTunnelCreator();
         private ConnectionChecker connectionChecker;
         private NetworkController networkController;
 
@@ -38,7 +39,6 @@ namespace Client
                 while (!ConnectionInfo.Connected)
                     Thread.Sleep(1000 * 1);
 
-                DiffieHellmanTunnelCreator tunnelCreator = new DiffieHellmanTunnelCreator();
                 tunnel = tunnelCreator.EstablishTunnel();
 
                 if (tunnel.Status != DiffieHellmanTunnelStatus.ESTABLISHED)
@@ -53,6 +53,11 @@ namespace Client
 
             connectionChecker.StartCheckConnection();
 
+            EstablishTunnel();
+        }
+
+        private void EstablishTunnel()
+        {
             Thread tunnelCreator = new Thread(EstablishTunnelThread);
             tunnelCreator.IsBackground = true;
             tunnelCreator.Start();
@@ -62,7 +67,7 @@ namespace Client
         {
             if(CheckConnectionStatus())
             {
-                RegisterWindow registerWindow = new RegisterWindow(tunnel);
+                RegisterWindow registerWindow = new RegisterWindow(tunnel, tunnelCreator);
                 registerWindow.Show();
             }
         }
@@ -79,13 +84,14 @@ namespace Client
         {
             if (!ConnectionInfo.Connected)
             {
-                MessageBox.Show("Brak połączenia z serwerem.");
+                MessageBox.Show("Server is unavailable.");
                 return false;
             }
 
-            if (tunnel.Status != DiffieHellmanTunnelStatus.ESTABLISHED)
+            if(!tunnelCreator.isTunnelActive(tunnel))
             {
-                MessageBox.Show("Szyfrowany tunel nie został jeszcze zestawiony.");
+                MessageBox.Show("Diffie Hellman Tunnel is not established. Establishing new one.");
+                EstablishTunnel();
                 return false;
             }
 

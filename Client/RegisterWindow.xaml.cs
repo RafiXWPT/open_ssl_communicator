@@ -27,12 +27,14 @@ namespace Client
     public partial class RegisterWindow : Window
     {
         DiffieHellmanTunnel tunnel;
+        DiffieHellmanTunnelCreator creator;
         private readonly Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("REGISTER_API") + "/");
 
-        public RegisterWindow(DiffieHellmanTunnel tunnel)
+        public RegisterWindow(DiffieHellmanTunnel tunnel, DiffieHellmanTunnelCreator creator)
         {
             InitializeComponent();
             this.tunnel = tunnel;
+            this.creator = creator;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -42,7 +44,13 @@ namespace Client
 
         private void SEND_Click(object sender, RoutedEventArgs e)
         {
-            if(tunnel.Status == DiffieHellmanTunnelStatus.ESTABLISHED)
+            if(!ConnectionInfo.Connected)
+            {
+                MessageBox.Show("Server is unavailable.");
+                return;
+            }
+
+            if(creator.isTunnelActive(tunnel))
             {
                 // We should validate input somehow
                 UserPasswordData userPasswordData = new UserPasswordData(emailTextBox.Text, passwordBox.Password);
@@ -54,11 +62,11 @@ namespace Client
                     string reply = NetworkController.Instance.SendMessage(uriString, client, registrationMessage);
                     MessageBox.Show(reply);
                 }
-
             }
             else
             {
-                MessageBox.Show("Diffie Hellman Tunnel is not established.");
+                MessageBox.Show("Diffie Hellman Tunnel is not established. Establishing new one.");
+                tunnel = creator.EstablishTunnel();
             }
         }
     }
