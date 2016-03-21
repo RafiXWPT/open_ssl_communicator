@@ -25,7 +25,7 @@
             </Grid.ColumnDefinitions>
 
             <Button x:Name="importKeys" Grid.Column="0" Content="Import" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch"/>
-            <Button x:Name="history" Grid.Column="1" Content="History" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch"/>
+            <Button x:Name="history" Grid.Column="1" Content="History" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Click="GetHistory"/>
             <Button x:Name="addContact" Grid.Column="2" Content="Add Contact" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch"/>
             <Button x:Name="options" Grid.Column="3" Content="Options" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch"/>
 

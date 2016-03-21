@@ -4,3 +4,5 @@ D:\GitProjects\BSK\CommunicatorCore\bin\Release\Newtonsoft.Json.dll
 D:\GitProjects\BSK\CommunicatorCore\obj\Release\CommunicatorCore.dll
 D:\GitProjects\BSK\CommunicatorCore\obj\Release\CommunicatorCore.pdb
 D:\GitProjects\BSK\CommunicatorCore\obj\Release\CommunicatorCore.csprojResolveAssemblyReference.cache
+D:\GitProjects\BSK\CommunicatorCore\bin\Release\WpfAnimatedGif.dll
+D:\GitProjects\BSK\CommunicatorCore\bin\Release\WpfAnimatedGif.xml

@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
@@ -50,11 +52,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Model\Contact.cs" />
+    <Compile Include="Classes\Model\ContactAggregator.cs" />
     <Compile Include="Classes\Model\Enums.cs" />
     <Compile Include="Classes\Exceptions\UnsuccessfulQueryException.cs" />
     <Compile Include="Classes\Model\ControlMessage.cs" />
     <Compile Include="Classes\Model\INetworkMessage.cs" />
     <Compile Include="Classes\Model\Message.cs" />
+    <Compile Include="Classes\Model\MessageHistoryAggregator.cs" />
     <Compile Include="Classes\Model\UserPasswordData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

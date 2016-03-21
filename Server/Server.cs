@@ -9,7 +9,7 @@ namespace Server
 
         static void Main(string[] args)
         {
-            string[] prefixes = { Prefix + "/connectionCheck/", Prefix + "/diffieTunnel/", Prefix + "/register/", Prefix + "/logIn/", Prefix + "/sendChatMessage/" };
+            string[] prefixes = { Prefix + "/connectionCheck/", Prefix + "/diffieTunnel/", Prefix + "/register/", Prefix + "/logIn/", Prefix + "/sendChatMessage/", Prefix + "/contacts/", Prefix + "/history/" };
 
             WebServerCore WSC = new WebServerCore(prefixes);
             WSC.Run();

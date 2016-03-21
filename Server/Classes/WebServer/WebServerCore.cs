@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Server.Classes;
 
 namespace Server
 {
@@ -15,6 +16,8 @@ namespace Server
         private string[] prefixes;
 
         private readonly UserControll controll = new UserControll();
+        private readonly ContactControl contactControll = new ContactControl();
+        private readonly MessageControl messageControll = new MessageControl();
 
         public WebServerCore(string[] prefixes)
         {

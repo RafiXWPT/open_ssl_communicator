@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ namespace CommunicatorCore.Classes.Model
         public string From;
         public string To;
         public string DisplayName;
+        public string ContactChecksum;
 
         public Contact()
         {
@@ -24,6 +26,13 @@ namespace CommunicatorCore.Classes.Model
             From = from;
             To = to;
             DisplayName =  string.IsNullOrWhiteSpace(displayName) ? to : displayName;
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(From + To + DisplayName);
+                byte[] hash = md5.ComputeHash(inputBytes);
+                ContactChecksum = Encoding.ASCII.GetString(hash);
+            }
+            
         }
 
         public void LoadJson(string jsonString)

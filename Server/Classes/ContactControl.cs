@@ -24,19 +24,14 @@ namespace Server.Classes
             _contactDao = new ContactsDao();
         }
 
-        public void InsertContact(Contact contact)
+        public void UpsertContact(Contact contact)
         {
-            _contactDao.InsertContact(contact);
+            _contactDao.UpsertContact(contact);
         }
 
-        public void UpdateContact(Contact contact)
+        public List<Contact> GetContacts(string contact)
         {
-            _contactDao.UpdateContact(contact);
-        }
-
-        public List<Contact> GetContacts(Contact contact)
-        {
-            return _contactDao.GetContacts(contact.From);
+            return _contactDao.GetContacts(contact);
         }
         
     }

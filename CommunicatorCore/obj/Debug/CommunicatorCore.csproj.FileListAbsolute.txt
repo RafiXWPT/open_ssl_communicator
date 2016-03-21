@@ -12,3 +12,5 @@ X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\obj\Debug\Communic
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\obj\Debug\CommunicatorCore.pdb
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\WpfAnimatedGif.dll
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\WpfAnimatedGif.xml
+D:\GitProjects\BSK\CommunicatorCore\bin\Debug\WpfAnimatedGif.dll
+D:\GitProjects\BSK\CommunicatorCore\bin\Debug\WpfAnimatedGif.xml

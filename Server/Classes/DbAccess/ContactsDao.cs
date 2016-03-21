@@ -13,26 +13,19 @@ namespace Server.Classes.DbAccess
 {
     public class ContactsDao
     {
-        public void InsertContact(Contact contact)
-        {
-            BsonDocument contactDocument = new BsonDocument
-            {
-                { "left", contact.From},
-                { "right", contact.To},
-                { "displayName", contact.DisplayName }
-            };
-            IMongoCollection<BsonDocument> messageCollection = MongoDbAccess.GetContactsCollection();
-            messageCollection.InsertOne(contactDocument);
-        }
 
-        public void UpdateContact(Contact contact)
+        public void UpsertContact(Contact contact)
         {
             IMongoCollection<BsonDocument> contactsCollection = MongoDbAccess.GetContactsCollection();
             FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
             FilterDefinition<BsonDocument> filter = builder.Eq("left", contact.From) &
                                                     builder.Eq("right", contact.To);
-            UpdateDefinition<BsonDocument> update = Builders<BsonDocument>.Update.Set("displayName", contact.DisplayName);
-            UpdateResult result = contactsCollection.UpdateOne(filter, update);
+            UpdateDefinition<BsonDocument> update = Builders<BsonDocument>.Update
+                .Set("left", contact.From)
+                .Set("right", contact.To)
+                .Set("displayName", contact.DisplayName)
+                .Set("md5", contact.ContactChecksum);
+            UpdateResult result = contactsCollection.UpdateOne(filter, update, new UpdateOptions { IsUpsert = true});
             if (!result.IsAcknowledged)
             {
                 throw new UnsuccessfulQueryException("Unable to update contact: " + contact);
@@ -55,7 +48,6 @@ namespace Server.Classes.DbAccess
                     contacts.AddRange(ProcessContactsBatch(cursor.Current));
                 }
             }
-
             return contacts;
         }
 
@@ -64,7 +56,8 @@ namespace Server.Classes.DbAccess
             return contactsBatch.ToList().ConvertAll(doc => new Contact {
                     From = doc["left"].AsString,
                     To = doc["right"].AsString, 
-                    DisplayName = doc["displayName"].AsString
+                    DisplayName = doc["displayName"].AsString,
+                    ContactChecksum = doc["md5"].AsString
                 });
         }
     }

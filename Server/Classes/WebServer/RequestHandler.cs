@@ -13,6 +13,8 @@ namespace Server
 {
     public class RequestHandler
     {
+        private const string MESSAGE_SENDER = "SERVER";
+
         public void HandleRequest(HttpListenerContext userToHandle)
         {
             string wantedUrl = userToHandle.Request.RawUrl;
@@ -41,7 +43,7 @@ namespace Server
                     ControlMessage message = ParseMessageContent(messageContent);
                     LogIn(message, out response);
                 }
-                else if(wantedUrl == "/sendChatMessage/")
+                else if (wantedUrl == "/sendChatMessage/")
                 {
                     ControlMessage message = ParseMessageContent(messageContent);
                     SendChatMessage(message, out response);
@@ -60,10 +62,17 @@ namespace Server
                 {
                     response = string.Empty;
                 }
-
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                response = e.Message;
+            }
+            finally
+            {
                 SendResponse(userToHandle, response);
             }
-            catch { }
 
             CloseResponseStream(userToHandle);
         }
@@ -163,15 +172,15 @@ namespace Server
                     }
                     else
                     {
-                        Console.WriteLine("User added to database, registration succesfull");
                         string[] keys = KeyGenerator.GenerateKeyPair();
                         EmailMessage emailMessage = new EmailMessage("OpenSSL Registration", keys, userPasswordData.Username);
                         UserControll.Instance.AddUserToDatabase(userPasswordData);
                         responseContent = user.Tunnel.DiffieEncrypt("REGISTER_OK");
                         emailMessage.Send();
+                        Console.WriteLine("User added to database, registration succesfull");
                     }
 
-                    controlMessage = new ControlMessage("SERVER", "REGISTER_INFO", responseContent);
+                    controlMessage = new ControlMessage(MESSAGE_SENDER, "REGISTER_INFO", responseContent);
                     response = controlMessage.GetJsonString();
                 }
             }
@@ -207,7 +216,7 @@ namespace Server
                     UserControll.Instance.AddUserToApplication(message.MessageSender, userPasswordData.Username);
                 }
 
-                ControlMessage replyMessage = new ControlMessage("SERVER", responseType, responseContent);
+                ControlMessage replyMessage = new ControlMessage(MESSAGE_SENDER, responseType, responseContent);
                 response = replyMessage.GetJsonString();
             }
         }
@@ -231,44 +240,47 @@ namespace Server
 
         private void HandleContactMessage(ControlMessage message, out string response)
         {
+            ControlMessage returnMessage = new ControlMessage();
             //TODO: We should decrypt value somehow
-            Contact contact = new Contact();
-            contact.LoadJson(message.MessageContent);
-            response = string.Empty;
-            if (message.MessageType == "CONTACT_INSERT")
+            if (message.MessageType == "CONTACT_INSERT" || message.MessageType == "CONTACT_UPDATE")
             {
-                ContactControl.Instance.InsertContact(contact);
-            }
-            else if (message.MessageType == "CONTACT_UPDATE")
-            {
-                ContactControl.Instance.UpdateContact(contact);
+                Contact contact = new Contact();
+                contact.LoadJson(message.MessageContent);
+                if (!UserControll.Instance.CheckIsUserExist(contact.To))
+                {
+                    returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_ERROR", "User does not exist");
+                }
+                else { 
+                    ContactControl.Instance.UpsertContact(contact);
+                    returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_SUCCESS", "Successfully added user to contacts");
+                }
             }
             else if (message.MessageType == "CONTACT_GET")
             {
-                List<Contact> contacts = ContactControl.Instance.GetContacts(contact);
-                StringBuilder builder = new StringBuilder();
-                contacts.ForEach( c => builder.Append( c.From + "|" + c.To + "|" + c.DisplayName + "\n"));
-                response = builder.ToString();
+                Console.WriteLine("User: " + message.MessageSender + " is trying to get his contacts");
+                Console.WriteLine();
+                List<Contact> contacts = ContactControl.Instance.GetContacts(message.MessageSender);
+                ContactAggregator aggregator = new ContactAggregator(contacts);
+                returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_GET_OK", aggregator.GetJsonString());
 //                What now??
+//                Izi
             }
             else
             {
                 throw new NotImplementedException("Message type not yet supported");
             }
+            response = returnMessage.GetJsonString();
         }
 
         void HandleMessageHistory(ControlMessage message, out string response)
         {
+//            It has to be ciphered!
             Contact contact = new Contact();
             contact.LoadJson(message.MessageContent);
             List<Message> messagesHistory = MessageControl.Instance.GetMessages(contact);
-            // TODO:  We should return this value somehow
-            StringBuilder builder = new StringBuilder();
-            messagesHistory.ForEach(
-                messageHistory =>
-                    builder.Append(messageHistory.MessageSender + "|" + messageHistory.MessageDestination + "|" +
-                                   messageHistory.MessageContent + "|" + messageHistory.MessageDate + "\n"));
-            response = builder.ToString();
+            MessageHistoryAggregator historyAggregator = new MessageHistoryAggregator(messagesHistory);
+            ControlMessage responseMessage = new ControlMessage(MESSAGE_SENDER, "HISTORY_OK", historyAggregator.GetJsonString());
+            response = responseMessage.GetJsonString();
         }
             
 
@@ -280,7 +292,10 @@ namespace Server
                 context.Response.ContentLength64 = buf.Length;
                 context.Response.OutputStream.Write(buf, 0, buf.Length);
             }
-            catch { }
+            catch
+            {
+                Console.WriteLine("Exception occurred");
+            }
         }
 
         void CloseResponseStream(HttpListenerContext context)
