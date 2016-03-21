@@ -13,8 +13,8 @@
         <Label x:Name="loginLabel" Content="Login:" Height="30" HorizontalAlignment="Left" Margin="38,121,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
         <Label x:Name="passwordLabel" Content="Password:" Height="30" HorizontalAlignment="Left" Margin="18,156,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
 
-        <TextBox x:Name="loginBox" HorizontalAlignment="Left" Height="30" Margin="85,121,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="180" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-        <PasswordBox x:Name="passwordBox" HorizontalAlignment="Left" Height="30" Width="180" Margin="85,156,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+        <TextBox x:Name="loginBox" HorizontalAlignment="Left" Height="30" Margin="85,121,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="180" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" KeyDown="GetEnter_Down"/>
+        <PasswordBox x:Name="passwordBox" HorizontalAlignment="Left" Height="30" Width="180" Margin="85,156,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" KeyDown="GetEnter_Down"/>
         <Button x:Name="confirmBtn" Content="Confirm" HorizontalAlignment="Left" Margin="85,191,0,0" VerticalAlignment="Top" Width="120" Height="30" Click="confirmBtn_Click"/>
         <Label x:Name="dnthvaccLabel" Content="Don't have an account?" HorizontalAlignment="Left" Margin="48,226,0,0" VerticalAlignment="Top" Height="30" VerticalContentAlignment="Center"/>
         <Button x:Name="registerBtn" Content="Register" HorizontalAlignment="Left" Margin="185,226,0,0" VerticalAlignment="Top" Width="60" Height="30" Click="registerBtn_Click"/>

@@ -187,6 +187,7 @@ namespace Server
                 Console.WriteLine(message.MessageSender + " is trying to log in.");
                 UserPasswordData userPasswordData = new UserPasswordData();
                 string responseContent  = string.Empty;
+                string responseType = "LOGIN_UNSUCCESFULL";
                 userPasswordData.LoadJson(user.Tunnel.DiffieDecrypt(message.MessageContent));
                 if (!UserControll.Instance.CheckIsUserExist(userPasswordData.Username))
                 {
@@ -201,11 +202,12 @@ namespace Server
                 else
                 {
                     Console.WriteLine("logged in!");
-                    responseContent = user.Tunnel.DiffieEncrypt("LOGIN_SUCCESFULL");
+                    responseContent = user.Tunnel.DiffieEncrypt(userPasswordData.Username);
+                    responseType = "LOGIN_SUCCESFULL";
                     UserControll.Instance.AddUserToApplication(message.MessageSender, userPasswordData.Username);
                 }
 
-                ControlMessage replyMessage = new ControlMessage("SERVER", "LOGIN_INFO", responseContent);
+                ControlMessage replyMessage = new ControlMessage("SERVER", responseType, responseContent);
                 response = replyMessage.GetJsonString();
             }
         }

@@ -79,6 +79,18 @@ namespace Client
 
         private void confirmBtn_Click(object sender, RoutedEventArgs e)
         {
+            if(loginBox.Text.Length == 0)
+            {
+                MessageBox.Show("Type your login first.");
+                return;
+            }
+
+            if(passwordBox.Password.Length == 0)
+            {
+                MessageBox.Show("Type your password first.");
+                return;
+            }
+
             if (CheckConnectionStatus())
             {
                 UserPasswordData userPasswordData = new UserPasswordData(loginBox.Text, passwordBox.Password);
@@ -97,15 +109,18 @@ namespace Client
         {
             ControlMessage returnedControlMessage = new ControlMessage();
             returnedControlMessage.LoadJson(reply);
-            MessageBox.Show(tunnel.DiffieDecrypt(returnedControlMessage.MessageContent));
+
             string messageType = returnedControlMessage.MessageType;
-            if (messageType == "REGISTER_OK")
+            if (messageType == "LOGIN_SUCCESFULL")
             {
-                // We should dispose of this window
+                ConnectionInfo.Sender = tunnel.DiffieDecrypt(returnedControlMessage.MessageContent);
+                MainWindow window = new MainWindow(connectionChecker, networkController, ConnectionInfo.Sender);
+                window.Show();
+                this.Close();
             }
-            else if (messageType == "REGISTER_INVALID")
+            else if (messageType == "LOGIN_UNSUCCESFULL")
             {
-                // As below i think   
+                MessageBox.Show("Username or password is not correct."); 
             }
             else
             {
@@ -129,6 +144,14 @@ namespace Client
             }
 
             return true;
+        }
+
+        private void GetEnter_Down(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                confirmBtn_Click(null,null);
+            }
         }
     }
 }

@@ -84,7 +84,6 @@
     <Compile Include="..\Server\Classes\Security\DiffieHellmanTunnel.cs">
       <Link>Classes\Security\DiffieHellmanTunnel.cs</Link>
     </Compile>
-    <Compile Include="Classes\GifImage.cs" />
     <Compile Include="Classes\RegisterValidator\RegisterFormatValidator.cs" />
     <Compile Include="Classes\Security\DiffieHellmanTunnelCreator.cs" />
     <Compile Include="LogInWindow.xaml.cs">
