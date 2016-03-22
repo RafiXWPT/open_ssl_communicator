@@ -24,19 +24,17 @@ namespace Server
             this.destination = destination;
         }
 
-        public EmailMessage(string subject, string[] keys, string destination)
+        public EmailMessage(string subject, string destination)
         {
             this.subject = subject;
 
-            string fullMessage = "Thank you for registering. Below are your keys:\n" +
-                                 "Private Key:\n" + keys[0] + "\n" +
-                                 "Public Key:\n" + keys[1] + "\n\n\n" +
-                                 "OpenSSL Communicator.";
+            string fullMessage = "Thank you for registering. Your keys was added to attachments:\n\n" +
+                                 "Crypto Talk Team.";
             this.message = fullMessage;
             this.destination = destination;
         }
 
-        public void Send()
+        public void Send(bool withAttachments = false)
         {
             try
             {
@@ -53,6 +51,19 @@ namespace Server
                 MailMessage messageToSend = new MailMessage(from, to);
                 messageToSend.Subject = subject;
                 messageToSend.Body = message;
+
+                if(withAttachments)
+                {
+                    Attachment attachment;
+
+                    attachment = new Attachment("keys/"+destination+"_Private.pem");
+                    attachment.Name = destination + "_Private.pem";
+                    messageToSend.Attachments.Add(attachment);
+
+                    attachment = new Attachment("keys/" + destination + "_Public.pem");
+                    attachment.Name = destination + "_Public.pem";
+                    messageToSend.Attachments.Add(attachment);
+                }
 
                 smtp.Send(messageToSend);
             }

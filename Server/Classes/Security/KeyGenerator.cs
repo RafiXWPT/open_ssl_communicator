@@ -10,23 +10,15 @@ namespace Server
 {
     public static class KeyGenerator
     {
-
-        public static string[] GenerateKeyPair()
+        public static void GenerateKeyPair(string userName)
         {
             RSA rsa = new RSA();
             rsa.GenerateKeys(1024, 65537, null, null);
 
             string[] keys = { string.Empty, string.Empty };
 
-            //File.WriteAllText("MasterPrivateKey.pem", rsa.PrivateKeyAsPEM);
-            //File.WriteAllText("MasterPublicKey.pem", rsa.PublicKeyAsPEM);
-
-            keys[0] = rsa.PrivateKeyAsPEM;
-            keys[1] = rsa.PublicKeyAsPEM;
-
-            return keys;
-           
+            File.WriteAllText("keys/" + userName + "_Private.pem", rsa.PrivateKeyAsPEM);
+            File.WriteAllText("keys/" + userName + "_Public.pem", rsa.PublicKeyAsPEM);           
         }
-
     }
 }

@@ -33,6 +33,9 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ManagedOpenSsl">
+      <HintPath>..\OpenSSLWrapper\x86\ManagedOpenSsl.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\..\Libraries\NET\NewtonsoftJson\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -53,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Classes\Model\Contact.cs" />
     <Compile Include="Classes\Model\ContactAggregator.cs" />
+    <Compile Include="Classes\Model\CryptoRSA.cs" />
     <Compile Include="Classes\Model\Enums.cs" />
     <Compile Include="Classes\Exceptions\UnsuccessfulQueryException.cs" />
     <Compile Include="Classes\Model\ControlMessage.cs" />

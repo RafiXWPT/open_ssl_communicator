@@ -1,0 +1,34 @@
+﻿<Window x:Class="Client.KeyImportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Client"
+        mc:Ignorable="d"
+        Title="Crypto Talk - Key Importer" Height="260" Width="260" ResizeMode="NoResize" Icon="programIcon.ico" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Label x:Name="publicKeyLabel" Content="Load your public key:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <TextBox x:Name="publicKeyPath" IsReadOnly="True" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="10,35,0,10" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="140"/>
+            <Button x:Name="searchPublicKey" Content="Search..." HorizontalAlignment="Left" Margin="160,35,0,10" VerticalAlignment="Top" Width="75" Height="23" Click="searchPublicKey_Click"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Label x:Name="privateKeyLabel" Content="Load your private key:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <TextBox x:Name="privateKeyPath" IsReadOnly="True" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="10,35,0,10" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="140"/>
+            <Button x:Name="searchPrivateKey" Content="Search..." HorizontalAlignment="Left" Margin="160,35,0,10" VerticalAlignment="Top" Width="75" Height="23" Click="searchPrivateKey_Click"/>
+        </Grid>
+
+        <Button x:Name="checkKeys" Grid.Row="2" Content="Check Keys" HorizontalAlignment="Center" Margin="10,5,10,5" VerticalAlignment="Top" Width="120" Height="30" Click="checkKeys_Click"/>
+        
+        <Button x:Name="save" Grid.Row="3" Content="Save" HorizontalAlignment="Center" Margin="10,5,10,10" VerticalAlignment="Top" Width="120" Height="30" Click="save_Click"/>
+
+    </Grid>
+</Window>

@@ -54,7 +54,10 @@
     <ApplicationIcon>programIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ManagedOpenSsl, Version=0.6.0.0, Culture=neutral, processorArchitecture=AMD64" />
+    <Reference Include="ManagedOpenSsl, Version=0.6.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\OpenSSLWrapper\x86\ManagedOpenSsl.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -87,6 +90,9 @@
     </Compile>
     <Compile Include="Classes\RegisterValidator\RegisterFormatValidator.cs" />
     <Compile Include="Classes\Security\DiffieHellmanTunnelCreator.cs" />
+    <Compile Include="KeyImportWindow.xaml.cs">
+      <DependentUpon>KeyImportWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="LogInWindow.xaml.cs">
       <DependentUpon>LogInWindow.xaml</DependentUpon>
     </Compile>
@@ -94,6 +100,10 @@
       <DependentUpon>RegisterWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="ChatWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="KeyImportWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

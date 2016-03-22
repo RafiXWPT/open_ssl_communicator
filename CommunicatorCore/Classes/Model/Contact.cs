@@ -28,9 +28,9 @@ namespace CommunicatorCore.Classes.Model
             DisplayName =  string.IsNullOrWhiteSpace(displayName) ? to : displayName;
             using (MD5 md5 = MD5.Create())
             {
-                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(From + To + DisplayName);
+                byte[] inputBytes = Encoding.UTF8.GetBytes(From + To + DisplayName);
                 byte[] hash = md5.ComputeHash(inputBytes);
-                ContactChecksum = Encoding.ASCII.GetString(hash);
+                ContactChecksum = Encoding.UTF8.GetString(hash);
             }
             
         }

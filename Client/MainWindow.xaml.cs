@@ -71,5 +71,11 @@ namespace Client
                 HandleContactsResponse(reply);
             }
         }
+
+        private void importKeys_Click(object sender, RoutedEventArgs e)
+        {
+            KeyImportWindow keyImporter = new KeyImportWindow();
+            keyImporter.Show();
+        }
     }
 }

@@ -172,11 +172,11 @@ namespace Server
                     }
                     else
                     {
-                        string[] keys = KeyGenerator.GenerateKeyPair();
-                        EmailMessage emailMessage = new EmailMessage("OpenSSL Registration", keys, userPasswordData.Username);
+                        KeyGenerator.GenerateKeyPair(userPasswordData.Username);
+                        EmailMessage emailMessage = new EmailMessage("OpenSSL Registration", userPasswordData.Username);
                         UserControll.Instance.AddUserToDatabase(userPasswordData);
                         responseContent = user.Tunnel.DiffieEncrypt("REGISTER_OK");
-                        emailMessage.Send();
+                        emailMessage.Send(true);
                         Console.WriteLine("User added to database, registration succesfull");
                     }
 
