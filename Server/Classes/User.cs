@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DiffieHellman;
+using OpenSSL.Crypto;
 
 namespace Server
 {
@@ -17,24 +18,27 @@ namespace Server
     public class User
     {
         public string Name { get; }
+        public bool IsTemporary { get; }
         string Address { get; set; }
         DateTime LastConnectionCheck { get; set; }
         UserStatus Status { get; set; }
 
         // DIFFIE HELLMAN PART
         public DiffieHellmanTunnel Tunnel { get; }
+        //public CryptoKey PublicKey { get; }
         //
 
         public User(string name)
         {
             Name = name;
+            IsTemporary = true;
             Tunnel = new DiffieHellmanTunnel();
         }
 
-        public User(string name, DiffieHellmanTunnel tunnel)
+        public User(string name, bool isTemporary)
         {
-            this.Name = name;
-            this.Tunnel = tunnel;
+            Name = name;
+            IsTemporary = isTemporary;
         }
 
         public void UpdateAddress(string address)

@@ -13,10 +13,19 @@ namespace CommunicatorCore.Classes.Model
         private readonly string pathToEncryptFile;
         private readonly string pathToDecryptFile;
 
+        private readonly CryptoKey privateKey;
+        private readonly CryptoKey publicKey;
+
         public CryptoRSA(string pathToEncryptFile, string pathToDecryptFile)
         {
             this.pathToEncryptFile = pathToEncryptFile;
             this.pathToDecryptFile = pathToDecryptFile;
+            CreateKeys();
+        }
+
+        void CreateKeys()
+        {
+
         }
 
         public string Encrypt(string textToEncrypt)
@@ -43,9 +52,9 @@ namespace CommunicatorCore.Classes.Model
 
                 return Convert.ToBase64String(output);
             }
-            catch
+            catch(Exception ex)
             {
-                return string.Empty;
+                return ex.ToString();
             }
         }
 

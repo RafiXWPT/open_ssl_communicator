@@ -66,6 +66,7 @@
     <Compile Include="Classes\MessageControl.cs" />
     <Compile Include="Classes\Security\DiffieHellmanTunnel.cs" />
     <Compile Include="Classes\Security\KeyGenerator.cs" />
+    <Compile Include="Classes\ServerLogger.cs" />
     <Compile Include="Classes\User.cs" />
     <Compile Include="Classes\UserControll.cs" />
     <Compile Include="Classes\WebServer\RequestHandler.cs" />

@@ -35,7 +35,7 @@ namespace Server
         {
             ThreadPool.QueueUserWorkItem((o) =>
             {
-                Console.WriteLine("Webserver running...");
+                ServerLogger.LogMessage("Webserver Running...");
                 try
                 {
                     while (_listener.IsListening)

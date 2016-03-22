@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using CommunicatorCore.Classes.Model;
+using System.IO;
 
 namespace Client
 {
@@ -22,14 +23,15 @@ namespace Client
     /// </summary>
     public partial class ChatWindow : Window
     {
-        public Uri talkingTo { get; }
+        private readonly Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("SEND_CHAT_MESSAGE_API") + "/");
         NameValueCollection headers = new NameValueCollection();
         NameValueCollection data = new NameValueCollection();
 
-        public ChatWindow(string id)
-        {
-            talkingTo = new Uri(id);
+        private readonly CryptoRSA rsa;
 
+        public ChatWindow()
+        {
+            rsa = new CryptoRSA("SERVER_Public.pem", ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
             InitializeComponent();
         }
 
@@ -47,15 +49,28 @@ namespace Client
 
         void SendMessage()
         {
-            Message message = new Message("THATS ME", "TO ANYONE", chatText.Text);
+
+            ControlMessage message = new ControlMessage();
+            try
+            {
+                Message chatMessage = new Message(ConnectionInfo.Sender, ConnectionInfo.Sender, chatText.Text);
+                string encryptedChatMessage = rsa.Encrypt(chatMessage.GetJsonString());
+                message = new ControlMessage(ConnectionInfo.Sender, "CHAT_ECHO", encryptedChatMessage);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
+            //Message message = new Message("THATS ME", "TO ANYONE", chatText.Text);
             using (var wb = new WebClient())
             {
                 wb.Proxy = null;
-
                 headers["messageContent"] = message.GetJsonString();
                 wb.Headers.Add(headers);
                 data["DateTime"] = DateTime.Now.ToShortDateString();
-                byte[] response = wb.UploadValues(talkingTo, "POST", data);
+                byte[] response = wb.UploadValues(uriString, "POST", data);
+
                 listBox.Items.Add(Encoding.UTF8.GetString(response));
                 chatText.Text = string.Empty;
             }

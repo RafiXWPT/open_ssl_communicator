@@ -69,7 +69,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                ServerLogger.LogMessage(ex.ToString());
             }
         }
     }

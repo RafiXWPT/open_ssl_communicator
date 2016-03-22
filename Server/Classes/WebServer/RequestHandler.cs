@@ -64,10 +64,10 @@ namespace Server
                 }
                 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e.Message);
-                response = e.Message;
+                ServerLogger.LogMessage(ex.ToString());
+                response = ex.Message;
             }
             finally
             {
@@ -116,24 +116,24 @@ namespace Server
 
             if(message.MessageType == "REQUEST_FOR_ID")
             {
-                Console.WriteLine(message.MessageSender + " request for id.");
+                ServerLogger.LogMessage(message.MessageSender + " request for id.");
                 response = user.Name;
             }
             else if(message.MessageType == "PUBLIC_KEY_EXCHANGE")
             {
-                Console.WriteLine(message.MessageSender + " exchange pkey.");
+                ServerLogger.LogMessage(message.MessageSender + " exchange pkey.");
                 user.Tunnel.CreateKey(message.MessageContent);
                 response = user.Tunnel.GetPublicPart();  
             }
             else if(message.MessageType == "IV_EXCHANGE")
             {
-                Console.WriteLine(message.MessageSender + " exchange iv.");
+                ServerLogger.LogMessage(message.MessageSender + " exchange iv.");
                 user.Tunnel.LoadIV(message.MessageContent);
                 response = "CHECK";
             }
             else if(message.MessageType == "CHECK_TUNNEL")
             {
-                Console.WriteLine(message.MessageSender + " checking tunnel.");
+                ServerLogger.LogMessage(message.MessageSender + " checking tunnel.");
                 if(user.Tunnel.DiffieDecrypt(message.MessageContent) == "OK")
                 {
                     response = "RDY";
@@ -159,7 +159,7 @@ namespace Server
             {
                 if (message.MessageType == "REGISTER_ME")
                 {
-                    Console.WriteLine(message.MessageSender + " is about to register.");
+                    ServerLogger.LogMessage(message.MessageSender + " is about to register.");
                     UserPasswordData userPasswordData = new UserPasswordData();
                     userPasswordData.LoadJson(user.Tunnel.DiffieDecrypt(message.MessageContent));
                     ControlMessage controlMessage;
@@ -167,7 +167,7 @@ namespace Server
                     string responseContent;
                     if (UserControll.Instance.CheckIsUserExist(userPasswordData.Username))
                     {
-                        Console.WriteLine("Requested user already exist.");
+                        ServerLogger.LogMessage("Requested user already exist.");
                         responseContent = user.Tunnel.DiffieEncrypt("REGISTER_INVALID");
                     }
                     else
@@ -177,7 +177,7 @@ namespace Server
                         UserControll.Instance.AddUserToDatabase(userPasswordData);
                         responseContent = user.Tunnel.DiffieEncrypt("REGISTER_OK");
                         emailMessage.Send(true);
-                        Console.WriteLine("User added to database, registration succesfull");
+                        ServerLogger.LogMessage("User added to database, registration succesfull");
                     }
 
                     controlMessage = new ControlMessage(MESSAGE_SENDER, "REGISTER_INFO", responseContent);
@@ -193,27 +193,28 @@ namespace Server
 
             if (user != null)
             {
-                Console.WriteLine(message.MessageSender + " is trying to log in.");
+                ServerLogger.LogMessage(message.MessageSender + " is trying to log in.");
                 UserPasswordData userPasswordData = new UserPasswordData();
                 string responseContent  = string.Empty;
                 string responseType = "LOGIN_UNSUCCESFULL";
+
                 userPasswordData.LoadJson(user.Tunnel.DiffieDecrypt(message.MessageContent));
                 if (!UserControll.Instance.CheckIsUserExist(userPasswordData.Username))
                 {
-                    Console.WriteLine("user not exist");
+                    ServerLogger.LogMessage("user not exist");
                     responseContent = user.Tunnel.DiffieEncrypt("USER_NOT_EXIST");
                 }
                 else if (!UserControll.Instance.IsUserValid(userPasswordData))
                 {
-                    Console.WriteLine("badpass");
+                    ServerLogger.LogMessage("badpass");
                     responseContent = user.Tunnel.DiffieEncrypt("BAD_LOGIN_OR_PASSWORD");
                 }
                 else
                 {
-                    Console.WriteLine("logged in!");
                     responseContent = user.Tunnel.DiffieEncrypt(userPasswordData.Username);
                     responseType = "LOGIN_SUCCESFULL";
                     UserControll.Instance.AddUserToApplication(message.MessageSender, userPasswordData.Username);
+                    ServerLogger.LogMessage("User: " + userPasswordData.Username + " has logged in! Total users logged: " + UserControll.Instance.getUsersOnline().ToString());
                 }
 
                 ControlMessage replyMessage = new ControlMessage(MESSAGE_SENDER, responseType, responseContent);
@@ -231,11 +232,19 @@ namespace Server
         private void SendChatMessage(ControlMessage message, out string response)
         {
             response = string.Empty;
-            //TODO: We should apply some kind of decryption here
-            Message chatMessage = new Message();
-            chatMessage.LoadJson(message.MessageContent);
-            //            We should now send message somehow
-            MessageControl.Instance.InsertMessage(chatMessage);
+            if (message.MessageType == "CHAT_ECHO")
+            {
+                //Console.WriteLine(message.MessageSender + "," + message.MessageType + "," + message.MessageContent);
+
+                CryptoRSA rsa = new CryptoRSA(null, "keys/SERVER_Private.pem");
+                string messageContent = rsa.Decrypt(message.MessageContent);
+
+                Message chatMessage = new Message();
+                chatMessage.LoadJson(messageContent);
+                //            We should now send message somehow
+                //MessageControl.Instance.InsertMessage(chatMessage);
+                response = "ECHO: " + chatMessage.MessageContent;
+            }
         }
 
         private void HandleContactMessage(ControlMessage message, out string response)
@@ -257,7 +266,7 @@ namespace Server
             }
             else if (message.MessageType == "CONTACT_GET")
             {
-                Console.WriteLine("User: " + message.MessageSender + " is trying to get his contacts");
+                ServerLogger.LogMessage("User: " + message.MessageSender + " is trying to get his contacts");
                 Console.WriteLine();
                 List<Contact> contacts = ContactControl.Instance.GetContacts(message.MessageSender);
                 ContactAggregator aggregator = new ContactAggregator(contacts);
@@ -292,9 +301,9 @@ namespace Server
                 context.Response.ContentLength64 = buf.Length;
                 context.Response.OutputStream.Write(buf, 0, buf.Length);
             }
-            catch
+            catch(Exception ex)
             {
-                Console.WriteLine("Exception occurred");
+                ServerLogger.LogMessage(ex.ToString());
             }
         }
 
@@ -304,8 +313,10 @@ namespace Server
             {
                 context.Response.OutputStream.Close();
             }
-            catch { }
+            catch(Exception ex)
+            {
+                ServerLogger.LogMessage(ex.ToString());
+            }
         }
-
     }
 }

@@ -9,13 +9,16 @@ namespace Server
 
         static void Main(string[] args)
         {
+            ServerLogger.LogMessage("Loading server prefixes");
             string[] prefixes = { Prefix + "/connectionCheck/", Prefix + "/diffieTunnel/", Prefix + "/register/", Prefix + "/logIn/", Prefix + "/sendChatMessage/", Prefix + "/contacts/", Prefix + "/history/" };
 
+            ServerLogger.LogMessage("Initializing Server Core");
             WebServerCore WSC = new WebServerCore(prefixes);
+            ServerLogger.LogMessage("Starting Server");
             WSC.Run();
 
-            Console.WriteLine("A simple webserver. Press a key to quit.");
-            Console.ReadKey();
+            ServerLogger.LogMessage("Server Started");
+            Console.ReadLine();
 
             WSC.Stop();
         }

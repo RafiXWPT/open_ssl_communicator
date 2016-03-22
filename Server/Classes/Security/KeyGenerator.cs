@@ -13,7 +13,7 @@ namespace Server
         public static void GenerateKeyPair(string userName)
         {
             RSA rsa = new RSA();
-            rsa.GenerateKeys(1024, 65537, null, null);
+            rsa.GenerateKeys(4096, 65537, null, null);
 
             string[] keys = { string.Empty, string.Empty };
 

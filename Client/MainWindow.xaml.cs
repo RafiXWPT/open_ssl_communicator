@@ -77,5 +77,11 @@ namespace Client
             KeyImportWindow keyImporter = new KeyImportWindow();
             keyImporter.Show();
         }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            ChatWindow chat = new ChatWindow();
+            chat.Show();
+        }
     }
 }

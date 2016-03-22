@@ -21,7 +21,6 @@ namespace Server.Classes.DbAccess
             FilterDefinition<BsonDocument> filter = builder.Eq("_id", username);
             List<BsonDocument> result = usersCollection.Find(filter).ToList();
             return result.Any();
-
         }
 
         public void InsertUser(UserPasswordData userPasswordData)
@@ -54,7 +53,7 @@ namespace Server.Classes.DbAccess
                 while (cursor.MoveNext())
                 {
                     var batch = cursor.Current;
-                    users.AddRange(batch.ToList().ConvertAll(document => new User(document["_id"].AsString)));
+                    users.AddRange(batch.ToList().ConvertAll(document => new User(document["_id"].AsString, false)));
                 }
             }
             return users;
