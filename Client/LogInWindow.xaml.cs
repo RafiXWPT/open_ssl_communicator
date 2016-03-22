@@ -12,7 +12,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using DiffieHellman;
 using SystemSecurity;
 using System.Threading;
 using CommunicatorCore.Classes.Model;
@@ -95,7 +94,7 @@ namespace Client
             {
                 UserPasswordData userPasswordData = new UserPasswordData(loginBox.Text, passwordBox.Password);
                 string toSend = userPasswordData.GetJsonString();
-                ControlMessage loginMessage = new ControlMessage(ConnectionInfo.Sender, "LOG_IN", tunnel.DiffieEncrypt(toSend));
+                ControlMessage loginMessage = new ControlMessage(ConnectionInfo.Sender, "LOG_IN", toSend, tunnel.DiffieEncrypt(toSend));
                 using (WebClient client = new WebClient())
                 {
                     client.Proxy = null;

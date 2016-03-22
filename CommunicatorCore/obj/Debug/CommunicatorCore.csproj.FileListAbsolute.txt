@@ -15,3 +15,4 @@ X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\obj\Debug\Communic
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\obj\Debug\CommunicatorCore.dll
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\obj\Debug\CommunicatorCore.pdb
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\ManagedOpenSsl.dll
+D:\GitProjects\BSK\CommunicatorCore\bin\Debug\ManagedOpenSsl.dll

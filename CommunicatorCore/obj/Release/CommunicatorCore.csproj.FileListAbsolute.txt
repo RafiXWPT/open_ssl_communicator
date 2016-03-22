@@ -6,3 +6,4 @@ D:\GitProjects\BSK\CommunicatorCore\obj\Release\CommunicatorCore.pdb
 D:\GitProjects\BSK\CommunicatorCore\obj\Release\CommunicatorCore.csprojResolveAssemblyReference.cache
 D:\GitProjects\BSK\CommunicatorCore\bin\Release\WpfAnimatedGif.dll
 D:\GitProjects\BSK\CommunicatorCore\bin\Release\WpfAnimatedGif.xml
+D:\GitProjects\BSK\CommunicatorCore\bin\Release\ManagedOpenSsl.dll

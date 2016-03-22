@@ -22,15 +22,8 @@ namespace CommunicatorCore.Classes.Model
 
         public void LoadJson(string jsonString)
         {
-            try
-            {
-                ContactAggregator tmp = JsonConvert.DeserializeObject<ContactAggregator>(jsonString);
-                this.Contacts = tmp.Contacts;
-            }
-            catch
-            {
-
-            }
+            ContactAggregator tmp = JsonConvert.DeserializeObject<ContactAggregator>(jsonString);
+            this.Contacts = tmp.Contacts;
         }
 
         public string GetJsonString()

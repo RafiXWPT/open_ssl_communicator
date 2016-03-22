@@ -11,7 +11,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using DiffieHellman;
 using System.Net;
 using System.Threading;
 using System.ComponentModel;
@@ -71,7 +70,7 @@ namespace Client
             {
                 UserPasswordData userPasswordData = new UserPasswordData(emailTextBox.Text, passwordBox.Password);
                 string toSend = userPasswordData.GetJsonString();
-                ControlMessage registrationMessage = new ControlMessage(ConnectionInfo.Sender, "REGISTER_ME", tunnel.DiffieEncrypt(toSend));
+                ControlMessage registrationMessage = new ControlMessage(ConnectionInfo.Sender, "REGISTER_ME", toSend,  tunnel.DiffieEncrypt(toSend));
                 using (WebClient client = new WebClient())
                 {
                     client.Proxy = null;

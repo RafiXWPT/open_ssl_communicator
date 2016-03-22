@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DiffieHellman;
+using CommunicatorCore.Classes.Model;
 using OpenSSL.Crypto;
 
 namespace Server
@@ -67,7 +67,6 @@ namespace Server
         }
 
 
-     // Risky methods?
         public override bool Equals(object obj)
         {
             if (obj == null)

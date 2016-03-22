@@ -34,8 +34,8 @@
         <Grid Grid.Row="1">
             <DataGrid x:Name="contactsData" Grid.Row="1" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" SelectionMode="Single" BorderThickness="1" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" RowDetailsVisibilityMode="Collapsed" IsReadOnly="True">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding ID}" Header="Identyfikator" IsReadOnly="True" Width="*"/>
-                    <DataGridTextColumn Binding="{Binding Name}" Header="Pseudonim" IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Binding="{Binding Path=Name}" Header="Identyfikator" IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Binding="{Binding Path=DisplayName}" Header="Pseudonim" IsReadOnly="True" Width="*"/>
                 </DataGrid.Columns>
                 <DataGrid.CellStyle>
                     <Style TargetType="DataGridCell">
@@ -57,6 +57,7 @@
         <Grid Grid.Row="2">
             <Button x:Name="closeCommunicator" Content="Exit" HorizontalAlignment="Left" Margin="10,10,10,10" VerticalAlignment="Top" Width="50" Height="30"/>
             <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Margin="93,10,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
+            <Button x:Name="contacts" Content="Ładuj kontakty" HorizontalAlignment="Left" Margin="260,10,0,0" VerticalAlignment="Top" Width="122" Click="Contacts_OnClick_Click"/>
         </Grid>
 
     </Grid>

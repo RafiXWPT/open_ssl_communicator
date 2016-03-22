@@ -25,7 +25,7 @@ namespace Client
         static bool IsEmailServerValid(string email)
         {
             string emailServer = email.Split('@')[1];
-            return emailServer == "protonmail.com";
+            return true;//emailServer == "protonmail.com";
         }
 
         public static bool IsEmailValid(string email)

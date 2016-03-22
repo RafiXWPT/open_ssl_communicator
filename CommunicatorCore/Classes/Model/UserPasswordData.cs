@@ -16,11 +16,7 @@ namespace CommunicatorCore.Classes.Model
         public UserPasswordData(string username, string password)
         {
             this.Username = username;
-            using (var sha1 = SHA1.Create())
-            {
-                byte[] hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(password));
-                HashedPassword = Encoding.UTF8.GetString(hashBytes);
-            }
+            this.HashedPassword = Sha1Util.CalculateSha(password);
         }
 
         public UserPasswordData()
@@ -29,16 +25,9 @@ namespace CommunicatorCore.Classes.Model
 
         public void LoadJson(string jsonString)
         {
-            try
-            {
-                UserPasswordData tmp = JsonConvert.DeserializeObject<UserPasswordData>(jsonString);
-                this.Username = tmp.Username;
-                this.HashedPassword = tmp.HashedPassword;
-            }
-            catch
-            {
-
-            }
+            UserPasswordData tmp = JsonConvert.DeserializeObject<UserPasswordData>(jsonString);
+            this.Username = tmp.Username;
+            this.HashedPassword = tmp.HashedPassword;
         }
 
         public string GetJsonString()
