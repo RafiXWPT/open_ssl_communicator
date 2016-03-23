@@ -14,13 +14,7 @@ namespace Server
     public class RequestHandler
     {
         private const string MESSAGE_SENDER = "SERVER";
-        private const string SERVER_PRIVATE_KEY = "keys\\SERVER_Private.pem";
-		private readonly CryptoRSA cryptoService = new CryptoRSA();
-
-        public RequestHandler()
-        {
-            cryptoService.loadRSAFromPrivateKey("keys/SERVER_Private.pem");
-        }
+        private const string SERVER_PRIVATE_KEY = "keys/SERVER_Private.pem";
 
         public void HandleRequest(HttpListenerContext userToHandle)
         {
@@ -250,10 +244,12 @@ namespace Server
             string response = string.Empty;
             string messageContent = string.Empty;
             Message chatMessage = new Message();
+            CryptoRSA transcoder = new CryptoRSA();
+            transcoder.loadRSAFromPrivateKey(SERVER_PRIVATE_KEY);
 
             if (message.MessageType == "CHAT_INIT")
             {
-                messageContent = cryptoService.PrivateDecrypt(message.MessageContent, cryptoService.PrivateRSA);
+                messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
                 chatMessage.LoadJson(messageContent);
                 if(chatMessage.MessageContent == "INIT")
                 {
@@ -266,7 +262,7 @@ namespace Server
             }
             else if (message.MessageType == "CHAT_ECHO")
             {
-                messageContent = cryptoService.PrivateDecrypt(message.MessageContent, cryptoService.PrivateRSA);
+                messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
                 chatMessage.LoadJson(messageContent);
                 //MessageControl.Instance.InsertMessage(chatMessage);
                 response = "ECHO: " + chatMessage.MessageContent;
@@ -278,11 +274,14 @@ namespace Server
         {
             string response = string.Empty;
             ControlMessage returnMessage = new ControlMessage();
-            CryptoRSA transcoder = new CryptoRSA("keys\\SERVER_Private.pem", "keys\\" + message.MessageSender + "_Public.pem");
-            string decryptedMessageContent = transcoder.Decrypt(message.MessageContent);
+            CryptoRSA transcoder = new CryptoRSA();
+            transcoder.loadRSAFromPrivateKey("keys/SERVER_Private.pem");
+            transcoder.loadRSAFromPublicKey("keys/" + message.MessageSender + "_Public.pem");
+
+            string decryptedMessageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
             if (Sha1Util.CalculateSha(decryptedMessageContent) != message.Checksum)
             {
-                returnMessage = CreateInvalidResponseMessage(transcoder);
+                returnMessage = CreateInvalidResponseMessage(transcoder, transcoder.PublicRSA);
             }
             else if (message.MessageType == "CONTACT_INSERT" || message.MessageType == "CONTACT_UPDATE")
             {
@@ -291,14 +290,14 @@ namespace Server
                 if (!UserControll.Instance.CheckIfUserExist(contact.To))
                 {
                     string userDoesNotExistResponse = "User does not exist";
-                    string encryptedMessage = transcoder.Encrypt(userDoesNotExistResponse);
+                    string encryptedMessage = transcoder.PublicEncrypt(userDoesNotExistResponse, transcoder.PublicRSA);
                     returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_ERROR", userDoesNotExistResponse, encryptedMessage);
                 }
                 else
                 {
                     string userInsertSuccessfullyMessage = "Successfully added user to contacts";
                     ContactControl.Instance.UpsertContact(contact);
-                    string encryptedMessage = transcoder.Encrypt(userInsertSuccessfullyMessage);
+                    string encryptedMessage = transcoder.PublicEncrypt(userInsertSuccessfullyMessage, transcoder.PublicRSA);
                     returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_SUCCESS", userInsertSuccessfullyMessage, encryptedMessage);
                 }
             }
@@ -308,32 +307,37 @@ namespace Server
                 List<Contact> contacts = ContactControl.Instance.GetContacts(message.MessageSender);
                 ContactAggregator aggregator = new ContactAggregator(contacts);
                 string contactsJson = aggregator.GetJsonString();
-                string encryptedContacts = transcoder.Encrypt(contactsJson);
+                string encryptedContacts = transcoder.PublicEncrypt(contactsJson, transcoder.PublicRSA);
                 returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_GET_OK", contactsJson, encryptedContacts);
             }
             else
             {
                 throw new NotImplementedException("Message type not yet supported");
             }
+
             response = returnMessage.GetJsonString();
             SendResponse(userToHandle, response);
         }
 
-        private ControlMessage CreateInvalidResponseMessage(CryptoRSA transcoder)
+        private ControlMessage CreateInvalidResponseMessage(CryptoRSA transcoder, OpenSSL.Crypto.RSA RSA)
         {
             const string invalidMessage = "INVALID_CHECKSUM";
-            return new ControlMessage(MESSAGE_SENDER, "INVALID", invalidMessage, transcoder.Encrypt(invalidMessage));
+            return new ControlMessage(MESSAGE_SENDER, "INVALID", invalidMessage, transcoder.PublicEncrypt(invalidMessage, RSA));
         }
 
         void HandleMessageHistory(ControlMessage message, HttpListenerContext userToHandle)
         {
 			string response = String.Empty;
             ControlMessage responseMessage;
-            CryptoRSA transcoder = new CryptoRSA(SERVER_PRIVATE_KEY, "keys\\" + message.MessageSender + "_Public.pem");
-            string decryptedMessage = transcoder.Decrypt(message.MessageContent);
+            CryptoRSA transcoder = new CryptoRSA();
+
+            transcoder.loadRSAFromPrivateKey(SERVER_PRIVATE_KEY);
+            transcoder.loadRSAFromPublicKey("keys/" + message.MessageSender + "_Public.pem");
+
+            string decryptedMessage = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
             if (decryptedMessage != message.Checksum)
             {
-                responseMessage = CreateInvalidResponseMessage(transcoder);
+                responseMessage = CreateInvalidResponseMessage(transcoder, transcoder.PrivateRSA);
             }
             else { 
                 Contact contact = new Contact();
@@ -341,7 +345,7 @@ namespace Server
                 List<Message> messagesHistory = MessageControl.Instance.GetMessages(contact);
                 MessageHistoryAggregator historyAggregator = new MessageHistoryAggregator(messagesHistory);
                 string plainMessageContent = historyAggregator.GetJsonString();
-                string encryptedMessageContent = transcoder.Encrypt(plainMessageContent);
+                string encryptedMessageContent = transcoder.PublicEncrypt(plainMessageContent, transcoder.PublicRSA);
                 responseMessage = new ControlMessage(MESSAGE_SENDER, "HISTORY_OK", plainMessageContent, encryptedMessageContent);
             }
             response = responseMessage.GetJsonString();

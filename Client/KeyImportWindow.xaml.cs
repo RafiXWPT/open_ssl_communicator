@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.IO;
 using CommunicatorCore.Classes.Model;
+using System;
 
 namespace Client
 {
@@ -62,22 +63,29 @@ namespace Client
 
         private void checkKeys_Click(object sender, RoutedEventArgs e)
         {
-            CryptoRSA cryptoService = new CryptoRSA();
-            cryptoService.loadRSAFromPrivateKey(pathToPrivateKey);
-            cryptoService.loadRSAFromPublicKey(pathToPublicKey);
-
-            string checker = "CHECK_ME";
-            string encryptedCheck = cryptoService.PublicEncrypt(checker, cryptoService.PrivateRSA);
-            string decryptedCheck = cryptoService.PrivateDecrypt(encryptedCheck, cryptoService.PublicRSA);
-
-            if(checker == decryptedCheck)
+            try
             {
-                MessageBox.Show("TEST_PASSED");
-                save.IsEnabled = true;
+                CryptoRSA cryptoService = new CryptoRSA();
+                cryptoService.loadRSAFromPrivateKey(pathToPrivateKey);
+                cryptoService.loadRSAFromPublicKey(pathToPublicKey);
+
+                string checker = "CHECK_ME";
+                string encryptedCheck = cryptoService.PublicEncrypt(checker, cryptoService.PublicRSA);
+                string decryptedCheck = cryptoService.PrivateDecrypt(encryptedCheck, cryptoService.PrivateRSA);
+
+                if (checker == decryptedCheck)
+                {
+                    MessageBox.Show("TEST_PASSED");
+                    save.IsEnabled = true;
+                }
+                else
+                {
+                    MessageBox.Show("TEST_FAILED");
+                }
             }
-            else
+            catch(Exception ex)
             {
-                MessageBox.Show("TEST_FAILED");
+                MessageBox.Show(ex.ToString());
             }
         }
 

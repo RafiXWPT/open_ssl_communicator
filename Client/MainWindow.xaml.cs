@@ -19,7 +19,7 @@ namespace Client
             new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" +
                     ConfigurationHandler.GetValueFromKey("HISTORY_API") + "/");
 
-        private readonly string ServerKeyPath = "SERVER_Public.pem";
+        //private readonly string ServerKeyPath = "SERVER_Public.pem";
 
         private ConnectionChecker connectionChecker;
         private NetworkController networkController;
@@ -84,10 +84,13 @@ namespace Client
 
         private void HandleContactsResponse(string reply)
         {
-            CryptoRSA decoder = new CryptoRSA(null, ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
+            CryptoRSA decoder = new CryptoRSA();
+            //null, ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY")
+            decoder.loadRSAFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
+
             ControlMessage returnedMessage = new ControlMessage();
             returnedMessage.LoadJson(reply);
-            string decryptedContent = decoder.Decrypt(returnedMessage.MessageContent);
+            string decryptedContent = decoder.PrivateDecrypt(returnedMessage.MessageContent, decoder.PrivateRSA);
             if (returnedMessage.Checksum != Sha1Util.CalculateSha(decryptedContent))
             {
                 MessageBox.Show("Zla checksuma wiadomosci");
