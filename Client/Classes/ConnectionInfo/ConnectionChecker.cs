@@ -66,7 +66,7 @@ namespace Client
                     CheckConnection = !checkConnection_event.WaitOne(TimeSpan.FromSeconds(1));
                 }
             }
-            catch
+            catch (Exception e)
             {
                 ConnectionInfo.UpdateConnection(9999, true);
                 CheckConnection = !checkConnection_event.WaitOne(TimeSpan.FromSeconds(10));

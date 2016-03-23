@@ -7,26 +7,22 @@ namespace Server
     {
         static bool IsFileLocked(FileInfo file)
         {
-            FileStream stream = null;
-
-            if (!file.Exists)
+            if (!file.Exists) { 
                 return false;
+            }
 
             try
             {
-                stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+                using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    // Using clause causes to auto-close stream       
+                    return false;
+                }
             }
             catch (IOException)
             {
                 return true;
             }
-            finally
-            {
-                if (stream != null)
-                    stream.Close();
-            }
-
-            return false;
         }
 
         public static void LogMessage(string msg, bool onlyFile = false)

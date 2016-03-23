@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SystemSecurity;
 
-namespace DiffieHellman
+namespace CommunicatorCore.Classes.Model
 {
     public class DiffieHellmanTunnel
     {

@@ -44,11 +44,14 @@ namespace Server
                         {
                             HttpListenerContext ctx = c as HttpListenerContext;
                             _handler.HandleRequest(ctx);
-                            
+
                         }, _listener.GetContext());
                     }
                 }
-                catch { }
+                catch (Exception e)
+                {
+                    ServerLogger.LogMessage(e.Message);
+                }
             });
         }
 

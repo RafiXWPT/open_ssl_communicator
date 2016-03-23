@@ -43,14 +43,7 @@ namespace Client
             dlg.Filter = "PEM Keys (*.pem)|*.pem";
 
             bool? result = dlg.ShowDialog();
-            if (result == true)
-            {
-                return dlg.FileName;
-            }
-            else
-            {
-                return string.Empty;
-            }
+            return result == true ? dlg.FileName : string.Empty;
         }
 
         private void searchPublicKey_Click(object sender, RoutedEventArgs e)

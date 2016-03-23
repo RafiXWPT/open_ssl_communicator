@@ -8,14 +8,15 @@ namespace CommunicatorCore.Classes.Model
         public string MessageSender { get; set; }
         public string MessageType { get; set; }
         public string MessageContent { get; set; }
-        public DateTime MessageDate;
+        public string Checksum { get; set; }
 
-        public ControlMessage(string messageSender, string messageType = "NO_TYPE", string messageContent = "NO_CONTENT")
+        public ControlMessage(string messageSender, string messageType = "NO_TYPE", string plainMessageContent = "NO_CONTENT",
+            string encryptedMessage = null)
         {
             MessageSender = messageSender;
             MessageType = messageType;
-            MessageContent = messageContent;
-            MessageDate = DateTime.Now;
+            MessageContent = encryptedMessage ?? plainMessageContent;
+            Checksum = Sha1Util.CalculateSha(plainMessageContent);
         }
 
         public ControlMessage()
@@ -23,17 +24,11 @@ namespace CommunicatorCore.Classes.Model
 
         public void LoadJson(string jsonString)
         {
-            try
-            {
-                ControlMessage tmp = JsonConvert.DeserializeObject<ControlMessage>(jsonString);
-                this.MessageSender = tmp.MessageSender;
-                this.MessageType = tmp.MessageType;
-                this.MessageContent = tmp.MessageContent;
-            }
-            catch
-            {
-
-            }
+            ControlMessage tmp = JsonConvert.DeserializeObject<ControlMessage>(jsonString);
+            this.MessageSender = tmp.MessageSender;
+            this.MessageType = tmp.MessageType;
+            this.MessageContent = tmp.MessageContent;
+            this.Checksum = tmp.Checksum;
         }
 
         public string GetJsonString()

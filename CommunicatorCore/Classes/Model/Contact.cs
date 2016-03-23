@@ -26,29 +26,16 @@ namespace CommunicatorCore.Classes.Model
             From = from;
             To = to;
             DisplayName =  string.IsNullOrWhiteSpace(displayName) ? to : displayName;
-            using (MD5 md5 = MD5.Create())
-            {
-                byte[] inputBytes = Encoding.UTF8.GetBytes(From + To + DisplayName);
-                byte[] hash = md5.ComputeHash(inputBytes);
-                ContactChecksum = Encoding.UTF8.GetString(hash);
-            }
-            
+            ContactChecksum = Sha1Util.CalculateSha(From + To);
         }
 
         public void LoadJson(string jsonString)
         {
-            try
-            {
-                Contact tmp = JsonConvert.DeserializeObject<Contact>(jsonString);
-                this.From = tmp.From;
-                this.To = tmp.To;
-                this.DisplayName = tmp.DisplayName;
-            }
-            catch
-            {
-
-            }
-        }
+            Contact tmp = JsonConvert.DeserializeObject<Contact>(jsonString);
+            this.From = tmp.From;
+            this.To = tmp.To;
+            this.DisplayName = tmp.DisplayName;
+       }
 
         public string GetJsonString()
         {

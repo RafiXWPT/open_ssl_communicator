@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DiffieHellman;
 using System.Net;
 using System.Windows.Controls;
 using System.Windows;
@@ -98,7 +97,7 @@ namespace Client
             string reply = string.Empty;
             try
             {
-                ControlMessage message = new ControlMessage("UNKNOWN", "REQUEST_FOR_ID", "NO_CONTENT");
+                ControlMessage message = new ControlMessage("UNKNOWN", "REQUEST_FOR_ID");
                 reply = NetworkController.Instance.SendMessage(uriString, client, message);
             }
             catch
@@ -166,16 +165,9 @@ namespace Client
             tunnelToCheck.Status = DiffieHellmanTunnelStatus.CHECKING_TUNNEL;
 
             string reply = string.Empty;
-            try
-            {
-                ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "CHECK_TUNNEL", tunnelToCheck.DiffieEncrypt("OK"));
-                reply = NetworkController.Instance.SendMessage(uriString, client, message);
-            }
-            catch
-            {
-
-            }
-
+            ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "CHECK_TUNNEL", "OK", tunnelToCheck.DiffieEncrypt("OK"));
+            reply = NetworkController.Instance.SendMessage(uriString, client, message);
+            
             return reply;
         }
     }

@@ -18,15 +18,8 @@ namespace CommunicatorCore.Classes.Model
 
         public void LoadJson(string jsonString)
         {
-            try
-            {
-                MessageHistoryAggregator tmp = JsonConvert.DeserializeObject<MessageHistoryAggregator>(jsonString);
-                this.Messages = tmp.Messages;
-            }
-            catch
-            {
-
-            }
+            MessageHistoryAggregator tmp = JsonConvert.DeserializeObject<MessageHistoryAggregator>(jsonString);
+            this.Messages = tmp.Messages;
         }
 
         public string GetJsonString()

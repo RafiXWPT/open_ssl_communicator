@@ -21,25 +21,19 @@ namespace Server
         private readonly UsersDao _usersDao;
         private readonly System.Timers.Timer clearingUsers = new System.Timers.Timer(TimeSpan.FromMinutes(1).TotalMilliseconds);
 
-        ISet<User> users = new HashSet<User>();
+        private ISet<User> users = new HashSet<User>();
 
         public UserControll()
         {
             instance = this;
             _usersDao = new UsersDao();
-            LoadUsersFromDatabase();
-
+            
             clearingUsers.Elapsed += ClearUsersInApplication;
             clearingUsers.AutoReset = true;
             clearingUsers.Enabled = true;
         }
 
-        void LoadUsersFromDatabase()
-        {
-            users = new HashSet<User>(_usersDao.LoadUsers());
-        }
-
-        public int getUsersOnline()
+        public int GetUsersOnline()
         {
             return users.Count;
         }
@@ -59,7 +53,7 @@ namespace Server
             return users.ToList().Find(user => user.Name == username);
         }
 
-        public bool CheckIsUserExist(string username)
+        public bool CheckIfUserExist(string username)
         {
             return _usersDao.IsUserExist(username);
         }

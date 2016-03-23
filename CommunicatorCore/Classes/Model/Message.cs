@@ -26,17 +26,10 @@ namespace CommunicatorCore.Classes.Model
 
         public void LoadJson(string jsonString)
         {
-            try
-            {
-                Message tmp = JsonConvert.DeserializeObject<Message>(jsonString);
-                this.MessageSender = tmp.MessageSender;
-                this.MessageDestination = tmp.MessageDestination;
-                this.MessageContent = tmp.MessageContent;
-            }
-            catch
-            {
-
-            }
+            Message tmp = JsonConvert.DeserializeObject<Message>(jsonString);
+            this.MessageSender = tmp.MessageSender;
+            this.MessageDestination = tmp.MessageDestination;
+            this.MessageContent = tmp.MessageContent;
         }
 
         public string GetJsonString()
