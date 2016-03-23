@@ -5,9 +5,10 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using SystemSecurity;
-﻿using CommunicatorCore.Classes.Model;
+using CommunicatorCore.Classes.Model;
 using MongoDB.Driver;
 using Server.Classes;
+using System.Threading;
 
 namespace Server
 {
@@ -249,24 +250,30 @@ namespace Server
 
             if (message.MessageType == "CHAT_INIT")
             {
+                ServerLogger.LogMessage("User: " + message.MessageSender + " initializing asymetric tunnel.");
                 messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
                 chatMessage.LoadJson(messageContent);
                 if(chatMessage.MessageContent == "INIT")
                 {
                     response = "OK";
+                    ServerLogger.LogMessage("Tunnel for: " + message.MessageSender + " has been initialized.");
                 }
                 else
                 {
                     response = "BAD";
+                    ServerLogger.LogMessage("Tunnel for: " + message.MessageSender + " has not been initialized.");
                 }
             }
-            else if (message.MessageType == "CHAT_ECHO")
+            else if (message.MessageType == "CHAT_MESSAGE")
             {
+                ServerLogger.LogMessage("User: " + message.MessageSender + " sends chat message.");
                 messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
                 chatMessage.LoadJson(messageContent);
-                //MessageControl.Instance.InsertMessage(chatMessage);
-                response = "ECHO: " + chatMessage.MessageContent;
+                
+                // Check to who and send that message
+                // First we have to create method to detect incomming messages on clients!
             }
+
             SendResponse(userToHandle, response);
         }
 

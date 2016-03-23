@@ -17,6 +17,7 @@ using CommunicatorCore.Classes.Model;
 using System.IO;
 using OpenSSL.Crypto;
 using System.Threading;
+using System.Media;
 
 namespace Client
 {
@@ -26,8 +27,12 @@ namespace Client
     public partial class ChatWindow : Window
     {
         private readonly Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("SEND_CHAT_MESSAGE_API") + "/");
+        private readonly Uri incomingMessage = new Uri("Media/incoming.wav", UriKind.Relative);
+        private readonly Uri outcomingMessage = new Uri("Media/outcoming.wav", UriKind.Relative);
+
         NameValueCollection headers = new NameValueCollection();
         NameValueCollection data = new NameValueCollection();
+        MediaPlayer player = new MediaPlayer();
 
         private readonly CryptoRSA cryptoService;
 
@@ -37,8 +42,7 @@ namespace Client
 
             cryptoService = new CryptoRSA();
             cryptoService.loadRSAFromPublicKey("SERVER_Public.pem");
-
-            sendMsg.IsEnabled = false;
+            chatText.IsEnabled = false;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -48,16 +52,39 @@ namespace Client
             thread.Start();
         }
 
-        private void sendMsg_Click(object sender, RoutedEventArgs e)
+        private void SendMsg()
         {
+            if (string.IsNullOrWhiteSpace(chatText.Text))
+                return;
+
             try
             {
+                AddMessageToChatWindow(ConnectionInfo.Sender, chatText.Text, true);
                 PrepareMessage(chatText.Text);
             }
             catch(Exception ex)
             {
                 MessageBox.Show(ex.ToString());
             }
+        }
+
+        private void PlaySound(bool outcoming = false)
+        {
+            if(outcoming)
+            {
+                player.Open(outcomingMessage);
+            }
+            else
+            {
+                player.Open(incomingMessage);
+            }
+            player.Play();
+        }
+
+        void AddMessageToChatWindow(string userName, string messageContent, bool isFromSelf = false)
+        {
+            listBox.Items.Insert(0, new DisplayMessage(userName, messageContent, isFromSelf));
+            PlaySound(isFromSelf);
         }
 
         void SendInitMessage()
@@ -69,28 +96,37 @@ namespace Client
                 string encryptedChatMessage = cryptoService.PublicEncrypt(chatMessage.GetJsonString(), cryptoService.PublicRSA);
                 message = new ControlMessage(ConnectionInfo.Sender, "CHAT_INIT", encryptedChatMessage);
 
-                string response = SendMessage(message);
-                if(response == "OK")
+                string responseString = string.Empty;
+                using (var wb = new WebClient())
+                {
+                    wb.Proxy = null;
+                    headers["messageContent"] = message.GetJsonString();
+                    wb.Headers.Add(headers);
+                    data["DateTime"] = DateTime.Now.ToShortDateString();
+                    byte[] responseByte = wb.UploadValues(uriString, "POST", data);
+                    responseString = Encoding.UTF8.GetString(responseByte);
+                }
+
+                if (responseString == "OK")
                 {
                     listBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        listBox.Items.Add("[" + DateTime.Now + "]:" + " Encrypted channel established.");
+                        AddMessageToChatWindow("TUNNEL CREATOR", "Encrypted channel has been established.");
                     }));
-                    sendMsg.Dispatcher.BeginInvoke(new Action(delegate ()
+                    chatText.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        sendMsg.IsEnabled = true;
+                        chatText.IsEnabled = true;
                     }));
-                    
                 }
                 else
                 {
                     listBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        listBox.Items.Add("[" + DateTime.Now + "]:" + " Encrypted Channel is not established.");
+                        AddMessageToChatWindow("TUNNEL CREATOR", "Encrypted channel is not established.");
                     }));
-                    sendMsg.Dispatcher.BeginInvoke(new Action(delegate ()
+                    chatText.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        sendMsg.IsEnabled = true;
+                        chatText.IsEnabled = true;
                     }));
                 }
             }
@@ -107,11 +143,9 @@ namespace Client
             {
                 Message chatMessage = new Message(ConnectionInfo.Sender, ConnectionInfo.Sender, textBoxContent);
                 string encryptedChatMessage = cryptoService.PublicEncrypt(chatMessage.GetJsonString(), cryptoService.PublicRSA);
-                message = new ControlMessage(ConnectionInfo.Sender, "CHAT_ECHO", encryptedChatMessage);
+                message = new ControlMessage(ConnectionInfo.Sender, "CHAT_MESSAGE", encryptedChatMessage);
 
-                string response = SendMessage(message);
-
-                listBox.Items.Add("[" + DateTime.Now + "]:" + response);
+                Thread SendReceiveMessage = StartThreadWithParam(message);
                 chatText.Text = string.Empty;
             }
             catch(Exception ex)
@@ -120,17 +154,46 @@ namespace Client
             }
         }
 
-        string SendMessage(ControlMessage message)
+        public Thread StartThreadWithParam(ControlMessage messageToSend)
         {
-            using (var wb = new WebClient())
+            var t = new Thread(() => SendMessage(messageToSend));
+            t.Start();
+            return t;
+        }
+
+
+        void SendMessage(ControlMessage message)
+        {
+            try
             {
-                wb.Proxy = null;
-                headers["messageContent"] = message.GetJsonString();
-                wb.Headers.Add(headers);
-                data["DateTime"] = DateTime.Now.ToShortDateString();
-                byte[] response = wb.UploadValues(uriString, "POST", data);
-                return Encoding.UTF8.GetString(response);
+                using (var wb = new WebClient())
+                {
+                    wb.Proxy = null;
+                    headers["messageContent"] = message.GetJsonString();
+                    wb.Headers.Add(headers);
+                    data["DateTime"] = DateTime.Now.ToShortDateString();
+                    byte[] responseByte = wb.UploadValues(uriString, "POST", data);
+                    string responseString = Encoding.UTF8.GetString(responseByte);
+                    // Do The magic
+                    // Handle Response
+                }
             }
+            catch
+            {
+
+            }
+        }
+
+        void HandleResponse(string response)
+        {
+            // When response will be computed
+            // AddMessageToChatWindow(Sender, Content);
+        }
+
+        private void chatText_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                SendMsg();
         }
     }
 }

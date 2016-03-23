@@ -4,6 +4,16 @@
              xmlns:local="clr-namespace:Client"
              StartupUri="LogInWindow.xaml">
     <Application.Resources>
+        <Style  TargetType="{x:Type ListBoxItem}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsFromSelf}" Value="True">
+                    <Setter Property="Background" Value="#19f39611"/>
+                </DataTrigger>
 
+                <DataTrigger Binding="{Binding IsFromSelf}" Value="False">
+                    <Setter Property="Background" Value="#19000000"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>

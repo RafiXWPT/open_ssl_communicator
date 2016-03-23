@@ -5,19 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="ChatWindow" Height="500" Width="400" MinWidth="300" MinHeight="300" Icon="programIcon.ico" Loaded="Window_Loaded">
+        Title="ChatWindow" Height="300" Width="350" MinWidth="200" MinHeight="300" Icon="programIcon.ico" Loaded="Window_Loaded" Background="#FFCDCDCD">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="6*" />
+            <RowDefinition Height="7*" />
             <RowDefinition Height="3*"/>
-            <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
 
 
-        <ListBox x:Name="listBox" Grid.Row="0" HorizontalAlignment="Stretch" Margin="10,10,10,5" VerticalAlignment="Stretch"/>
+        <ListBox x:Name="listBox" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,10,2" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="{Binding Path=UserName}"/>
+                        <TextBlock Text="{Binding Path=MessageContent}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
 
-        <TextBox x:Name="chatText" Grid.Row="1" HorizontalAlignment="Stretch" Margin="10,5,10,5" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch"/>
-        <Button x:Name="sendMsg" Grid.Row="2" Content="SEND" HorizontalAlignment="Stretch" Margin="10,5,10,5" VerticalAlignment="Stretch" Click="sendMsg_Click" IsDefault="True"/>
-
+        <TextBox x:Name="chatText" Grid.Row="1" HorizontalAlignment="Stretch" Margin="10,2,10,10" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" KeyDown="chatText_KeyDown"/>
     </Grid>
 </Window>
