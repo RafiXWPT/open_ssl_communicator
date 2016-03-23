@@ -69,10 +69,13 @@ namespace Client
 
         private void checkKeys_Click(object sender, RoutedEventArgs e)
         {
-            CryptoRSA cryptoService = new CryptoRSA(pathToPublicKey, pathToPrivateKey);
+            CryptoRSA cryptoService = new CryptoRSA();
+            cryptoService.loadRSAFromPrivateKey(pathToPrivateKey);
+            cryptoService.loadRSAFromPublicKey(pathToPublicKey);
+
             string checker = "CHECK_ME";
-            string encryptedCheck = cryptoService.Encrypt(checker);
-            string decryptedCheck = cryptoService.Decrypt(encryptedCheck);
+            string encryptedCheck = cryptoService.PublicEncrypt(checker, cryptoService.PrivateRSA);
+            string decryptedCheck = cryptoService.PrivateDecrypt(encryptedCheck, cryptoService.PublicRSA);
 
             if(checker == decryptedCheck)
             {

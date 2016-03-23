@@ -10,75 +10,81 @@ namespace CommunicatorCore.Classes.Model
 {
     public class CryptoRSA
     {
-        private readonly string pathToEncryptFile;
-        private readonly string pathToDecryptFile;
-
-        private readonly CryptoKey privateKey;
-        private readonly CryptoKey publicKey;
-
-        public CryptoRSA(string pathToEncryptFile, string pathToDecryptFile)
+        private RSA publicRSA;
+        public RSA PublicRSA
         {
-            this.pathToEncryptFile = pathToEncryptFile;
-            this.pathToDecryptFile = pathToDecryptFile;
-            CreateKeys();
+            get
+            {
+                return publicRSA;
+            }
         }
 
-        void CreateKeys()
+        private RSA privateRSA;
+        public RSA PrivateRSA
         {
-
+            get
+            {
+                return privateRSA;
+            }
         }
 
-        public string Encrypt(string textToEncrypt)
+        public CryptoRSA()
+        {
+        }
+
+        public void loadRSAFromPublicKey(string pathToPublicKey)
+        {
+            string publicKey = string.Empty;
+            using (StreamReader sr = new StreamReader(pathToPublicKey))
+            {
+                publicKey = sr.ReadToEnd();
+            }
+            using (var key = CryptoKey.FromPublicKey(publicKey, string.Empty))
+            {
+                publicRSA = key.GetRSA();
+            }
+        }
+
+        public void loadRSAFromPrivateKey(string pathToPrivateKey)
+        {
+            string privateKey = string.Empty;
+            using (StreamReader sr = new StreamReader(pathToPrivateKey))
+            {
+                privateKey = sr.ReadToEnd();
+            }
+            using (var key = CryptoKey.FromPrivateKey(privateKey, string.Empty))
+            {
+                privateRSA = key.GetRSA();
+            }
+        }
+
+        public string PublicEncrypt(string textToEncrypt, RSA rsa)
         {
             try
             {
-                string publicKey = string.Empty;
-                using (StreamReader sr = new StreamReader(pathToEncryptFile))
-                {
-                    publicKey = sr.ReadToEnd();
-                }
-
-                byte[] stringtoByte = Encoding.UTF8.GetBytes(textToEncrypt);
+                byte[] plain = Encoding.UTF8.GetBytes(textToEncrypt);
                 byte[] output;
 
-                using (var key = CryptoKey.FromPublicKey(publicKey, string.Empty))
-                {
-                    using (var rsa = key.GetRSA())
-                    {
 
-                        output = rsa.PublicEncrypt(stringtoByte, RSA.Padding.PKCS1);
-                    }
-                }
-
+                output = rsa.PublicEncrypt(plain, RSA.Padding.PKCS1);
                 return Convert.ToBase64String(output);
             }
-            catch(Exception ex)
+            catch
             {
-                return ex.ToString();
+                return string.Empty;
             }
         }
 
-        public string Decrypt(string textToDecrypt)
+        public string PrivateDecrypt(string textToDecrypt, RSA rsa)
         {
             try
             {
-                byte[] payLoad = Convert.FromBase64String(textToDecrypt);
-                string privateKey = string.Empty;
+                byte[] cipher = Convert.FromBase64String(textToDecrypt);
+                byte[] output;
 
-                using (StreamReader sr = new StreamReader(pathToDecryptFile))
-                {
-                    privateKey = sr.ReadToEnd();
-                }
+                output = rsa.PrivateDecrypt(cipher, RSA.Padding.PKCS1);
 
-                using (var key = CryptoKey.FromPrivateKey(privateKey, string.Empty))
-                {
-                    using (var rsa = key.GetRSA())
-                    {
-                        payLoad = rsa.PrivateDecrypt(payLoad, RSA.Padding.PKCS1);
-                    }
-                }
-
-                return Encoding.UTF8.GetString(payLoad);
+                return Encoding.UTF8.GetString(output);
             }
             catch
             {

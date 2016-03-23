@@ -96,12 +96,12 @@ namespace Client
                 string messageContent = tunnel.DiffieDecrypt(returnedControlMessage.MessageContent);
                 if (messageContent == "REGISTER_OK")
                 {
-                    MessageBox.Show("Rejestracja udana.");
+                    MessageBox.Show("Registration Succesfull.");
                     this.Close();
                 }
                 else if (messageContent == "REGISTER_INVALID")
                 {  
-                    MessageBox.Show("Rejestracja nie udana, uzyj innego uzytkownika.");
+                    MessageBox.Show("Registration unsuccesfull. Use different username or password.");
                 }
                 else
                 {

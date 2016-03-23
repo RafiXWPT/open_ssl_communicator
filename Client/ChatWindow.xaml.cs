@@ -15,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using CommunicatorCore.Classes.Model;
 using System.IO;
+using OpenSSL.Crypto;
+using System.Threading;
 
 namespace Client
 {
@@ -27,19 +29,30 @@ namespace Client
         NameValueCollection headers = new NameValueCollection();
         NameValueCollection data = new NameValueCollection();
 
-        private readonly CryptoRSA rsa;
+        private readonly CryptoRSA cryptoService;
 
         public ChatWindow()
         {
-            rsa = new CryptoRSA("SERVER_Public.pem", ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
             InitializeComponent();
+
+            cryptoService = new CryptoRSA();
+            cryptoService.loadRSAFromPublicKey("SERVER_Public.pem");
+
+            sendMsg.IsEnabled = false;
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            Thread thread = new Thread(SendInitMessage);
+            thread.IsBackground = true;
+            thread.Start();
+        }
+
+        private void sendMsg_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                SendMessage();
+                PrepareMessage(chatText.Text);
             }
             catch(Exception ex)
             {
@@ -47,22 +60,68 @@ namespace Client
             }
         }
 
-        void SendMessage()
+        void SendInitMessage()
         {
-
             ControlMessage message = new ControlMessage();
             try
             {
-                Message chatMessage = new Message(ConnectionInfo.Sender, ConnectionInfo.Sender, chatText.Text);
-                string encryptedChatMessage = rsa.Encrypt(chatMessage.GetJsonString());
+                Message chatMessage = new Message(ConnectionInfo.Sender, ConnectionInfo.Sender, "INIT");
+                string encryptedChatMessage = cryptoService.PublicEncrypt(chatMessage.GetJsonString(), cryptoService.PublicRSA);
+                message = new ControlMessage(ConnectionInfo.Sender, "CHAT_INIT", encryptedChatMessage);
+
+                string response = SendMessage(message);
+                if(response == "OK")
+                {
+                    listBox.Dispatcher.BeginInvoke(new Action(delegate ()
+                    {
+                        listBox.Items.Add("[" + DateTime.Now + "]:" + " Encrypted channel established.");
+                    }));
+                    sendMsg.Dispatcher.BeginInvoke(new Action(delegate ()
+                    {
+                        sendMsg.IsEnabled = true;
+                    }));
+                    
+                }
+                else
+                {
+                    listBox.Dispatcher.BeginInvoke(new Action(delegate ()
+                    {
+                        listBox.Items.Add("[" + DateTime.Now + "]:" + " Encrypted Channel is not established.");
+                    }));
+                    sendMsg.Dispatcher.BeginInvoke(new Action(delegate ()
+                    {
+                        sendMsg.IsEnabled = true;
+                    }));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        void PrepareMessage(string textBoxContent)
+        {
+            ControlMessage message = new ControlMessage();
+            try
+            {
+                Message chatMessage = new Message(ConnectionInfo.Sender, ConnectionInfo.Sender, textBoxContent);
+                string encryptedChatMessage = cryptoService.PublicEncrypt(chatMessage.GetJsonString(), cryptoService.PublicRSA);
                 message = new ControlMessage(ConnectionInfo.Sender, "CHAT_ECHO", encryptedChatMessage);
+
+                string response = SendMessage(message);
+
+                listBox.Items.Add("[" + DateTime.Now + "]:" + response);
+                chatText.Text = string.Empty;
             }
             catch(Exception ex)
             {
                 MessageBox.Show(ex.ToString());
             }
+        }
 
-            //Message message = new Message("THATS ME", "TO ANYONE", chatText.Text);
+        string SendMessage(ControlMessage message)
+        {
             using (var wb = new WebClient())
             {
                 wb.Proxy = null;
@@ -70,9 +129,7 @@ namespace Client
                 wb.Headers.Add(headers);
                 data["DateTime"] = DateTime.Now.ToShortDateString();
                 byte[] response = wb.UploadValues(uriString, "POST", data);
-
-                listBox.Items.Add(Encoding.UTF8.GetString(response));
-                chatText.Text = string.Empty;
+                return Encoding.UTF8.GetString(response);
             }
         }
     }

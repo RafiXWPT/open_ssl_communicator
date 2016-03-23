@@ -14,72 +14,65 @@ namespace Server
     public class RequestHandler
     {
         private const string MESSAGE_SENDER = "SERVER";
+        private readonly CryptoRSA cryptoService = new CryptoRSA();
+
+        public RequestHandler()
+        {
+            cryptoService.loadRSAFromPrivateKey("keys/SERVER_Private.pem");
+        }
 
         public void HandleRequest(HttpListenerContext userToHandle)
         {
             string wantedUrl = userToHandle.Request.RawUrl;
             string sender = userToHandle.Request.RemoteEndPoint.Address.ToString();
-            string response = string.Empty;
             string messageContent = userToHandle.Request.Headers["messageContent"];
             try
             {
                 if (wantedUrl == "/connectionCheck/")
                 {
                     ControlMessage message = ParseMessageContent(messageContent);
-                    ConnectionCheck(message, sender, out response);
+                    ConnectionCheck(message, sender, userToHandle);
                 }
                 else if (wantedUrl == "/diffieTunnel/")
                 {
                     ControlMessage message = ParseMessageContent(messageContent);
-                    DiffieTunnel(message, out response);
+                    DiffieTunnel(message, userToHandle);
                 }
                 else if (wantedUrl == "/register/")
                 {
                     ControlMessage message = ParseMessageContent(messageContent);
-                    Register(message, out response);
+                    Register(message, userToHandle);
                 }
                 else if (wantedUrl == "/logIn/")
                 {
                     ControlMessage message = ParseMessageContent(messageContent);
-                    LogIn(message, out response);
+                    LogIn(message, userToHandle);
                 }
                 else if (wantedUrl == "/sendChatMessage/")
                 {
                     ControlMessage message = ParseMessageContent(messageContent);
-                    SendChatMessage(message, out response);
+                    SendChatMessage(message, userToHandle);
                 }
                 else if (wantedUrl == "/contacts/")
                 {
                     ControlMessage message = ParseMessageContent(messageContent);
-                    HandleContactMessage(message, out response);
+                    HandleContactMessage(message, userToHandle);
                 }
                 else if (wantedUrl == "/history/")
                 {
                     ControlMessage message = ParseMessageContent(messageContent);
-                    HandleMessageHistory(message, out response);
-                }
-                else
-                {
-                    response = string.Empty;
-                }
-                
+                    HandleMessageHistory(message, userToHandle);
+                }              
             }
             catch (Exception ex)
             {
                 ServerLogger.LogMessage(ex.ToString());
-                response = ex.Message;
             }
-            finally
-            {
-                SendResponse(userToHandle, response);
-            }
-
-            CloseResponseStream(userToHandle);
         }
 
-        void ConnectionCheck(ControlMessage message, string sender, out string response)
+        void ConnectionCheck(ControlMessage message, string sender, HttpListenerContext userToHandle)
         {
-            response = string.Empty;
+            string response = string.Empty;
             User user = UserControll.Instance.GetUserFromApplication(message.MessageSender);
 
             if (user != null)
@@ -96,11 +89,13 @@ namespace Server
             {
                 response = "BAD_CONTENT";
             }
+
+            SendResponse(userToHandle, response);
         }
 
-        void DiffieTunnel(ControlMessage message, out string response)
+        void DiffieTunnel(ControlMessage message, HttpListenerContext userToHandle)
         {
-            response = string.Empty;
+            string response = string.Empty;
             User user = null;
 
             if (message.MessageSender == "UNKNOWN")
@@ -148,11 +143,13 @@ namespace Server
             {
                 response = string.Empty;
             }
+
+            SendResponse(userToHandle, response);
         }
 
-        void Register(ControlMessage message, out string response)
+        void Register(ControlMessage message, HttpListenerContext userToHandle)
         {
-            response = string.Empty;
+            string response = string.Empty;
             User user = UserControll.Instance.GetUserFromApplication(message.MessageSender);
 
             if (user != null)
@@ -169,26 +166,32 @@ namespace Server
                     {
                         ServerLogger.LogMessage("Requested user already exist.");
                         responseContent = user.Tunnel.DiffieEncrypt("REGISTER_INVALID");
+
+                        controlMessage = new ControlMessage(MESSAGE_SENDER, "REGISTER_INFO", responseContent);
+                        response = controlMessage.GetJsonString();
+                        SendResponse(userToHandle, response);
                     }
                     else
                     {
                         KeyGenerator.GenerateKeyPair(userPasswordData.Username);
-                        EmailMessage emailMessage = new EmailMessage("OpenSSL Registration", userPasswordData.Username);
+                        EmailMessage emailMessage = new EmailMessage("Crypto Talk Registration", userPasswordData.Username);
                         UserControll.Instance.AddUserToDatabase(userPasswordData);
+
                         responseContent = user.Tunnel.DiffieEncrypt("REGISTER_OK");
+                        controlMessage = new ControlMessage(MESSAGE_SENDER, "REGISTER_INFO", responseContent);
+                        response = controlMessage.GetJsonString();
+                        SendResponse(userToHandle, response);
+
                         emailMessage.Send(true);
                         ServerLogger.LogMessage("User added to database, registration succesfull");
                     }
-
-                    controlMessage = new ControlMessage(MESSAGE_SENDER, "REGISTER_INFO", responseContent);
-                    response = controlMessage.GetJsonString();
                 }
             }
         }
 
-        void LogIn(ControlMessage message, out string response)
+        void LogIn(ControlMessage message, HttpListenerContext userToHandle)
         {
-            response = string.Empty;
+            string response = string.Empty;
             User user = UserControll.Instance.GetUserFromApplication(message.MessageSender);
 
             if (user != null)
@@ -219,6 +222,7 @@ namespace Server
 
                 ControlMessage replyMessage = new ControlMessage(MESSAGE_SENDER, responseType, responseContent);
                 response = replyMessage.GetJsonString();
+                SendResponse(userToHandle, response);
             }
         }
 
@@ -229,26 +233,38 @@ namespace Server
             return message;
         }
 
-        private void SendChatMessage(ControlMessage message, out string response)
+        private void SendChatMessage(ControlMessage message, HttpListenerContext userToHandle)
         {
-            response = string.Empty;
-            if (message.MessageType == "CHAT_ECHO")
+            string response = string.Empty;
+            string messageContent = string.Empty;
+            Message chatMessage = new Message();
+
+            if (message.MessageType == "CHAT_INIT")
             {
-                //Console.WriteLine(message.MessageSender + "," + message.MessageType + "," + message.MessageContent);
-
-                CryptoRSA rsa = new CryptoRSA(null, "keys/SERVER_Private.pem");
-                string messageContent = rsa.Decrypt(message.MessageContent);
-
-                Message chatMessage = new Message();
+                messageContent = cryptoService.PrivateDecrypt(message.MessageContent, cryptoService.PrivateRSA);
                 chatMessage.LoadJson(messageContent);
-                //            We should now send message somehow
+                if(chatMessage.MessageContent == "INIT")
+                {
+                    response = "OK";
+                }
+                else
+                {
+                    response = "BAD";
+                }
+            }
+            else if (message.MessageType == "CHAT_ECHO")
+            {
+                messageContent = cryptoService.PrivateDecrypt(message.MessageContent, cryptoService.PrivateRSA);
+                chatMessage.LoadJson(messageContent);
                 //MessageControl.Instance.InsertMessage(chatMessage);
                 response = "ECHO: " + chatMessage.MessageContent;
             }
+            SendResponse(userToHandle, response);
         }
 
-        private void HandleContactMessage(ControlMessage message, out string response)
+        private void HandleContactMessage(ControlMessage message, HttpListenerContext userToHandle)
         {
+            string response = string.Empty;
             ControlMessage returnMessage = new ControlMessage();
             //TODO: We should decrypt value somehow
             if (message.MessageType == "CONTACT_INSERT" || message.MessageType == "CONTACT_UPDATE")
@@ -279,17 +295,20 @@ namespace Server
                 throw new NotImplementedException("Message type not yet supported");
             }
             response = returnMessage.GetJsonString();
+            SendResponse(userToHandle, response);
         }
 
-        void HandleMessageHistory(ControlMessage message, out string response)
+        void HandleMessageHistory(ControlMessage message, HttpListenerContext userToHandle)
         {
-//            It has to be ciphered!
+            //            It has to be ciphered!
+            string response = string.Empty;
             Contact contact = new Contact();
             contact.LoadJson(message.MessageContent);
             List<Message> messagesHistory = MessageControl.Instance.GetMessages(contact);
             MessageHistoryAggregator historyAggregator = new MessageHistoryAggregator(messagesHistory);
             ControlMessage responseMessage = new ControlMessage(MESSAGE_SENDER, "HISTORY_OK", historyAggregator.GetJsonString());
             response = responseMessage.GetJsonString();
+            SendResponse(userToHandle, response);
         }
             
 
@@ -305,6 +324,8 @@ namespace Server
             {
                 ServerLogger.LogMessage(ex.ToString());
             }
+
+            CloseResponseStream(context);
         }
 
         void CloseResponseStream(HttpListenerContext context)

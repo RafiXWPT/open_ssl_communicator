@@ -25,20 +25,15 @@ namespace Server
 
         // DIFFIE HELLMAN PART
         public DiffieHellmanTunnel Tunnel { get; }
-        //public CryptoKey PublicKey { get; }
+        public RSA FromPublicKey { get; }
         //
 
-        public User(string name)
+        public User(string name, bool isTemporary = true, RSA publicKey = null)
         {
             Name = name;
-            IsTemporary = true;
             Tunnel = new DiffieHellmanTunnel();
-        }
-
-        public User(string name, bool isTemporary)
-        {
-            Name = name;
             IsTemporary = isTemporary;
+            FromPublicKey = publicKey;
         }
 
         public void UpdateAddress(string address)
