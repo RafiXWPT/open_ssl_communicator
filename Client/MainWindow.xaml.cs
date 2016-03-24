@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Windows;
 using CommunicatorCore.Classes.Model;
+using Config;
 
 namespace Client
 {
@@ -18,8 +19,6 @@ namespace Client
         private readonly Uri HistoryUriString =
             new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" +
                     ConfigurationHandler.GetValueFromKey("HISTORY_API") + "/");
-
-        //private readonly string ServerKeyPath = "SERVER_Public.pem";
 
         private ConnectionChecker connectionChecker;
         private NetworkController networkController;
@@ -85,7 +84,6 @@ namespace Client
         private void HandleContactsResponse(string reply)
         {
             CryptoRSA decoder = new CryptoRSA();
-            //null, ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY")
             decoder.loadRSAFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
 
             ControlMessage returnedMessage = new ControlMessage();
@@ -110,6 +108,12 @@ namespace Client
             {
                 //                E-e
             }
+        }
+
+        private void options_Click(object sender, RoutedEventArgs e)
+        {
+            Options options = new Options();
+            options.Show();
         }
     }
 }

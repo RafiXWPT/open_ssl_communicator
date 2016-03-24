@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using CommunicatorCore.Classes.Model;
+using Config;
 
 namespace Client
 {

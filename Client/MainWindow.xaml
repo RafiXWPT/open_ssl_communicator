@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Client"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Client.MainWindow"
         mc:Ignorable="d"
-        Title="Title" Height="400" MaxHeight="800" MinHeight="300" Width="400" MinWidth="260" MaxWidth="800" Loaded="Window_Loaded" Background="#FFCDCDCD" Icon="programIcon.ico">
+        Title="Title" Height="400" MaxHeight="800" MinHeight="300" Width="400" MinWidth="260" MaxWidth="800" Loaded="Window_Loaded" Background="#FFCDCDCD" Icon="programIcon.ico" WindowStartupLocation="CenterScreen">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -27,7 +27,7 @@
             <Button x:Name="importKeys" Grid.Column="0" Content="Import&#10;Keys" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Click="importKeys_Click"/>
             <Button x:Name="history" Grid.Column="1" Content="History" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Click="GetHistory"/>
             <Button x:Name="addContact" Grid.Column="2" Content="Add Contact" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch"/>
-            <Button x:Name="options" Grid.Column="3" Content="Options" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch"/>
+            <Button x:Name="options" Grid.Column="3" Content="Options" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Click="options_Click"/>
 
         </Grid>
 

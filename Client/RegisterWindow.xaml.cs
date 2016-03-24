@@ -17,6 +17,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using SystemSecurity;
 using CommunicatorCore.Classes.Model;
+using Config;
 
 namespace Client
 {

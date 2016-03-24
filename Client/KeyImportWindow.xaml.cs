@@ -2,6 +2,7 @@
 using System.IO;
 using CommunicatorCore.Classes.Model;
 using System;
+using Config;
 
 namespace Client
 {

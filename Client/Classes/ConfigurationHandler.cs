@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 
-namespace Client
+namespace Config
 {
     public static class ConfigurationHandler
     {

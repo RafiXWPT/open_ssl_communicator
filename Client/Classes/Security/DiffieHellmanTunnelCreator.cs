@@ -9,6 +9,7 @@ using System.Windows;
 using System.Threading;
 using SystemSecurity;
 using CommunicatorCore.Classes.Model;
+using Config;
 
 namespace Client
 {

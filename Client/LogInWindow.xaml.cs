@@ -16,6 +16,7 @@ using SystemSecurity;
 using System.Threading;
 using CommunicatorCore.Classes.Model;
 using WpfAnimatedGif;
+using Config;
 
 
 namespace Client

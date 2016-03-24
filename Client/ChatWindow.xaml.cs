@@ -18,6 +18,7 @@ using System.IO;
 using OpenSSL.Crypto;
 using System.Threading;
 using System.Media;
+using Config;
 
 namespace Client
 {
@@ -29,6 +30,7 @@ namespace Client
         private readonly Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("SEND_CHAT_MESSAGE_API") + "/");
         private readonly Uri incomingMessage = new Uri("Media/incoming.wav", UriKind.Relative);
         private readonly Uri outcomingMessage = new Uri("Media/outcoming.wav", UriKind.Relative);
+        private readonly FlashWindow flashWindow = new FlashWindow(Application.Current);
 
         NameValueCollection headers = new NameValueCollection();
         NameValueCollection data = new NameValueCollection();
@@ -70,21 +72,24 @@ namespace Client
 
         private void PlaySound(bool outcoming = false)
         {
-            if(outcoming)
+            if(outcoming && ConfigurationHandler.GetValueFromKey("OUTCOMING_SOUND") == "True")
             {
                 player.Open(outcomingMessage);
+                player.Play();
             }
-            else
+            else if (!outcoming && ConfigurationHandler.GetValueFromKey("INCOMING_SOUND") == "True")
             {
                 player.Open(incomingMessage);
+                player.Play();
             }
-            player.Play();
         }
 
         void AddMessageToChatWindow(string userName, string messageContent, bool isFromSelf = false)
         {
             listBox.Items.Insert(0, new DisplayMessage(userName, messageContent, isFromSelf));
             PlaySound(isFromSelf);
+            if (!isFromSelf && ConfigurationHandler.GetValueFromKey("BLINK_CHAT") == "True")
+                flashWindow.FlashApplicationWindow();
         }
 
         void SendInitMessage()
