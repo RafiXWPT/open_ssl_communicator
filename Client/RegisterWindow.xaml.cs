@@ -56,6 +56,7 @@ namespace Client
             checkingPasswordTimer.Tick += passwordBoxTimer_Tick;
 
             passwordBox.IsEnabled = false;
+            confirmPasswordBox.IsEnabled = false;
             sendBtn.IsEnabled = false;
         }
 
@@ -170,7 +171,7 @@ namespace Client
 
         private void passwordBoxPreTimer_Tick(object sender, EventArgs e)
         {
-            if(passwordBox.Password.Length > 0)
+            if(confirmPasswordBox.Password.Length > 0)
             {
                 checkingPassword.Visibility = Visibility.Visible;
                 checkingPasswordTimer.Start();
@@ -192,13 +193,16 @@ namespace Client
                 emailImageValid.Source = okeyImage;
                 isEmailValid = true;
                 passwordBox.IsEnabled = true;
+                confirmPasswordBox.IsEnabled = true;
                 if (isEmailValid && isPasswordValid)
                     sendBtn.IsEnabled = true;
             }
             else
             {
                 passwordBox.IsEnabled = false;
+                confirmPasswordBox.IsEnabled = false;
                 passwordBox.Password = string.Empty;
+                confirmPasswordBox.Password = string.Empty;
                 emailImageValid.Source = badImage;
                 passwordImageValid.Visibility = Visibility.Hidden;
             }
@@ -207,7 +211,7 @@ namespace Client
 
         private void passwordBoxTimer_Tick(object sender, EventArgs e)
         {
-            if (!(passwordBox.Password.Length > 0))
+            if (!(confirmPasswordBox.Password.Length > 0))
             {
                 return;
             }
@@ -215,7 +219,7 @@ namespace Client
             checkingPassword.Visibility = Visibility.Hidden;
             checkingPasswordPreTimer.Stop();
             checkingPasswordTimer.Stop();
-            if (RegisterFormatValidator.IsPasswordValid(passwordBox.Password))
+            if (RegisterFormatValidator.IsPasswordValid(confirmPasswordBox.Password) && passwordBox.Password == confirmPasswordBox.Password)
             {
                 passwordImageValid.Source = okeyImage;
                 isPasswordValid = true;
