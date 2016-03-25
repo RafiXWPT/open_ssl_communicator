@@ -31,16 +31,21 @@ namespace Client
         private readonly Uri incomingMessage = new Uri("Media/incoming.wav", UriKind.Relative);
         private readonly Uri outcomingMessage = new Uri("Media/outcoming.wav", UriKind.Relative);
         private readonly FlashWindow flashWindow = new FlashWindow(Application.Current);
+        public string TargetID { get; }
 
         NameValueCollection headers = new NameValueCollection();
         NameValueCollection data = new NameValueCollection();
         MediaPlayer player = new MediaPlayer();
+        List<DisplayMessage> chatWindowMessages = new List<DisplayMessage>();
 
         private readonly CryptoRSA cryptoService;
 
-        public ChatWindow()
+        public ChatWindow(string target)
         {
             InitializeComponent();
+            TargetID = target;
+
+            ChatController.AddNewWindow(this);
 
             cryptoService = new CryptoRSA();
             cryptoService.loadRSAFromPublicKey("SERVER_Public.pem");
@@ -54,6 +59,11 @@ namespace Client
             thread.Start();
         }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            ChatController.CloseWindow(this);
+        }
+
         private void SendMsg()
         {
             if (string.IsNullOrWhiteSpace(chatText.Text))
@@ -61,8 +71,9 @@ namespace Client
 
             try
             {
-                AddMessageToChatWindow(ConnectionInfo.Sender, chatText.Text, true);
-                PrepareMessage(chatText.Text);
+                string UID = Guid.NewGuid().ToString();
+                AddMessageToChatWindow(UID, ConnectionInfo.Sender, chatText.Text, true);
+                PrepareMessage(UID, chatText.Text);
             }
             catch(Exception ex)
             {
@@ -89,9 +100,22 @@ namespace Client
             return ConfigurationHandler.GetValueFromKey(propertyName) == "True";
         }
 
-        void AddMessageToChatWindow(string userName, string messageContent, bool isFromSelf = false)
+        void AddMessageToChatWindow(string UID, string userName, string messageContent, bool isFromSelf = false)
         {
-            listBox.Items.Insert(0, new DisplayMessage(userName, messageContent, isFromSelf));
+            DisplayMessage message = new DisplayMessage(UID, userName, messageContent, isFromSelf);
+
+
+            /* This Probaly should be somewhere else    */
+            if (userName == "TUNNEL CREATOR")
+                message.TripStatus = "DELIVERED";
+            else
+                message.TripStatus = "SENDED";
+            /*                                          */
+
+
+            chatWindowMessages.Add(message);
+            listBox.Items.Insert(0, message);
+     
             PlaySound(isFromSelf);
             if (!isFromSelf && IsPropertyTrue("BLINK_CHAT") )
                 flashWindow.FlashApplicationWindow();
@@ -102,7 +126,7 @@ namespace Client
             ControlMessage message = new ControlMessage();
             try
             {
-                Message chatMessage = new Message(ConnectionInfo.Sender, ConnectionInfo.Sender, "INIT");
+                Message chatMessage = new Message(Guid.NewGuid().ToString(), ConnectionInfo.Sender, ConnectionInfo.Sender, "INIT");
                 string encryptedChatMessage = cryptoService.PublicEncrypt(chatMessage.GetJsonString(), cryptoService.PublicRSA);
                 message = new ControlMessage(ConnectionInfo.Sender, "CHAT_INIT", encryptedChatMessage);
 
@@ -121,7 +145,7 @@ namespace Client
                 {
                     listBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        AddMessageToChatWindow("TUNNEL CREATOR", "Encrypted channel has been established.");
+                        AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Encrypted channel has been established.");
                     }));
                     chatText.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
@@ -132,7 +156,7 @@ namespace Client
                 {
                     listBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        AddMessageToChatWindow("TUNNEL CREATOR", "Encrypted channel is not established.");
+                        AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Encrypted channel is not established.");
                     }));
                     chatText.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
@@ -146,16 +170,16 @@ namespace Client
             }
         }
 
-        void PrepareMessage(string textBoxContent)
+        void PrepareMessage(string UID, string textBoxContent)
         {
             ControlMessage message = new ControlMessage();
             try
             {
-                Message chatMessage = new Message(ConnectionInfo.Sender, ConnectionInfo.Sender, textBoxContent);
+                Message chatMessage = new Message(UID, ConnectionInfo.Sender, ConnectionInfo.Sender, textBoxContent);
                 string encryptedChatMessage = cryptoService.PublicEncrypt(chatMessage.GetJsonString(), cryptoService.PublicRSA);
                 message = new ControlMessage(ConnectionInfo.Sender, "CHAT_MESSAGE", encryptedChatMessage);
 
-                Thread SendReceiveMessage = StartThreadWithParam(message);
+                Thread SendReceiveMessage = StartThreadWithParam(UID, message);
                 chatText.Text = string.Empty;
             }
             catch(Exception ex)
@@ -164,28 +188,34 @@ namespace Client
             }
         }
 
-        public Thread StartThreadWithParam(ControlMessage messageToSend)
+        public Thread StartThreadWithParam(string UID, ControlMessage messageToSend)
         {
-            var t = new Thread(() => SendMessage(messageToSend));
+            var t = new Thread(() => SendMessage(UID, messageToSend));
             t.Start();
             return t;
         }
 
 
-        void SendMessage(ControlMessage message)
+        void SendMessage(string UID, ControlMessage message)
         {
             try
             {
                 using (var wb = new WebClient())
                 {
                     wb.Proxy = null;
+
                     headers["messageContent"] = message.GetJsonString();
                     wb.Headers.Add(headers);
+
                     data["DateTime"] = DateTime.Now.ToShortDateString();
+
                     byte[] responseByte = wb.UploadValues(uriString, "POST", data);
                     string responseString = Encoding.UTF8.GetString(responseByte);
-                    // Do The magic
-                    // Handle Response
+                    if (responseString == "RECEIVED")
+                    {
+                        chatWindowMessages.Find(x => x.UID == UID).TripStatus = "SEND_ACK";
+                        RefreshMessages();
+                    }
                 }
             }
             catch
@@ -194,10 +224,34 @@ namespace Client
             }
         }
 
-        void HandleResponse(string response)
+        // Maybe method name change?
+        public void DeliverMessage(Message message)
         {
-            // When response will be computed
-            // AddMessageToChatWindow(Sender, Content);
+            Application.Current.Dispatcher.Invoke(() => deliverMessage(message));
+        }
+
+        // Maybe method name change?
+        void deliverMessage(Message message)
+        {
+            /* This is code for INCOMING messages without our knowlage */
+            string messageUID = message.MessageUID;
+            string messageContent = message.MessageContent;
+
+            DisplayMessage dspMsg = new DisplayMessage(messageUID, TargetID, messageContent, false);
+
+            dspMsg.TripStatus = "DELIVERED";
+            chatWindowMessages.Add(dspMsg);
+            listBox.Items.Insert(0, dspMsg);
+        }
+
+        public void RefreshMessages()
+        {
+            Application.Current.Dispatcher.Invoke(() => Refresh());
+        }
+
+        void Refresh()
+        {
+            listBox.Items.Refresh();
         }
 
         private void chatText_KeyDown(object sender, KeyEventArgs e)

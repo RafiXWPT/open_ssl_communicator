@@ -101,6 +101,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Classes\ChatController.cs" />
     <Compile Include="Classes\ChatWindow\DisplayMessage.cs" />
     <Compile Include="Classes\ChatWindow\FlashWindow.cs" />
     <Compile Include="Classes\OptionsWindow\LoadOptions.cs" />

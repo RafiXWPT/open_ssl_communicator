@@ -9,7 +9,6 @@ D:\GitProjects\BSK\CommunicatorCore\bin\Debug\WpfAnimatedGif.xml
 D:\GitProjects\BSK\CommunicatorCore\bin\Debug\ManagedOpenSsl.dll
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\CommunicatorCore.dll
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\CommunicatorCore.pdb
-X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\ManagedOpenSsl.dll
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\Newtonsoft.Json.dll
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\WpfAnimatedGif.dll
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\WpfAnimatedGif.xml

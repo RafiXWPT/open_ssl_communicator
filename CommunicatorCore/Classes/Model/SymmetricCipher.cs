@@ -59,27 +59,35 @@ namespace CommunicatorCore.Classes.Model
             }
         }
 
-        public byte[] encode(byte[] message, string key, string iv)
+        public string Encode(string message, string key, string iv)
         {
             try
             {
-                return cc.Crypt(message, Encoding.ASCII.GetBytes(key), Encoding.ASCII.GetBytes(iv), true);
+                byte[] bytePlain = Encoding.UTF8.GetBytes(message);
+                byte[] password = Encoding.UTF8.GetBytes(key);
+                byte[] inicializationVector = Encoding.UTF8.GetBytes(iv);
+
+                return Convert.ToBase64String(cc.Crypt(bytePlain, password, inicializationVector, true));
             }
             catch
             {
-                return null;
+                return string.Empty;
             }
         }
 
-        public byte[] decode(byte[] cipher, string key, string iv)
+        public string Decode(string cipher, string key, string iv)
         {
             try
             {
-                return cc.Decrypt(cipher, Encoding.ASCII.GetBytes(key), Encoding.ASCII.GetBytes(iv));
+                byte[] byteCipher = Convert.FromBase64String(cipher);
+                byte[] password = Encoding.UTF8.GetBytes(key);
+                byte[] inicializationVector = Encoding.UTF8.GetBytes(iv);
+
+                return Encoding.UTF8.GetString(cc.Decrypt(byteCipher, password, inicializationVector));
             }
             catch
             {
-                return null;
+                return string.Empty;
             }
         }
     }

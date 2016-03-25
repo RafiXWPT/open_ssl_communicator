@@ -13,6 +13,18 @@
                 <DataTrigger Binding="{Binding IsFromSelf}" Value="False">
                     <Setter Property="Background" Value="#19000000"/>
                 </DataTrigger>
+
+                <DataTrigger Binding="{Binding TripStatus}" Value="SENDED">
+                    <Setter Property="Background" Value="Red"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding TripStatus}" Value="SEND_ACK">
+                    <Setter Property="Background" Value="Blue"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding TripStatus}" Value="DELIVERED">
+                    <Setter Property="Background" Value="White"/>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
     </Application.Resources>

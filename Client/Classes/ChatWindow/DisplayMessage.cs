@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Client
 {
     class DisplayMessage
     {
+        public string UID { get; set; }
         public string UserName { get; }
         public string MessageContent { get; }
         public bool IsFromSelf { get; }
+        public string TripStatus { get; set; }
 
-        public DisplayMessage(string userName, string messageContent, bool isFromSelf)
+        public DisplayMessage(string UID, string userName, string messageContent, bool isFromSelf)
         {
+            this.UID = UID;
             UserName = "[" + DateTime.Now + "] " + userName + " says:";
             MessageContent = messageContent;
             IsFromSelf = isFromSelf;

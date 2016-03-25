@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using CommunicatorCore.Classes.Model;
 using Config;
+using System.Windows;
 
 namespace Client
 {
@@ -69,6 +70,7 @@ namespace Client
             }
             catch (Exception e)
             {
+                MessageBox.Show(e.ToString());
                 ConnectionInfo.UpdateConnection(9999, true);
                 CheckConnection = !checkConnection_event.WaitOne(TimeSpan.FromSeconds(10));
                 goto CHECK_CONNECTION;

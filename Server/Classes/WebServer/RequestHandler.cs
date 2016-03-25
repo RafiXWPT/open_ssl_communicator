@@ -269,9 +269,15 @@ namespace Server
                 ServerLogger.LogMessage("User: " + message.MessageSender + " sends chat message.");
                 messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
                 chatMessage.LoadJson(messageContent);
-                
-                // Check to who and send that message
-                // First we have to create method to detect incomming messages on clients!
+                response = "RECEIVED";
+                /* Okey, here we are, now we must reply to Client1 about getting message */
+                // SendReponse(...)
+                /* Next, we have to search user by Message.Destination 
+                   When we have it, send msg on http://Client2Ip:11070/chatMessage/ with same UID from Client1
+                   UID will be our identifier for all chat transactions
+                   When Client2 receive MSG and reply to server with "RECEIVED" we should reply back "DELIVERED"
+                   to: http://Client1Ip:11070/chatMessage/ with same UID of the message
+                */
             }
 
             SendResponse(userToHandle, response);
@@ -321,10 +327,14 @@ namespace Server
                 List<Contact> contacts = ContactControl.Instance.GetContacts(message.MessageSender);
                 ContactAggregator aggregator = new ContactAggregator(contacts);
                 string contactsJson = aggregator.GetJsonString();
-                // Theese messages should be encrypted using AES key
-                string encryptedContacts = transcoder.PublicEncrypt(contactsJson, transcoder.PublicRSA);
-                returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_GET_OK", contactsJson, encryptedContacts);
-                BatchControlMessage batchControlMessage = new BatchControlMessage(returnMessage, "KEY" /* Encrypted key should be set theere */);
+
+                SymmetricCipher cipher = new SymmetricCipher();
+                string oneTimePass = Guid.NewGuid().ToString();
+                string contactsEncryptedByAES = cipher.Encode(contactsJson, oneTimePass, string.Empty);
+                string encryptedAESKey = transcoder.PublicEncrypt(oneTimePass, transcoder.PublicRSA);
+
+                returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_GET_OK", contactsEncryptedByAES);
+                BatchControlMessage batchControlMessage = new BatchControlMessage(returnMessage, encryptedAESKey);
                 response = batchControlMessage.GetJsonString();
             }
             else
@@ -332,7 +342,6 @@ namespace Server
                 throw new NotImplementedException("Message type not yet supported");
             }
 
-            
             SendResponse(userToHandle, response);
         }
 

@@ -40,6 +40,7 @@ namespace Client
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            networkController.StartChatListener();
         }
 
         private void GetHistory(object sender, RoutedEventArgs e)
@@ -63,7 +64,7 @@ namespace Client
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            ChatWindow chat = new ChatWindow();
+            ChatWindow chat = new ChatWindow(ConnectionInfo.Sender);
             chat.Show();
         }
 
@@ -92,15 +93,18 @@ namespace Client
             CryptoRSA decoder = new CryptoRSA();
             decoder.loadRSAFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
 
-            // We should decrypt data here
             BatchControlMessage returnedBatchMessage = new BatchControlMessage();
             ControlMessage returnedMessage = new ControlMessage();
             returnedBatchMessage.LoadJson(reply);
             returnedMessage = returnedBatchMessage.ControlMessage;
-            string decryptedContent = decoder.PrivateDecrypt(returnedMessage.MessageContent, decoder.PrivateRSA);
-            if (returnedMessage.Checksum != Sha1Util.CalculateSha(decryptedContent))
+
+            SymmetricCipher cipher = new SymmetricCipher();
+            string AESKey = decoder.PrivateDecrypt(returnedBatchMessage.CipheredKey, decoder.PrivateRSA);
+            string decryptedContent = cipher.Decode(returnedMessage.MessageContent, AESKey, string.Empty);
+            
+            if (returnedMessage.Checksum != Sha1Util.CalculateSha(returnedMessage.MessageContent))
             {
-                MessageBox.Show("Z³a checksuma wiadomosci");
+                MessageBox.Show("Bad contacts checksum");
             }
             else if (returnedMessage.MessageType == "CONTACT_GET_OK")
             {
@@ -118,7 +122,7 @@ namespace Client
         void addContactToList(Contact contact)
         {
             // We have to exclude already displayed users somehow!
-            contactsData.Items.Add(new Test { To = contact.To, DisplayName = contact.DisplayName });
+            contactsData.Items.Add(new Contact (contact.To, contact.DisplayName));
         }
 
         private void options_Click(object sender, RoutedEventArgs e)

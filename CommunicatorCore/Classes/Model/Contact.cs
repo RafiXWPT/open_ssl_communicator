@@ -10,9 +10,10 @@ namespace CommunicatorCore.Classes.Model
 {
     public class Contact: INetworkMessage
     {
+        public string To { get; set; }
+        public string DisplayName { get; set; }
+
         public string From;
-        public string To;
-        public string DisplayName;
         public string ContactChecksum;
 
         public Contact()
@@ -33,8 +34,8 @@ namespace CommunicatorCore.Classes.Model
         {
             Contact tmp = JsonConvert.DeserializeObject<Contact>(jsonString);
             this.From = tmp.From;
-            this.To = tmp.To;
-            this.DisplayName = tmp.DisplayName;
+            To = tmp.To;
+            DisplayName = tmp.DisplayName;
             this.ContactChecksum = tmp.ContactChecksum;
         }
 
