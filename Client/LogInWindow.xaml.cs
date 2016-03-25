@@ -153,5 +153,14 @@ namespace Client
                 confirmBtn_Click(null,null);
             }
         }
+
+        private void ForgotPasswordBtn_OnClick_Click(object sender, RoutedEventArgs e)
+        {
+            if (CheckConnectionStatus())
+            {
+                ResetPasswordWindow resetPasswordWindow = new ResetPasswordWindow(tunnel, tunnelCreator);
+                resetPasswordWindow.Show();
+            }
+        }
     }
 }

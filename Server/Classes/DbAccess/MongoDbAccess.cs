@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using CommunicatorCore.Classes;
+using MongoDB.Driver.Core.Clusters;
 
 namespace Server.Classes.DbAccess
 {
@@ -42,8 +43,17 @@ namespace Server.Classes.DbAccess
 
         public static bool IsServerAlive()
         {
-            // TODO: Implement ping command!
-            return true;
+            // StackOverflow slightly modified solution
+            try
+            {
+                var databases = _client.ListDatabases();
+                databases.MoveNext(); // Force MongoDB to connect to the database.
+                return _client.Cluster.Description.State == ClusterState.Connected;
+            }
+            catch (TimeoutException e)
+            {
+                return false;
+            } 
         }
     }
 }

@@ -102,6 +102,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Classes\ChatController.cs" />
+    <Compile Include="ResetPasswordWindow.xaml.cs">
+      <DependentUpon>ResetPasswordWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Classes\ChatWindow\DisplayMessage.cs" />
     <Compile Include="Classes\ChatWindow\FlashWindow.cs" />
     <Compile Include="Classes\OptionsWindow\LoadOptions.cs" />
@@ -123,6 +126,10 @@
     <Compile Include="RegisterWindow.xaml.cs">
       <DependentUpon>RegisterWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="ResetPasswordWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="ChatWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

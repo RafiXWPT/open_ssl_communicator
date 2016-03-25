@@ -14,6 +14,19 @@ namespace Server.Classes.DbAccess
     public class ContactsDao
     {
 
+        public void DeleteContact(Contact contact)
+        {
+            IMongoCollection<BsonDocument> cotactsCollection = MongoDbAccess.GetContactsCollection();
+            FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
+            FilterDefinition<BsonDocument> filter = builder.Eq("left", contact.From) &
+                                                    builder.Eq("right", contact.To);
+            DeleteResult result = cotactsCollection.DeleteOne(filter);
+            if (!result.IsAcknowledged)
+            {
+                throw new UnsuccessfulQueryException("Unable to delete contact: " + contact);
+            }
+        }
+
         public void UpsertContact(Contact contact)
         {
             IMongoCollection<BsonDocument> contactsCollection = MongoDbAccess.GetContactsCollection();

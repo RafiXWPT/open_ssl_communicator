@@ -58,6 +58,11 @@ namespace Server
             return _usersDao.IsUserExist(username);
         }
 
+        public void UpdateUser(UserPasswordData user)
+        {
+            _usersDao.UpdatePassword(user);
+        }
+
         public bool IsUserValid(UserPasswordData userPassword)
         {
             return _usersDao.ValidateUserCredentials(userPassword);

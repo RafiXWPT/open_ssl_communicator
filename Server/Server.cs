@@ -51,6 +51,7 @@ namespace Server
                 if (!MongoDbAccess.IsServerAlive())
                 {
                     ServerLogger.LogMessage("Database connection unavailable. Exiting...");
+	                Console.ReadLine();
                     Environment.Exit(1);
                 }
                 ServerLogger.LogMessage("DB Connection acquired");
