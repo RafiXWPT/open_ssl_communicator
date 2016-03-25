@@ -72,23 +72,28 @@ namespace Client
 
         private void PlaySound(bool outcoming = false)
         {
-            if(outcoming && ConfigurationHandler.GetValueFromKey("OUTCOMING_SOUND") == "True")
+            if(outcoming && IsPropertyTrue("OUTCOMING_SOUND"))
             {
                 player.Open(outcomingMessage);
                 player.Play();
             }
-            else if (!outcoming && ConfigurationHandler.GetValueFromKey("INCOMING_SOUND") == "True")
+            else if (!outcoming && IsPropertyTrue("INCOMING_SOUND") )
             {
                 player.Open(incomingMessage);
                 player.Play();
             }
         }
 
+        private bool IsPropertyTrue(string propertyName)
+        {
+            return ConfigurationHandler.GetValueFromKey(propertyName) == "True";
+        }
+
         void AddMessageToChatWindow(string userName, string messageContent, bool isFromSelf = false)
         {
             listBox.Items.Insert(0, new DisplayMessage(userName, messageContent, isFromSelf));
             PlaySound(isFromSelf);
-            if (!isFromSelf && ConfigurationHandler.GetValueFromKey("BLINK_CHAT") == "True")
+            if (!isFromSelf && IsPropertyTrue("BLINK_CHAT") )
                 flashWindow.FlashApplicationWindow();
         }
 

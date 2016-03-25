@@ -5,6 +5,8 @@ Client/obj/
 Client/bin/
 Server/obj/
 Server/bin/
+CommunicatorCore/obj/
+CommunicatorCore/bin/
 testClient/
 Json80r3/
 
@@ -22,3 +24,7 @@ Thumbs.db
 *.exe
 *.msi
 *.vs
+
+# ============== #
+# LIBRARIES PACK #
+# ============== #

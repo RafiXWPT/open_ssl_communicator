@@ -39,5 +39,11 @@ namespace Server.Classes.DbAccess
         {
             return _database.GetCollection<BsonDocument>("contacts");
         }
+
+        public static bool IsServerAlive()
+        {
+            // TODO: Implement ping command!
+            return true;
+        }
     }
 }

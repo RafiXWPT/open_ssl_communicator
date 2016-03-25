@@ -8,18 +8,18 @@ namespace Client
 {
     public class NetworkController
     {
-        private static NetworkController instance;
+        private static NetworkController _instance;
         public static NetworkController Instance
         {
             get
             {
-                return instance;
+                return _instance;
             }
         }
 
         public NetworkController()
         {
-            instance = this;
+            _instance = this;
         }
 
         public string SendMessage(Uri address, WebClient client, ControlMessage message)

@@ -26,7 +26,7 @@
 
             <Button x:Name="importKeys" Grid.Column="0" Content="Import&#10;Keys" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Click="importKeys_Click"/>
             <Button x:Name="history" Grid.Column="1" Content="History" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Click="GetHistory"/>
-            <Button x:Name="addContact" Grid.Column="2" Content="Add Contact" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch"/>
+            <Button x:Name="addContact" Grid.Column="2" Content="Add Contact" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Click="AddContact_OnClick"/>
             <Button x:Name="options" Grid.Column="3" Content="Options" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Click="options_Click"/>
 
         </Grid>
@@ -34,7 +34,7 @@
         <Grid Grid.Row="1">
             <DataGrid x:Name="contactsData" Grid.Row="1" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" SelectionMode="Single" BorderThickness="1" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" RowDetailsVisibilityMode="Collapsed" IsReadOnly="True">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding Path=Name}" Header="Identyfikator" IsReadOnly="True" Width="*"/>
+                    <DataGridTextColumn Binding="{Binding Path=To}" Header="Identyfikator" IsReadOnly="True" Width="*"/>
                     <DataGridTextColumn Binding="{Binding Path=DisplayName}" Header="Pseudonim" IsReadOnly="True" Width="*"/>
                 </DataGrid.Columns>
                 <DataGrid.CellStyle>

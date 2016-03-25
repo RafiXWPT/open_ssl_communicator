@@ -16,7 +16,7 @@
 
     }
 
-    public enum CiherType
+    public enum CipherType
     {
         AES,
         BLOWFISH,

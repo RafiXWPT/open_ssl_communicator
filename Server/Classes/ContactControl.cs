@@ -33,6 +33,10 @@ namespace Server.Classes
         {
             return _contactDao.GetContacts(contact);
         }
-        
+
+        public bool CheckIfContactExist(Contact contact)
+        {
+            return _contactDao.CheckIfAlreadyExist(contact);
+        }
     }
 }
