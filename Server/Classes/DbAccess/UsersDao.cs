@@ -34,6 +34,21 @@ namespace Server.Classes.DbAccess
             usersCollection.InsertOne(userDocument);
         }
 
+        public void UpdatePassword(UserPasswordData userPasswordData)
+        {
+            IMongoCollection<BsonDocument> usersCollection = MongoDbAccess.GetUsersCollection();
+            FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
+            FilterDefinition<BsonDocument> filter = builder.Eq("_id", userPasswordData.Username);
+            UpdateDefinition<BsonDocument> update = Builders<BsonDocument>.Update
+                .Set("password", userPasswordData.HashedPassword);
+
+            UpdateResult result = usersCollection.UpdateOne(filter, update, new UpdateOptions { IsUpsert = true });
+            if (!result.IsAcknowledged)
+            {
+                throw new UnsuccessfulQueryException("Unable to update password: " + userPasswordData.Username);
+            }
+        }
+
         public bool ValidateUserCredentials(UserPasswordData userPasswordData)
         {
             IMongoCollection<BsonDocument> usersCollection = MongoDbAccess.GetUsersCollection();

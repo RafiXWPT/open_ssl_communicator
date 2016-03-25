@@ -108,6 +108,11 @@ namespace Client
                 {
                 }
             }
+            else if (returnedControlMessage.MessageType == "INVALID")
+            {
+                MessageBox.Show("Exception occurred: " + returnedControlMessage.MessageContent);
+
+            }
         }
 
         private void emailTextBox_KeyUp(object sender, KeyEventArgs e)

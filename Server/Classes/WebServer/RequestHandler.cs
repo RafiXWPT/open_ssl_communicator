@@ -63,7 +63,16 @@ namespace Server
             catch (Exception ex)
             {
                 ServerLogger.LogMessage(ex.ToString());
+                HandleException(ex, userToHandle);
             }
+        }
+
+        // Temporary fix!
+        private void HandleException(Exception exception, HttpListenerContext userToHandle) 
+        {
+            ControlMessage replyMessage = new ControlMessage(MESSAGE_SENDER, "INVALID", exception.Message);
+            string response = replyMessage.GetJsonString();
+            SendResponse(userToHandle, response);
         }
 
         void ConnectionCheck(ControlMessage message, string sender, HttpListenerContext userToHandle)
@@ -150,14 +159,15 @@ namespace Server
 
             if (user != null)
             {
+                ServerLogger.LogMessage(message.MessageSender + " is about to register.");
+                UserPasswordData userPasswordData = new UserPasswordData();
+                userPasswordData.LoadJson(user.Tunnel.DiffieDecrypt(message.MessageContent));
+                ControlMessage controlMessage;
+
+                string responseContent;
+
                 if (message.MessageType == "REGISTER_ME")
                 {
-                    ServerLogger.LogMessage(message.MessageSender + " is about to register.");
-                    UserPasswordData userPasswordData = new UserPasswordData();
-                    userPasswordData.LoadJson(user.Tunnel.DiffieDecrypt(message.MessageContent));
-                    ControlMessage controlMessage;
-
-                    string responseContent;
                     if (UserControll.Instance.CheckIfUserExist(userPasswordData.Username))
                     {
                         ServerLogger.LogMessage("Requested user already exist.");
@@ -165,8 +175,7 @@ namespace Server
 
                         controlMessage = new ControlMessage(MESSAGE_SENDER, "REGISTER_INFO", responseContent);
                         response = controlMessage.GetJsonString();
-                        SendResponse(userToHandle, response);
-                    }
+                   }
                     else
                     {
                         KeyGenerator.GenerateKeyPair(userPasswordData.Username);
@@ -176,12 +185,42 @@ namespace Server
                         responseContent = user.Tunnel.DiffieEncrypt("REGISTER_OK");
                         controlMessage = new ControlMessage(MESSAGE_SENDER, "REGISTER_INFO", responseContent);
                         response = controlMessage.GetJsonString();
-                        SendResponse(userToHandle, response);
-
+                        
                         emailMessage.Send(true);
                         ServerLogger.LogMessage("User added to database, registration succesfull");
                     }
                 }
+                else if (message.MessageType == "RESET_PASSWORD")
+                {
+                    if (!UserControll.Instance.CheckIfUserExist(userPasswordData.Username))
+                    {
+                        ServerLogger.LogMessage(message.MessageSender + " is trying to reset password of user: " +
+                                                userPasswordData.Username + " which does not exist");
+                        responseContent = user.Tunnel.DiffieEncrypt("RESET_INVALID");
+                        controlMessage = new ControlMessage(MESSAGE_SENDER, "RESET_PASSWORD", responseContent);
+                        response = controlMessage.GetJsonString();
+                    }
+                    else
+                    {
+                        ServerLogger.LogMessage(userPasswordData.Username + " is trying to reset his password.");
+                        string generatedPassword =  Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+                        UserPasswordData generatedUserPasswordData = new UserPasswordData(userPasswordData.Username, generatedPassword);
+                        UserControll.Instance.UpdateUser(generatedUserPasswordData);
+                        string emailContent = "Your new generated password is: " + generatedPassword;
+                        EmailMessage emailMessage = new EmailMessage("Crypto Talk Password Reset", emailContent, userPasswordData.Username);
+                        emailMessage.Send();
+                        responseContent = user.Tunnel.DiffieEncrypt("RESET_OK");
+                        controlMessage = new ControlMessage(MESSAGE_SENDER, "RESET_PASSWORD", responseContent);
+                        response = controlMessage.GetJsonString();
+                        ServerLogger.LogMessage(userPasswordData.Username + " password reset ended successfully.");
+                    }
+                }
+                else
+                {
+                    // Empty statement
+                }
+                SendResponse(userToHandle, response);
+
             }
         }
 

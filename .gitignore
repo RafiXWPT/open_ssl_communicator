@@ -5,8 +5,8 @@ Client/obj/
 Client/bin/
 Server/obj/
 Server/bin/
-CommunicatorCore/obj/
-CommunicatorCore/bin/
+CommunicatorCore/obj
+CommunicatorCore/bin
 testClient/
 Json80r3/
 
