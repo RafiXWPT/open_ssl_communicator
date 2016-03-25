@@ -6,26 +6,22 @@ namespace OptionsWindow
     { 
         public static bool IsIncomingMessageSoundEnabled()
         {
-            if(ConfigurationHandler.GetValueFromKey("INCOMING_SOUND") == "True")
-                return true;
-            else
-                return false;
+            return IsPropertyEnabled("INCOMING_SOUND");
         }
 
         public static bool IsOutcomingMessageSoundEnabled()
         {
-            if (ConfigurationHandler.GetValueFromKey("OUTCOMING_SOUND") == "True")
-                return true;
-            else
-                return false;
+            return IsPropertyEnabled("OUTCOMING_SOUND");
         }
 
         public static bool IsBlinkChatEnabled()
         {
-            if (ConfigurationHandler.GetValueFromKey("BLINK_CHAT") == "True")
-                return true;
-            else
-                return false;
+            return IsPropertyEnabled("BLINK_CHAT");
+        }
+
+        private static bool IsPropertyEnabled(string propertyName)
+        {
+            return ConfigurationHandler.GetValueFromKey(propertyName) == "True";
         }
     }
 }

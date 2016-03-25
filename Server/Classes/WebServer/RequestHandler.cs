@@ -298,7 +298,13 @@ namespace Server
                 {
                     string userDoesNotExistResponse = "User does not exist";
                     string encryptedMessage = transcoder.PublicEncrypt(userDoesNotExistResponse, transcoder.PublicRSA);
-                    returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_ERROR", userDoesNotExistResponse, encryptedMessage);
+                    returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_USER_NOT_EXIST", userDoesNotExistResponse, encryptedMessage);
+                }
+                else if (ContactControl.Instance.CheckIfContactExist(contact))
+                {
+                    string contactAlreadyExists = "Contact already exists";
+                    string encryptedMessage = transcoder.PublicEncrypt(contactAlreadyExists, transcoder.PublicRSA);
+                    returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_ALREADY_EXIST", contactAlreadyExists, encryptedMessage);
                 }
                 else
                 {
@@ -307,6 +313,7 @@ namespace Server
                     string encryptedMessage = transcoder.PublicEncrypt(userInsertSuccessfullyMessage, transcoder.PublicRSA);
                     returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_SUCCESS", userInsertSuccessfullyMessage, encryptedMessage);
                 }
+                response = returnMessage.GetJsonString();
             }
             else if (message.MessageType == "CONTACT_GET")
             {
@@ -314,15 +321,18 @@ namespace Server
                 List<Contact> contacts = ContactControl.Instance.GetContacts(message.MessageSender);
                 ContactAggregator aggregator = new ContactAggregator(contacts);
                 string contactsJson = aggregator.GetJsonString();
+                // Theese messages should be encrypted using AES key
                 string encryptedContacts = transcoder.PublicEncrypt(contactsJson, transcoder.PublicRSA);
                 returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_GET_OK", contactsJson, encryptedContacts);
+                BatchControlMessage batchControlMessage = new BatchControlMessage(returnMessage, "KEY" /* Encrypted key should be set theere */);
+                response = batchControlMessage.GetJsonString();
             }
             else
             {
                 throw new NotImplementedException("Message type not yet supported");
             }
 
-            response = returnMessage.GetJsonString();
+            
             SendResponse(userToHandle, response);
         }
 

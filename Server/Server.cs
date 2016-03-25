@@ -1,4 +1,5 @@
 ﻿using System;
+using Server.Classes.DbAccess;
 
 namespace Server
 {
@@ -14,6 +15,16 @@ namespace Server
 
             ServerLogger.LogMessage("Initializing Server Core");
             WebServerCore WSC = new WebServerCore(prefixes);
+
+
+            ServerLogger.LogMessage("Checking DB connection");
+            if (!MongoDbAccess.IsServerAlive())
+            {
+                ServerLogger.LogMessage("Database connection unavailable. Exiting...");
+                Environment.Exit(1);
+            }
+            ServerLogger.LogMessage("DB Connection acquired");
+
             ServerLogger.LogMessage("Starting Server");
             WSC.Run();
 

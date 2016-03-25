@@ -12,13 +12,17 @@ namespace Client
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly Uri ContactsUriString =
+        private readonly Uri _contactsUriString =
             new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" +
                     ConfigurationHandler.GetValueFromKey("CONTACTS_API") + "/");
 
-        private readonly Uri HistoryUriString =
+        private readonly Uri _historyUriString =
             new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" +
                     ConfigurationHandler.GetValueFromKey("HISTORY_API") + "/");
+
+        private static MainWindow instance;
+
+        public static MainWindow Instance { get { return instance; } }
 
         private ConnectionChecker connectionChecker;
         private NetworkController networkController;
@@ -26,6 +30,8 @@ namespace Client
         public MainWindow(ConnectionChecker connectionChecker, NetworkController networkController,
             string loggedUserName)
         {
+            instance = this;
+
             InitializeComponent();
             this.connectionChecker = connectionChecker;
             this.networkController = networkController;
@@ -44,7 +50,7 @@ namespace Client
             using (WebClient client = new WebClient())
             {
                 client.Proxy = null;
-                string reply = NetworkController.Instance.SendMessage(HistoryUriString, client, contactsRequestMessage);
+                string reply = NetworkController.Instance.SendMessage(_historyUriString, client, contactsRequestMessage);
                 HandleContactsResponse(reply);
             }
         }
@@ -63,7 +69,7 @@ namespace Client
 
         private void Contacts_OnClick_Click(object sender, RoutedEventArgs e)
         {
-            if (!ConfigurationHandler.HasValueOnKey("PATH_TO_PRIVATE_KEY"))
+            if (!AreKeysInitialized())
             {
                 MessageBox.Show("Load keys at first");
             }
@@ -74,7 +80,7 @@ namespace Client
                 using (WebClient client = new WebClient())
                 {
                     client.Proxy = null;
-                    string reply = NetworkController.Instance.SendMessage(ContactsUriString, client,
+                    string reply = NetworkController.Instance.SendMessage(_contactsUriString, client,
                         contactsRequestMessage);
                     HandleContactsResponse(reply);
                 }
@@ -86,34 +92,63 @@ namespace Client
             CryptoRSA decoder = new CryptoRSA();
             decoder.loadRSAFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
 
+            // We should decrypt data here
+            BatchControlMessage returnedBatchMessage = new BatchControlMessage();
             ControlMessage returnedMessage = new ControlMessage();
-            returnedMessage.LoadJson(reply);
+            returnedBatchMessage.LoadJson(reply);
+            returnedMessage = returnedBatchMessage.ControlMessage;
             string decryptedContent = decoder.PrivateDecrypt(returnedMessage.MessageContent, decoder.PrivateRSA);
             if (returnedMessage.Checksum != Sha1Util.CalculateSha(decryptedContent))
             {
-                MessageBox.Show("Zla checksuma wiadomosci");
+                MessageBox.Show("Z³a checksuma wiadomosci");
             }
             else if (returnedMessage.MessageType == "CONTACT_GET_OK")
             {
-                //              TODO: Content of the message should be decrypted
                 ContactAggregator aggregator = new ContactAggregator();
-                aggregator.LoadJson(returnedMessage.MessageContent);
-                aggregator.Contacts.ForEach(c => contactsData.Items.Add(new {Name = c.To, DisplayName = c.DisplayName}));
+                aggregator.LoadJson(decryptedContent);
+                aggregator.Contacts.ForEach(addContactToList);
             }
-            else if (returnedMessage.MessageType == "CONTACT_INSERT_SUCCESS")
-            {
-                //                Ok
-            }
-            else if (returnedMessage.MessageType == "CONTACT_INSERT_ERROR")
-            {
-                //                E-e
-            }
+        }
+
+        public void AddContactToList(Contact contact)
+        {
+            Application.Current.Dispatcher.Invoke( () => addContactToList(contact));
+        }
+
+        void addContactToList(Contact contact)
+        {
+            // We have to exclude already displayed users somehow!
+            contactsData.Items.Add(new Test { To = contact.To, DisplayName = contact.DisplayName });
         }
 
         private void options_Click(object sender, RoutedEventArgs e)
         {
             Options options = new Options();
             options.Show();
+        }
+
+        private void AddContact_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (AreKeysInitialized())
+            {
+                AddContactWindow addNewContact = new AddContactWindow();
+                addNewContact.Show();
+            }
+            else
+            {
+                MessageBox.Show("Load you keys at first");
+            }
+        }
+
+        private bool AreKeysInitialized()
+        {
+            return ConfigurationHandler.HasValueOnKey("PATH_TO_PRIVATE_KEY");
+        }
+
+        class Test
+        {
+            public string To { get; set; }
+            public string DisplayName { get; set; }
         }
     }
 }

@@ -24,13 +24,24 @@ namespace Server.Classes.DbAccess
                 .Set("left", contact.From)
                 .Set("right", contact.To)
                 .Set("displayName", contact.DisplayName)
-                .Set("md5", contact.ContactChecksum);
+                .Set("checksum", contact.ContactChecksum);
             UpdateResult result = contactsCollection.UpdateOne(filter, update, new UpdateOptions { IsUpsert = true});
             if (!result.IsAcknowledged)
             {
                 throw new UnsuccessfulQueryException("Unable to update contact: " + contact);
             }
         }
+
+        public bool CheckIfAlreadyExist(Contact contact)
+        {
+            IMongoCollection<BsonDocument> contactsCollection = MongoDbAccess.GetContactsCollection();
+            FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
+            FilterDefinition<BsonDocument> filter = builder.Eq("left", contact.From) &
+                                                    builder.Eq("right", contact.To);
+            List<BsonDocument> result = contactsCollection.Find(filter).ToList();
+            return result.Any();
+        }
+
 
         public List<Contact> GetContacts(string username)
         {
@@ -57,8 +68,9 @@ namespace Server.Classes.DbAccess
                     From = doc["left"].AsString,
                     To = doc["right"].AsString, 
                     DisplayName = doc["displayName"].AsString,
-                    ContactChecksum = doc["md5"].AsString
+                    ContactChecksum = doc["checksum"].AsString
                 });
         }
+
     }
 }

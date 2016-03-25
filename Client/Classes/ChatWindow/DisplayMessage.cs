@@ -14,7 +14,7 @@ namespace Client
 
         public DisplayMessage(string userName, string messageContent, bool isFromSelf)
         {
-            UserName = "[" + DateTime.Now.ToString() + "] " + userName + " says:";
+            UserName = "[" + DateTime.Now + "] " + userName + " says:";
             MessageContent = messageContent;
             IsFromSelf = isFromSelf;
         }

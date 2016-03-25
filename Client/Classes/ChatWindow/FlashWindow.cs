@@ -5,20 +5,21 @@ using System.Runtime.InteropServices;
 namespace Client
 {
     // CLASS TAKEN FROM STACK
+    // SODD :D
     public class FlashWindow
     {
-        private IntPtr mainWindowHWnd;
-        private Application theApp;
+        private IntPtr _mainWindowHWnd;
+        private Application _theApp;
 
         public FlashWindow(Application app)
         {
-            theApp = app;
+            _theApp = app;
         }
 
         public void FlashApplicationWindow()
         {
             InitializeHandle();
-            Flash(mainWindowHWnd, 5);
+            Flash(_mainWindowHWnd, 5);
         }
 
         public void StopFlashing()
@@ -27,17 +28,17 @@ namespace Client
 
             if (Win2000OrLater)
             {
-                FLASHWINFO fi = CreateFlashInfoStruct(mainWindowHWnd, FLASHW_STOP, uint.MaxValue, 0);
+                FLASHWINFO fi = CreateFlashInfoStruct(_mainWindowHWnd, FLASHW_STOP, uint.MaxValue, 0);
                 FlashWindowEx(ref fi);
             }
         }
 
         private void InitializeHandle()
         {
-            if (mainWindowHWnd == IntPtr.Zero)
+            if (_mainWindowHWnd == IntPtr.Zero)
             {
-                var mainWindow = theApp.MainWindow;
-                mainWindowHWnd = new System.Windows.Interop.WindowInteropHelper(mainWindow).Handle;
+                var mainWindow = _theApp.MainWindow;
+                _mainWindowHWnd = new System.Windows.Interop.WindowInteropHelper(mainWindow).Handle;
             }
         }
 

@@ -19,13 +19,13 @@ namespace CommunicatorCore.Classes.Model
         {
         }
 
-        public Contact(string from, string to) : this(from, to, null) { }
+        public Contact(string from, string to) : this(from, to, to) { }
 
         public Contact(string from, string to, string displayName)
         {
             From = from;
             To = to;
-            DisplayName =  string.IsNullOrWhiteSpace(displayName) ? to : displayName;
+            DisplayName = !string.IsNullOrWhiteSpace(displayName) ? displayName : to;
             ContactChecksum = Sha1Util.CalculateSha(From + To);
         }
 
@@ -35,7 +35,8 @@ namespace CommunicatorCore.Classes.Model
             this.From = tmp.From;
             this.To = tmp.To;
             this.DisplayName = tmp.DisplayName;
-       }
+            this.ContactChecksum = tmp.ContactChecksum;
+        }
 
         public string GetJsonString()
         {
