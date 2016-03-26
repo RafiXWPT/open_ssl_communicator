@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="Crypto Talk - Key Importer" Height="260" Width="260" ResizeMode="NoResize" Icon="programIcon.ico" WindowStartupLocation="CenterScreen" Background="#FFCDCDCD">
+        Title="Crypto Talk - Key Importer" Height="330" Width="260" ResizeMode="NoResize" Icon="programIcon.ico" WindowStartupLocation="CenterScreen" Background="#FFCDCDCD">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" MinHeight="164"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
@@ -24,11 +24,17 @@
             <Label x:Name="privateKeyLabel" Content="Load your private key:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
             <TextBox x:Name="privateKeyPath" IsReadOnly="True" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="10,35,0,10" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="140"/>
             <Button x:Name="searchPrivateKey" Content="Search..." HorizontalAlignment="Left" Margin="160,35,0,10" VerticalAlignment="Top" Width="75" Height="23" Click="searchPrivateKey_Click"/>
+            <Label x:Name="privateKeyLabel_Copy" Content="Load your private key:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         </Grid>
 
-        <Button x:Name="checkKeys" Grid.Row="2" Content="Check Keys" HorizontalAlignment="Center" Margin="10,5,10,5" VerticalAlignment="Top" Width="120" Height="30" Click="checkKeys_Click"/>
-        
-        <Button x:Name="save" Grid.Row="3" Content="Save" HorizontalAlignment="Center" Margin="10,5,10,10" VerticalAlignment="Top" Width="120" Height="30" Click="save_Click"/>
+        <Grid Grid.Row="2" Margin="0,0,0,0" Grid.RowSpan="2">
+            <Label x:Name="tokenLabel" Content="Load token:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <TextBox x:Name="tokenValue" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="10,35,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="229"/>
+        </Grid>
+
+        <Button x:Name="checkKeys" Grid.Row="3" Content="Check Keys" HorizontalAlignment="Center" Margin="67,69,67,0" VerticalAlignment="Top" Width="120" Height="30" Click="checkKeys_Click"/>
+
+        <Button x:Name="save" Grid.Row="3" Content="Save" HorizontalAlignment="Center" Margin="67,116,67,0" VerticalAlignment="Top" Width="120" Height="30" Click="save_Click"/>
 
     </Grid>
 </Window>

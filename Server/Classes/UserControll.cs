@@ -88,5 +88,6 @@ namespace Server
 
             ServerLogger.LogMessage("Cleaning compleet. Total Users in system after clean: " + users.Count);
         }
+
     }
 }

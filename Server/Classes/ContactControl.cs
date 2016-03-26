@@ -38,5 +38,10 @@ namespace Server.Classes
         {
             return _contactDao.CheckIfAlreadyExist(contact);
         }
+
+        public void DeleteContact(Contact contact)
+        {
+            _contactDao.DeleteContact(contact);
+        }
     }
 }

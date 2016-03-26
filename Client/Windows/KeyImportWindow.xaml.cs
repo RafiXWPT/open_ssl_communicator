@@ -35,6 +35,10 @@ namespace Client
                 pathToPublicKey = ConfigurationHandler.GetValueFromKey("PATH_TO_PUBLIC_KEY");
                 publicKeyPath.Text = Path.GetFileName(pathToPublicKey);
             }
+            if (ConfigurationHandler.HasValueOnKey("TOKEN_VALUE"))
+            {
+                tokenValue.Text = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
+            }
         }
 
         string SelectFile()
@@ -67,8 +71,8 @@ namespace Client
             try
             {
                 CryptoRSA cryptoService = new CryptoRSA();
-                cryptoService.loadRSAFromPrivateKey(pathToPrivateKey);
-                cryptoService.loadRSAFromPublicKey(pathToPublicKey);
+                cryptoService.LoadRsaFromPrivateKey(pathToPrivateKey);
+                cryptoService.LoadRsaFromPublicKey(pathToPublicKey);
 
                 string checker = "CHECK_ME";
                 string encryptedCheck = cryptoService.PublicEncrypt(checker, cryptoService.PublicRSA);
@@ -94,6 +98,7 @@ namespace Client
         {
             ConfigurationHandler.SetValueOnKey("PATH_TO_PRIVATE_KEY", pathToPrivateKey);
             ConfigurationHandler.SetValueOnKey("PATH_TO_PUBLIC_KEY", pathToPublicKey);
+            ConfigurationHandler.SetValueOnKey("TOKEN_VALUE", tokenValue.Text);
             this.Close();
         }
     }

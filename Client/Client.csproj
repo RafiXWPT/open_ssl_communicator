@@ -102,7 +102,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Classes\ChatController.cs" />
-    <Compile Include="ResetPasswordWindow.xaml.cs">
+    <Compile Include="Windows\ResetPasswordWindow.xaml.cs">
       <DependentUpon>ResetPasswordWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Classes\ChatWindow\DisplayMessage.cs" />
@@ -111,42 +111,42 @@
     <Compile Include="Classes\OptionsWindow\SaveOptions.cs" />
     <Compile Include="Classes\RegisterValidator\RegisterFormatValidator.cs" />
     <Compile Include="Classes\Security\DiffieHellmanTunnelCreator.cs" />
-    <Compile Include="AddContactWindow.xaml.cs">
-      <DependentUpon>AddContactWindow.xaml</DependentUpon>
+    <Compile Include="Windows\ContactWindow.xaml.cs">
+      <DependentUpon>ContactWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="KeyImportWindow.xaml.cs">
+    <Compile Include="Windows\KeyImportWindow.xaml.cs">
       <DependentUpon>KeyImportWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LogInWindow.xaml.cs">
+    <Compile Include="Windows\LogInWindow.xaml.cs">
       <DependentUpon>LogInWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Options.xaml.cs">
+    <Compile Include="Windows\Options.xaml.cs">
       <DependentUpon>Options.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RegisterWindow.xaml.cs">
+    <Compile Include="Windows\RegisterWindow.xaml.cs">
       <DependentUpon>RegisterWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="ResetPasswordWindow.xaml">
+    <Page Include="Windows\ResetPasswordWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ChatWindow.xaml">
+    <Page Include="Windows\ChatWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AddContactWindow.xaml">
+    <Page Include="Windows\ContactWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="KeyImportWindow.xaml">
+    <Page Include="Windows\KeyImportWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LogInWindow.xaml">
+    <Page Include="Windows\LogInWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -154,22 +154,22 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ChatWindow.xaml.cs">
+    <Compile Include="Windows\ChatWindow.xaml.cs">
       <DependentUpon>ChatWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Classes\ConfigurationHandler.cs" />
     <Compile Include="Classes\ConnectionInfo\ConnectionChecker.cs" />
     <Compile Include="Classes\ConnectionInfo\ConnectionInfo.cs" />
     <Compile Include="Classes\NetworkController.cs" />
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Options.xaml">
+    <Page Include="Windows\Options.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RegisterWindow.xaml">
+    <Page Include="Windows\RegisterWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -28,11 +28,11 @@ namespace Server
 
         static void Main(string[] args)
         {
-            foreach (string s in args)
-            {
-                if(s == "-l")
+//            foreach (string s in args)
+//            {
+//                if(s == "-l")
                     Prefix = "http://localhost:11069";
-            }
+//            }
             if(Prefix == string.Empty)
                 Prefix = "http://" + GetIPv4Address() + ":11069";
             
@@ -101,7 +101,7 @@ namespace Server
                 string content = "TakiTamRandom";
                 Message msg = new Message(UID, sender, target, content);
                 CryptoRSA cryptoService = new CryptoRSA();
-                cryptoService.loadRSAFromPublicKey("keys/rafixwpt@protonmail.com_Public.pem");
+                cryptoService.LoadRsaFromPublicKey("keys/rafixwpt@protonmail.com_Public.pem");
                 string encryptedChatMessage = cryptoService.PublicEncrypt(msg.GetJsonString(), cryptoService.PublicRSA);
                 ControlMessage message = new ControlMessage("SERVER", "CHAT_MESSAGE", encryptedChatMessage);
 

@@ -19,7 +19,7 @@ namespace Server.Classes.DbAccess
             IMongoCollection<BsonDocument> cotactsCollection = MongoDbAccess.GetContactsCollection();
             FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
             FilterDefinition<BsonDocument> filter = builder.Eq("left", contact.From) &
-                                                    builder.Eq("right", contact.To);
+                                                    builder.Eq("right", contact.CipheredTo);
             DeleteResult result = cotactsCollection.DeleteOne(filter);
             if (!result.IsAcknowledged)
             {
@@ -32,10 +32,10 @@ namespace Server.Classes.DbAccess
             IMongoCollection<BsonDocument> contactsCollection = MongoDbAccess.GetContactsCollection();
             FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
             FilterDefinition<BsonDocument> filter = builder.Eq("left", contact.From) &
-                                                    builder.Eq("right", contact.To);
+                                                    builder.Eq("right", contact.CipheredTo);
             UpdateDefinition<BsonDocument> update = Builders<BsonDocument>.Update
                 .Set("left", contact.From)
-                .Set("right", contact.To)
+                .Set("right", contact.CipheredTo)
                 .Set("displayName", contact.DisplayName)
                 .Set("checksum", contact.ContactChecksum);
             UpdateResult result = contactsCollection.UpdateOne(filter, update, new UpdateOptions { IsUpsert = true});
@@ -50,7 +50,7 @@ namespace Server.Classes.DbAccess
             IMongoCollection<BsonDocument> contactsCollection = MongoDbAccess.GetContactsCollection();
             FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
             FilterDefinition<BsonDocument> filter = builder.Eq("left", contact.From) &
-                                                    builder.Eq("right", contact.To);
+                                                    builder.Eq("right", contact.CipheredTo);
             List<BsonDocument> result = contactsCollection.Find(filter).ToList();
             return result.Any();
         }
@@ -62,10 +62,9 @@ namespace Server.Classes.DbAccess
 
             FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
             FilterDefinition<BsonDocument> filter = builder.Eq("left", username);
-            SortDefinition<BsonDocument> sort = Builders<BsonDocument>.Sort.Ascending("left");
             IMongoCollection<BsonDocument> contactsCollection = MongoDbAccess.GetContactsCollection();
 
-            using (var cursor = contactsCollection.Find(filter).Sort(sort).ToCursor())
+            using (var cursor = contactsCollection.Find(filter).ToCursor())
             {
                 while (cursor.MoveNext())
                 {
@@ -79,7 +78,7 @@ namespace Server.Classes.DbAccess
         {
             return contactsBatch.ToList().ConvertAll(doc => new Contact {
                     From = doc["left"].AsString,
-                    To = doc["right"].AsString, 
+                    CipheredTo = doc["right"].AsString, 
                     DisplayName = doc["displayName"].AsString,
                     ContactChecksum = doc["checksum"].AsString
                 });

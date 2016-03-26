@@ -11,7 +11,7 @@ namespace Client
 
         static ChatController()
         {
-            RSA.loadRSAFromPrivateKey(Config.ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
+            RSA.LoadRsaFromPrivateKey(Config.ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
         }
 
         public static void AddNewWindow(ChatWindow window)

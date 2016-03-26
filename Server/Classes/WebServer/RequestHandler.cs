@@ -9,6 +9,7 @@ using CommunicatorCore.Classes.Model;
 using MongoDB.Driver;
 using Server.Classes;
 using System.Threading;
+using OpenSSL.Crypto;
 
 namespace Server
 {
@@ -179,14 +180,17 @@ namespace Server
                     else
                     {
                         KeyGenerator.GenerateKeyPair(userPasswordData.Username);
-                        EmailMessage emailMessage = new EmailMessage("Crypto Talk Registration", userPasswordData.Username);
                         UserControll.Instance.AddUserToDatabase(userPasswordData);
+                        string userToken = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+                        string emailContent = "Your unique token for contacts & history access: " + userToken +
+                                              ". DO NOT LOOSE IT!!!";
+                        EmailMessage emailMessage = new EmailMessage("Crypto Talk Registration", emailContent, userPasswordData.Username);
+                        emailMessage.Send(true);
 
                         responseContent = user.Tunnel.DiffieEncrypt("REGISTER_OK");
                         controlMessage = new ControlMessage(MESSAGE_SENDER, "REGISTER_INFO", responseContent);
                         response = controlMessage.GetJsonString();
-                        
-                        emailMessage.Send(true);
+
                         ServerLogger.LogMessage("User added to database, registration succesfull");
                     }
                 }
@@ -285,7 +289,7 @@ namespace Server
             string messageContent = string.Empty;
             Message chatMessage = new Message();
             CryptoRSA transcoder = new CryptoRSA();
-            transcoder.loadRSAFromPrivateKey(SERVER_PRIVATE_KEY);
+            transcoder.LoadRsaFromPrivateKey(SERVER_PRIVATE_KEY);
 
             if (message.MessageType == "CHAT_INIT")
             {
@@ -325,15 +329,16 @@ namespace Server
         private void HandleContactMessage(ControlMessage message, HttpListenerContext userToHandle)
         {
             string response = string.Empty;
-            ControlMessage returnMessage = new ControlMessage();
+            ControlMessage returnMessage;
             CryptoRSA transcoder = new CryptoRSA();
-            transcoder.loadRSAFromPrivateKey("keys/SERVER_Private.pem");
-            transcoder.loadRSAFromPublicKey("keys/" + message.MessageSender + "_Public.pem");
+            transcoder.LoadRsaFromPrivateKey("keys/SERVER_Private.pem");
+            transcoder.LoadRsaFromPublicKey("keys/" + message.MessageSender + "_Public.pem");
 
             string decryptedMessageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
             if (Sha1Util.CalculateSha(decryptedMessageContent) != message.Checksum)
             {
                 returnMessage = CreateInvalidResponseMessage(transcoder, transcoder.PublicRSA);
+                response = returnMessage.GetJsonString();
             }
             else if (message.MessageType == "CONTACT_INSERT" || message.MessageType == "CONTACT_UPDATE")
             {
@@ -345,7 +350,7 @@ namespace Server
                     string encryptedMessage = transcoder.PublicEncrypt(userDoesNotExistResponse, transcoder.PublicRSA);
                     returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_USER_NOT_EXIST", userDoesNotExistResponse, encryptedMessage);
                 }
-                else if (ContactControl.Instance.CheckIfContactExist(contact))
+                else if (ContactControl.Instance.CheckIfContactExist(contact) && message.MessageType == "CONTACT_INSERT")
                 {
                     string contactAlreadyExists = "Contact already exists";
                     string encryptedMessage = transcoder.PublicEncrypt(contactAlreadyExists, transcoder.PublicRSA);
@@ -369,12 +374,24 @@ namespace Server
 
                 SymmetricCipher cipher = new SymmetricCipher();
                 string oneTimePass = Guid.NewGuid().ToString();
-                string contactsEncryptedByAES = cipher.Encode(contactsJson, oneTimePass, string.Empty);
-                string encryptedAESKey = transcoder.PublicEncrypt(oneTimePass, transcoder.PublicRSA);
-
-                returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_GET_OK", contactsEncryptedByAES);
-                BatchControlMessage batchControlMessage = new BatchControlMessage(returnMessage, encryptedAESKey);
+                string contactsEncryptedByAes = cipher.Encode(contactsJson, oneTimePass, string.Empty);
+                string encryptedAesKey = transcoder.PublicEncrypt(oneTimePass, transcoder.PublicRSA);
+                
+                returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_GET_OK", contactsJson, contactsEncryptedByAes);
+                BatchControlMessage batchControlMessage = new BatchControlMessage(returnMessage, encryptedAesKey);
                 response = batchControlMessage.GetJsonString();
+            }
+            else if (message.MessageType == "CONTACT_DELETE")
+            {
+                ServerLogger.LogMessage("User: " + message.MessageSender + " is trying to remove one of his contacts");
+                Contact contact = new Contact();
+                contact.LoadJson(decryptedMessageContent);
+                ContactControl.Instance.DeleteContact(contact);
+
+                string userDeletedSuccessfullyMessage = "Contact deleted successfully";
+                string cipheredMessage = transcoder.PublicEncrypt(userDeletedSuccessfullyMessage, transcoder.PublicRSA);
+                returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_REMOVE_OK", userDeletedSuccessfullyMessage, cipheredMessage);
+                response = returnMessage.GetJsonString();
             }
             else
             {
@@ -384,7 +401,7 @@ namespace Server
             SendResponse(userToHandle, response);
         }
 
-        private ControlMessage CreateInvalidResponseMessage(CryptoRSA transcoder, OpenSSL.Crypto.RSA RSA)
+        private ControlMessage CreateInvalidResponseMessage(CryptoRSA transcoder, RSA RSA)
         {
             const string invalidMessage = "INVALID_CHECKSUM";
             return new ControlMessage(MESSAGE_SENDER, "INVALID", invalidMessage, transcoder.PublicEncrypt(invalidMessage, RSA));
@@ -396,8 +413,8 @@ namespace Server
             ControlMessage responseMessage;
             CryptoRSA transcoder = new CryptoRSA();
 
-            transcoder.loadRSAFromPrivateKey(SERVER_PRIVATE_KEY);
-            transcoder.loadRSAFromPublicKey("keys/" + message.MessageSender + "_Public.pem");
+            transcoder.LoadRsaFromPrivateKey(SERVER_PRIVATE_KEY);
+            transcoder.LoadRsaFromPublicKey("keys/" + message.MessageSender + "_Public.pem");
 
             string decryptedMessage = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
             if (decryptedMessage != message.Checksum)

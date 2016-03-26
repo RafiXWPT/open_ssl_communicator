@@ -40,15 +40,20 @@ namespace Client
 
         private readonly CryptoRSA cryptoService;
 
-        public ChatWindow(string target)
+        public ChatWindow(string target) : this(target, target)
+        {
+        }
+
+        public ChatWindow(string target, string windowName)
         {
             InitializeComponent();
             TargetID = target;
-
+            Title = Title + " - " + windowName;
+            
             ChatController.AddNewWindow(this);
 
             cryptoService = new CryptoRSA();
-            cryptoService.loadRSAFromPublicKey("SERVER_Public.pem");
+            cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
             chatText.IsEnabled = false;
         }
 

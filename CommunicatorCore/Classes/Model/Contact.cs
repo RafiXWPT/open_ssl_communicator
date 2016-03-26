@@ -15,6 +15,7 @@ namespace CommunicatorCore.Classes.Model
 
         public string From;
         public string ContactChecksum;
+        public string CipheredTo;
 
         public Contact()
         {
@@ -24,19 +25,20 @@ namespace CommunicatorCore.Classes.Model
 
         public Contact(string from, string to, string displayName)
         {
-            From = from;
+            this.From = from;
             To = to;
             DisplayName = !string.IsNullOrWhiteSpace(displayName) ? displayName : to;
-            ContactChecksum = Sha1Util.CalculateSha(From + To);
+            this.ContactChecksum = Sha1Util.CalculateSha(From + To);
         }
 
         public void LoadJson(string jsonString)
         {
             Contact tmp = JsonConvert.DeserializeObject<Contact>(jsonString);
-            this.From = tmp.From;
+            From = tmp.From;
             To = tmp.To;
             DisplayName = tmp.DisplayName;
-            this.ContactChecksum = tmp.ContactChecksum;
+            CipheredTo = tmp.CipheredTo;
+            ContactChecksum = tmp.ContactChecksum;
         }
 
         public string GetJsonString()

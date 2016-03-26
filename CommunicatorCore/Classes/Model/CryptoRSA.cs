@@ -32,7 +32,7 @@ namespace CommunicatorCore.Classes.Model
         {
         }
 
-        public void loadRSAFromPublicKey(string pathToPublicKey)
+        public void LoadRsaFromPublicKey(string pathToPublicKey)
         {
             string publicKey = string.Empty;
             using (StreamReader sr = new StreamReader(pathToPublicKey))
@@ -45,7 +45,7 @@ namespace CommunicatorCore.Classes.Model
             }
         }
 
-        public void loadRSAFromPrivateKey(string pathToPrivateKey)
+        public void LoadRsaFromPrivateKey(string pathToPrivateKey)
         {
             string privateKey = string.Empty;
             using (StreamReader sr = new StreamReader(pathToPrivateKey))
@@ -63,10 +63,8 @@ namespace CommunicatorCore.Classes.Model
             try
             {
                 byte[] plain = Encoding.UTF8.GetBytes(textToEncrypt);
-                byte[] output;
+                byte[] output = rsa.PublicEncrypt(plain, RSA.Padding.PKCS1);
 
-
-                output = rsa.PublicEncrypt(plain, RSA.Padding.PKCS1);
                 return Convert.ToBase64String(output);
             }
             catch
@@ -80,9 +78,7 @@ namespace CommunicatorCore.Classes.Model
             try
             {
                 byte[] cipher = Convert.FromBase64String(textToDecrypt);
-                byte[] output;
-
-                output = rsa.PrivateDecrypt(cipher, RSA.Padding.PKCS1);
+                byte[] output = rsa.PrivateDecrypt(cipher, RSA.Padding.PKCS1);
 
                 return Encoding.UTF8.GetString(output);
             }
