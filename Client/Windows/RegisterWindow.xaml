@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Client"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
-        Title="Register" Height="275" Width="300" Loaded="Window_Loaded" Icon="../Image/programIcon.ico" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FFCDCDCD">
+        Title="Register" Height="275" Width="300" Loaded="Window_Loaded" Icon="../Image/programIcon.ico" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#00A2FF">
     <Grid>
         <Label x:Name="EmailLabel" Content="Email:" HorizontalAlignment="Left" Margin="10,10,30,0" VerticalAlignment="Top"/>
         <TextBox x:Name="EmailTextBox" HorizontalAlignment="Left" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="30" Margin="10,40,30,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="200" KeyUp="emailTextBox_KeyUp" KeyDown="EmailTextBox_KeyDown"/>
@@ -14,7 +14,7 @@
         <PasswordBox x:Name="PasswordBox" HorizontalAlignment="Left" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="30" Margin="10,100,30,0" VerticalAlignment="Top" Width="200" />
         <Label x:Name="ConfirmPasswordLabel" Content="Confirm Password:" HorizontalAlignment="Left" Margin="10,130,30,0" VerticalAlignment="Top"/>
         <PasswordBox x:Name="ConfirmPasswordBox" HorizontalAlignment="Left" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="30" Margin="10,160,0,0" VerticalAlignment="Top" Width="200" KeyDown="PasswordBox_KeyDown" KeyUp="PasswordBox_KeyUp" />
-        <Button x:Name="SendBtn" Content="Register" HorizontalAlignment="Left" Margin="10,200,0,0" VerticalAlignment="Top" Height="30" Width="200" Click="RegisterButton_Click"/>
+        <Button x:Name="SendBtn" Content="Register" HorizontalAlignment="Left" Margin="10,200,0,0" VerticalAlignment="Top" Height="30" Width="200" Click="RegisterButton_Click" Background="#47DBFF" />
 
         <Image x:Name="EmailImageValid" HorizontalAlignment="Left" Height="30" Margin="215,40,0,0" VerticalAlignment="Top" Width="30" Source="../Image/bad.png" Visibility="Hidden"/>
         <Image x:Name="PasswordImageValid" HorizontalAlignment="Left" Height="30" Margin="215,160,0,0" VerticalAlignment="Top" Width="30" Source="../Image/bad.png" Visibility="Hidden"/>

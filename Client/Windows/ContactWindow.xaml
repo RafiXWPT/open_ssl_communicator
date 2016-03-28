@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="Crypto Talk - " Height="260" Width="260" ResizeMode="NoResize" Icon="../Image/programIcon.ico" WindowStartupLocation="CenterScreen" Background="#FFCDCDCD">
+        Title="Crypto Talk - " Height="260" Width="260" ResizeMode="NoResize" Icon="../Image/programIcon.ico" WindowStartupLocation="CenterScreen" Background="#00A2FF">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -28,7 +28,7 @@
             <TextBox x:Name="ContactDisplayName" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="10,74,0,-36" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="234" Grid.ColumnSpan="2"/>
         </Grid>
 
-        <Button x:Name="SaveContact" Grid.Row="3" Content="Save" HorizontalAlignment="Center" Margin="66,57,68,-40" VerticalAlignment="Top" Width="120" Height="30" Click="save_Click"/>
+        <Button x:Name="SaveContact" Grid.Row="3" Content="Save" HorizontalAlignment="Center" Margin="66,57,68,-40" VerticalAlignment="Top" Width="120" Height="30" Click="save_Click" Background="#47DBFF"/>
 
     </Grid>
 </Window>

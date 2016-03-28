@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Client"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Client.MainWindow"
         mc:Ignorable="d"
-        Title="Title" Height="400" MaxHeight="800" MinHeight="300" Width="423" MinWidth="260" MaxWidth="800" Loaded="Window_Loaded" Background="#FFCDCDCD" Icon="../Image/programIcon.ico" WindowStartupLocation="CenterScreen">
+        Title="Title" Height="400" MaxHeight="800" MinHeight="300" Width="423" MinWidth="260" MaxWidth="800" Loaded="Window_Loaded" Background="#00A2FF" Icon="../Image/programIcon.ico" WindowStartupLocation="CenterScreen">
 
     <Grid>
 
@@ -28,12 +28,12 @@
                 <MenuItem Header="Contacts" >
                     <MenuItem Header="_Add Contact" Click="AddContact_Click" >
                         <MenuItem.Icon >
-                            <Image Source="../Image/user.png" Width="15" />
+                            <Image Source="../Image/contact-4.png" Width="16"></Image>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="_Load Contacts" Click="Contacts_Click" >
                         <MenuItem.Icon >
-                            <Image Source="../Image/users.png" Width="15" />
+                            <Image Source="../Image/contacts.png" Width="16" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="_Clear Contacts" Click="ClearContacts_Click" />
@@ -45,20 +45,20 @@
         <!-- Maybe some perfect image? -->
 
         <Grid Grid.Row="0">
-
+                <TextBox IsReadOnly="True" Text="WRZUC W TEN CONTENT KOTA BEZ NAPISU!!" Margin="0,25,0,0"></TextBox>
         </Grid>
 
         <Grid Grid.Row="1">
-            <Grid x:Name="ContactActionPanel" Margin="361,0,10,0" Visibility="Hidden">
+            <Grid x:Name="ContactActionPanel" Margin="361,0,10,0" Visibility="Visible">
                 <Button x:Name="EditContactButton"  Click="OnEditContactBtn_Click" Margin="0,35,0,171" Height="39" Width="43" >
                     <Image Source="../Image/edit.png" />
                 </Button>
                 <Button x:Name="DeleteContactButton"  Click="OnDeleteContactBtn_Click" Margin="1,79,0,127" Height="39" Width="43">
-                    <Image Source="../Image/delete.png"  />    
+                    <Image Source="../Image/delete.png" />
                 </Button>
             </Grid>
 
-            <DataGrid x:Name="ContactsData" HorizontalAlignment="Stretch" Margin="10,10,59,10" VerticalAlignment="Stretch" SelectionMode="Single" BorderThickness="1" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" RowDetailsVisibilityMode="Collapsed" IsReadOnly="True" MouseDoubleClick="ContactsData_OnMouseDoubleClick" SelectionChanged="ContactsData_OnSelectionChanged">
+            <DataGrid x:Name="ContactsData" HorizontalAlignment="Stretch" Margin="10,10,59,10" VerticalAlignment="Stretch" SelectionMode="Single" BorderThickness="1" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" RowDetailsVisibilityMode="Collapsed" IsReadOnly="True" MouseDoubleClick="ContactsData_OnMouseDoubleClick" SelectionChanged="ContactsData_OnSelectionChanged" Background="#47DBFF">
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Path=To}" Header="Identyfikator" IsReadOnly="True" Width="*"/>
                     <DataGridTextColumn Binding="{Binding Path=DisplayName}" Header="Pseudonim" IsReadOnly="True" Width="*"/>

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="ChatWindow" Height="300" Width="350" MinWidth="200" MinHeight="300" Icon="../Image/programIcon.ico" Loaded="Window_Loaded" Background="#FFCDCDCD" Closing="Window_Closing">
+        Title="ChatWindow" Height="300" Width="350" MinWidth="200" MinHeight="300" Icon="../Image/programIcon.ico" Loaded="Window_Loaded" Background="#00A2FF" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="7*" />

@@ -241,16 +241,16 @@
     <Resource Include="Image\checking.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Image\delete.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Image\edit.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Image\user.png" />
+    <Resource Include="Image\delete.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Image\users.png" />
+    <Resource Include="Image\contacts.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\contact-4.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
