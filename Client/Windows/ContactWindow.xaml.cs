@@ -31,9 +31,9 @@ namespace Client
 
             InitializeComponent();
             Title = Title + " Edit contact.";
-            contactName.IsReadOnly = true;
-            contactName.Text = to;
-            contactDisplayName.Text = displayName;
+            ContactName.IsReadOnly = true;
+            ContactName.Text = to;
+            ContactDisplayName.Text = displayName;
         }
 
         private void save_Click(object sender, RoutedEventArgs e)
@@ -45,9 +45,9 @@ namespace Client
             SymmetricCipher cipher = new SymmetricCipher();
             string token = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
 
-            Contact contact = new Contact(ConnectionInfo.Sender, contactName.Text, contactDisplayName.Text);
-            contact.CipheredTo = cipher.Encode(contactName.Text, token, string.Empty);
-            contact.DisplayName = cipher.Encode(contactDisplayName.Text, token, string.Empty);
+            Contact contact = new Contact(ConnectionInfo.Sender, ContactName.Text, ContactDisplayName.Text);
+            contact.CipheredTo = cipher.Encode(ContactName.Text, token, string.Empty);
+            contact.DisplayName = cipher.Encode(ContactDisplayName.Text, token, string.Empty);
 
             string plainMessage = contact.GetJsonString();
             string encryptedMessage = cryptoService.PublicEncrypt(plainMessage, cryptoService.PublicRSA);
@@ -73,7 +73,7 @@ namespace Client
             }
             else if (returnedMessage.MessageType == "CONTACT_INSERT_SUCCESS")
             {
-                string message = _isEdit ? "Contact added successfully!" : "Contact updated successfully";
+                string message = _isEdit ? "Contact updated successfully" : "Contact added successfully!";
                 MessageBox.Show(message);
                 MainWindow.Instance.AddContactToList(contact, true);
                 this.Close();

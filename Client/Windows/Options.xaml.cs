@@ -28,14 +28,14 @@ namespace Client
 
         void LoadUserSettings()
         {
-            inComingMessageCheckBox.IsChecked = LoadOptions.IsIncomingMessageSoundEnabled();
-            outComingMessageCheckBox.IsChecked = LoadOptions.IsOutcomingMessageSoundEnabled();
-            flashWindowCheckBox.IsChecked = LoadOptions.IsBlinkChatEnabled();
+            IncomingMessageCheckBox.IsChecked = LoadOptions.IsIncomingMessageSoundEnabled();
+            OutcomingMessageCheckBox.IsChecked = LoadOptions.IsOutcomingMessageSoundEnabled();
+            FlashWindowCheckBox.IsChecked = LoadOptions.IsBlinkChatEnabled();
         }
 
-        private void saveOptionsBtn_Click(object sender, RoutedEventArgs e)
+        private void SaveOptionsBtn_Click(object sender, RoutedEventArgs e)
         {
-            SaveOptions.Save(inComingMessageCheckBox.IsChecked.Value, outComingMessageCheckBox.IsChecked.Value, flashWindowCheckBox.IsChecked.Value);
+            SaveOptions.Save(IncomingMessageCheckBox.IsChecked.Value, OutcomingMessageCheckBox.IsChecked.Value, FlashWindowCheckBox.IsChecked.Value);
             this.Close();
         }
     }

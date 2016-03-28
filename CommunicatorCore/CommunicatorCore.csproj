@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Model\BatchControlMessage.cs" />
+    <Compile Include="Classes\Model\ChangePasswordDTO.cs" />
     <Compile Include="Classes\Model\Contact.cs" />
     <Compile Include="Classes\Model\ContactAggregator.cs" />
     <Compile Include="Classes\Model\CryptoRSA.cs" />

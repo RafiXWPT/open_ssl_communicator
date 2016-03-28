@@ -42,7 +42,7 @@ namespace Server.Classes.DbAccess
             UpdateDefinition<BsonDocument> update = Builders<BsonDocument>.Update
                 .Set("password", userPasswordData.HashedPassword);
 
-            UpdateResult result = usersCollection.UpdateOne(filter, update, new UpdateOptions { IsUpsert = true });
+            UpdateResult result = usersCollection.UpdateOne(filter, update);
             if (!result.IsAcknowledged)
             {
                 throw new UnsuccessfulQueryException("Unable to update password: " + userPasswordData.Username);

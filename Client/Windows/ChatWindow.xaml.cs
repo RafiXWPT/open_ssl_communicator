@@ -54,7 +54,7 @@ namespace Client
 
             cryptoService = new CryptoRSA();
             cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
-            chatText.IsEnabled = false;
+            ChatText.IsEnabled = false;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -71,14 +71,14 @@ namespace Client
 
         private void SendMsg()
         {
-            if (string.IsNullOrWhiteSpace(chatText.Text))
+            if (string.IsNullOrWhiteSpace(ChatText.Text))
                 return;
 
             try
             {
                 string UID = Guid.NewGuid().ToString();
-                AddMessageToChatWindow(UID, ConnectionInfo.Sender, chatText.Text, true);
-                PrepareMessage(UID, chatText.Text);
+                AddMessageToChatWindow(UID, ConnectionInfo.Sender, ChatText.Text, true);
+                PrepareMessage(UID, ChatText.Text);
             }
             catch(Exception ex)
             {
@@ -119,7 +119,7 @@ namespace Client
 
 
             chatWindowMessages.Add(message);
-            listBox.Items.Insert(0, message);
+            ListBox.Items.Insert(0, message);
      
             PlaySound(isFromSelf);
             if (!isFromSelf && IsPropertyTrue("BLINK_CHAT") )
@@ -148,24 +148,24 @@ namespace Client
 
                 if (responseString == "OK")
                 {
-                    listBox.Dispatcher.BeginInvoke(new Action(delegate ()
+                    ListBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
                         AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Encrypted channel has been established.");
                     }));
-                    chatText.Dispatcher.BeginInvoke(new Action(delegate ()
+                    ChatText.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        chatText.IsEnabled = true;
+                        ChatText.IsEnabled = true;
                     }));
                 }
                 else
                 {
-                    listBox.Dispatcher.BeginInvoke(new Action(delegate ()
+                    ListBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
                         AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Encrypted channel is not established.");
                     }));
-                    chatText.Dispatcher.BeginInvoke(new Action(delegate ()
+                    ChatText.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        chatText.IsEnabled = true;
+                        ChatText.IsEnabled = true;
                     }));
                 }
             }
@@ -185,7 +185,7 @@ namespace Client
                 message = new ControlMessage(ConnectionInfo.Sender, "CHAT_MESSAGE", encryptedChatMessage);
 
                 Thread SendReceiveMessage = StartThreadWithParam(UID, message);
-                chatText.Text = string.Empty;
+                ChatText.Text = string.Empty;
             }
             catch(Exception ex)
             {
@@ -246,7 +246,7 @@ namespace Client
 
             dspMsg.TripStatus = "DELIVERED";
             chatWindowMessages.Add(dspMsg);
-            listBox.Items.Insert(0, dspMsg);
+            ListBox.Items.Insert(0, dspMsg);
         }
 
         public void RefreshMessages()
@@ -256,10 +256,10 @@ namespace Client
 
         void Refresh()
         {
-            listBox.Items.Refresh();
+            ListBox.Items.Refresh();
         }
 
-        private void chatText_KeyDown(object sender, KeyEventArgs e)
+        private void ChatText_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
                 SendMsg();

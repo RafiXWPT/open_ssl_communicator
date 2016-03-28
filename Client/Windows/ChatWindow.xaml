@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="ChatWindow" Height="300" Width="350" MinWidth="200" MinHeight="300" Icon="programIcon.ico" Loaded="Window_Loaded" Background="#FFCDCDCD" Closing="Window_Closing">
+        Title="ChatWindow" Height="300" Width="350" MinWidth="200" MinHeight="300" Icon="../Image/programIcon.ico" Loaded="Window_Loaded" Background="#FFCDCDCD" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="7*" />
@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
 
 
-        <ListBox x:Name="listBox" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,10,2" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
+        <ListBox x:Name="ListBox" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,10,2" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
@@ -24,6 +24,6 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <TextBox x:Name="chatText" Grid.Row="1" HorizontalAlignment="Stretch" Margin="10,2,10,10" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" KeyDown="chatText_KeyDown"/>
+        <TextBox x:Name="ChatText" Grid.Row="1" HorizontalAlignment="Stretch" Margin="10,2,10,10" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" KeyDown="ChatText_KeyDown"/>
     </Grid>
 </Window>

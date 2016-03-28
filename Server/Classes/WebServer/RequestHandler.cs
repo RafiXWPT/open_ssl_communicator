@@ -25,47 +25,90 @@ namespace Server
             string messageContent = userToHandle.Request.Headers["messageContent"];
             try
             {
-                if (wantedUrl == "/connectionCheck/")
+                ControlMessage message = ParseMessageContent(messageContent);
+                switch (wantedUrl)
                 {
-                    ControlMessage message = ParseMessageContent(messageContent);
-                    ConnectionCheck(message, sender, userToHandle);
+                    case "/connectionCheck/":
+                        ConnectionCheck(message, sender, userToHandle);
+                        break;
+                    case "/diffieTunnel/":
+                        DiffieTunnel(message, userToHandle);
+                        break;
+                    case "/register/":
+                        Register(message, userToHandle);
+                        break;
+                    case "/logIn/":
+                        LogIn(message, userToHandle);
+                        break;
+                    case "/sendChatMessage/":
+                        SendChatMessage(message, userToHandle);
+                        break;
+                    case "/contacts/":
+                        HandleContactMessage(message, userToHandle);
+                        break;
+                    case "/history/":
+                        HandleMessageHistory(message, userToHandle);
+                        break;
+                    case "/password/":
+                        HandlePasswordMessage(message, userToHandle);
+                        break;
                 }
-                else if (wantedUrl == "/diffieTunnel/")
-                {
-                    ControlMessage message = ParseMessageContent(messageContent);
-                    DiffieTunnel(message, userToHandle);
-                }
-                else if (wantedUrl == "/register/")
-                {
-                    ControlMessage message = ParseMessageContent(messageContent);
-                    Register(message, userToHandle);
-                }
-                else if (wantedUrl == "/logIn/")
-                {
-                    ControlMessage message = ParseMessageContent(messageContent);
-                    LogIn(message, userToHandle);
-                }
-                else if (wantedUrl == "/sendChatMessage/")
-                {
-                    ControlMessage message = ParseMessageContent(messageContent);
-                    SendChatMessage(message, userToHandle);
-                }
-                else if (wantedUrl == "/contacts/")
-                {
-                    ControlMessage message = ParseMessageContent(messageContent);
-                    HandleContactMessage(message, userToHandle);
-                }
-                else if (wantedUrl == "/history/")
-                {
-                    ControlMessage message = ParseMessageContent(messageContent);
-                    HandleMessageHistory(message, userToHandle);
-                }              
             }
             catch (Exception ex)
             {
                 ServerLogger.LogMessage(ex.ToString());
                 HandleException(ex, userToHandle);
             }
+        }
+
+        private void HandlePasswordMessage(ControlMessage message, HttpListenerContext userToHandle)
+        {
+            string returnMessageContent = string.Empty;
+            CryptoRSA crypter = GetUserServerCrypter(message.MessageSender);
+            string decryptedMessageContent = crypter.PrivateDecrypt(message.MessageContent, crypter.PrivateRSA);
+            ServerLogger.LogMessage("Received request on password service from: " + message.MessageSender);
+            if (message.Checksum != Sha1Util.CalculateSha(decryptedMessageContent))
+            {
+                ControlMessage returnMessage = CreateInvalidResponseMessage(crypter, crypter.PublicRSA);
+                returnMessageContent = returnMessage.GetJsonString();
+            }
+            else if (message.MessageType == "CHANGE_PASSWORD")
+            {
+                ServerLogger.LogMessage(message.MessageSender + " is about to change his password.");
+                ChangePasswordDTO userPasswordData = new ChangePasswordDTO();
+                userPasswordData.LoadJson(decryptedMessageContent);
+                string messageContent;
+                if (
+                    !UserControll.Instance.IsUserValid(new UserPasswordData
+                    {
+                        Username = userPasswordData.Username,
+                        HashedPassword = userPasswordData.CurrentPassword
+                    }))
+                {
+                    messageContent = "CHANGE_INVALID_CURRENT";
+                }
+                else
+                {
+                    UserPasswordData updatedUserPassword = new UserPasswordData();
+                    updatedUserPassword.Username = userPasswordData.Username;
+                    updatedUserPassword.HashedPassword = userPasswordData.NewPassword;
+
+                    UserControll.Instance.UpdateUser(updatedUserPassword);
+                    messageContent = "CHANGE_OK";
+                }
+                string encryptedMessageContent = crypter.PublicEncrypt(messageContent, crypter.PublicRSA);
+                ControlMessage returnMessage = new ControlMessage(MESSAGE_SENDER, "CHANGE_PASSWORD", messageContent, encryptedMessageContent);
+                returnMessageContent = returnMessage.GetJsonString();
+            }
+            SendResponse(userToHandle, returnMessageContent);
+        }
+
+        private CryptoRSA GetUserServerCrypter(string messageSender)
+        {
+            CryptoRSA crypter = new CryptoRSA();
+            crypter.LoadRsaFromPrivateKey(SERVER_PRIVATE_KEY);
+            crypter.LoadRsaFromPublicKey("keys/" + messageSender + "_Public.pem");
+            return crypter;
         }
 
         // Temporary fix!
@@ -78,7 +121,7 @@ namespace Server
 
         void ConnectionCheck(ControlMessage message, string sender, HttpListenerContext userToHandle)
         {
-            string response = string.Empty;
+            string response;
             User user = UserControll.Instance.GetUserFromApplication(message.MessageSender);
 
             if (user != null)
@@ -101,7 +144,7 @@ namespace Server
 
         void DiffieTunnel(ControlMessage message, HttpListenerContext userToHandle)
         {
-            string response = string.Empty;
+            string response;
             User user = null;
 
             if (message.MessageSender == "UNKNOWN")
@@ -219,18 +262,12 @@ namespace Server
                         ServerLogger.LogMessage(userPasswordData.Username + " password reset ended successfully.");
                     }
                 }
-                else
-                {
-                    // Empty statement
-                }
                 SendResponse(userToHandle, response);
-
             }
         }
 
         void LogIn(ControlMessage message, HttpListenerContext userToHandle)
         {
-            string response = string.Empty;
             User user = UserControll.Instance.GetUserFromApplication(message.MessageSender);
 
             if (user != null)
@@ -271,7 +308,7 @@ namespace Server
                 }
                 string encryptedContent = user.Tunnel.DiffieEncrypt(responseContent);
                 ControlMessage replyMessage = new ControlMessage(MESSAGE_SENDER, responseType, responseContent, encryptedContent);
-                response = replyMessage.GetJsonString();
+                string response = replyMessage.GetJsonString();
                 SendResponse(userToHandle, response);
             }
         }
@@ -330,9 +367,7 @@ namespace Server
         {
             string response = string.Empty;
             ControlMessage returnMessage;
-            CryptoRSA transcoder = new CryptoRSA();
-            transcoder.LoadRsaFromPrivateKey("keys/SERVER_Private.pem");
-            transcoder.LoadRsaFromPublicKey("keys/" + message.MessageSender + "_Public.pem");
+            CryptoRSA transcoder = GetUserServerCrypter(message.MessageSender);
 
             string decryptedMessageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
             if (Sha1Util.CalculateSha(decryptedMessageContent) != message.Checksum)
@@ -401,20 +436,17 @@ namespace Server
             SendResponse(userToHandle, response);
         }
 
-        private ControlMessage CreateInvalidResponseMessage(CryptoRSA transcoder, RSA RSA)
+        private ControlMessage CreateInvalidResponseMessage(CryptoRSA transcoder, RSA publicRsa)
         {
             const string invalidMessage = "INVALID_CHECKSUM";
-            return new ControlMessage(MESSAGE_SENDER, "INVALID", invalidMessage, transcoder.PublicEncrypt(invalidMessage, RSA));
+            return new ControlMessage(MESSAGE_SENDER, "INVALID", invalidMessage, transcoder.PublicEncrypt(invalidMessage, publicRsa));
         }
 
         void HandleMessageHistory(ControlMessage message, HttpListenerContext userToHandle)
         {
 			string response = String.Empty;
             ControlMessage responseMessage;
-            CryptoRSA transcoder = new CryptoRSA();
-
-            transcoder.LoadRsaFromPrivateKey(SERVER_PRIVATE_KEY);
-            transcoder.LoadRsaFromPublicKey("keys/" + message.MessageSender + "_Public.pem");
+            CryptoRSA transcoder = GetUserServerCrypter(message.MessageSender);
 
             string decryptedMessage = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
             if (decryptedMessage != message.Checksum)

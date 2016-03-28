@@ -35,11 +35,11 @@ namespace Client
         private readonly System.Windows.Threading.DispatcherTimer checkingEmailTimer = new System.Windows.Threading.DispatcherTimer();
         private readonly System.Windows.Threading.DispatcherTimer checkingPasswordTimer = new System.Windows.Threading.DispatcherTimer();
 
-        private readonly BitmapImage okeyImage = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory.ToString() + @"\Images\" + "okey.png", UriKind.RelativeOrAbsolute));
-        private readonly BitmapImage badImage = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory.ToString() + @"\Images\" + "bad.png", UriKind.RelativeOrAbsolute));
+        private readonly BitmapImage _okeyImage = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory.ToString() + @"\Images\" + "okey.png", UriKind.RelativeOrAbsolute));
+        private readonly BitmapImage _badImage = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory.ToString() + @"\Images\" + "bad.png", UriKind.RelativeOrAbsolute));
 
-        private bool isEmailValid = false;
-        private bool isPasswordValid = false;
+        private bool _isEmailValid = false;
+        private bool _isPasswordValid = false;
 
         public RegisterWindow(DiffieHellmanTunnel tunnel, DiffieHellmanTunnelCreator creator)
         {
@@ -55,12 +55,12 @@ namespace Client
             checkingEmailTimer.Tick += emailBoxTimer_Tick;
             checkingPasswordTimer.Tick += passwordBoxTimer_Tick;
 
-            passwordBox.IsEnabled = false;
-            confirmPasswordBox.IsEnabled = false;
-            sendBtn.IsEnabled = false;
+            PasswordBox.IsEnabled = false;
+            ConfirmPasswordBox.IsEnabled = false;
+            SendBtn.IsEnabled = false;
         }
 
-        private void SEND_Click(object sender, RoutedEventArgs e)
+        private void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
             if(!ConnectionInfo.Connected)
             {
@@ -70,7 +70,7 @@ namespace Client
 
             if(creator.isTunnelActive(tunnel))
             {
-                UserPasswordData userPasswordData = new UserPasswordData(emailTextBox.Text, passwordBox.Password);
+                UserPasswordData userPasswordData = new UserPasswordData(EmailTextBox.Text, PasswordBox.Password);
                 string toSend = userPasswordData.GetJsonString();
                 ControlMessage registrationMessage = new ControlMessage(ConnectionInfo.Sender, "REGISTER_ME", toSend,  tunnel.DiffieEncrypt(toSend));
                 using (WebClient client = new WebClient())
@@ -117,36 +117,36 @@ namespace Client
 
         private void emailTextBox_KeyUp(object sender, KeyEventArgs e)
         {
-            emailImageValid.Visibility = Visibility.Hidden;
-            sendBtn.IsEnabled = false;
+            EmailImageValid.Visibility = Visibility.Hidden;
+            SendBtn.IsEnabled = false;
 
             checkingEmailPreTimer.Start();
         }
 
-        private void passwordBox_KeyUp(object sender, KeyEventArgs e)
+        private void PasswordBox_KeyUp(object sender, KeyEventArgs e)
         {
-            passwordImageValid.Visibility = Visibility.Hidden;
-            sendBtn.IsEnabled = false;
+            PasswordImageValid.Visibility = Visibility.Hidden;
+            SendBtn.IsEnabled = false;
 
             checkingPasswordPreTimer.Start();
         }
 
-        private void emailTextBox_KeyDown(object sender, KeyEventArgs e)
+        private void EmailTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             ResetEmailTimers();
 
-            checkingEmail.Visibility = Visibility.Hidden;
+            CheckingEmail.Visibility = Visibility.Hidden;
 
-            sendBtn.IsEnabled = false;
+            SendBtn.IsEnabled = false;
         }
 
-        private void passwordBox_KeyDown(object sender, KeyEventArgs e)
+        private void PasswordBox_KeyDown(object sender, KeyEventArgs e)
         {
             ResetPasswordTimers();
 
-            checkingPassword.Visibility = Visibility.Hidden;
+            CheckingPassword.Visibility = Visibility.Hidden;
 
-            sendBtn.IsEnabled = false;
+            SendBtn.IsEnabled = false;
         }
 
         void ResetEmailTimers()
@@ -167,75 +167,75 @@ namespace Client
 
         private void emailBoxPreTimer_Tick(object sender, EventArgs e)
         {
-            if(emailTextBox.Text.Length > 0)
+            if(EmailTextBox.Text.Length > 0)
             {
-                checkingEmail.Visibility = Visibility.Visible;
+                CheckingEmail.Visibility = Visibility.Visible;
                 checkingEmailTimer.Start();
             }
         }
 
         private void passwordBoxPreTimer_Tick(object sender, EventArgs e)
         {
-            if(confirmPasswordBox.Password.Length > 0)
+            if(ConfirmPasswordBox.Password.Length > 0)
             {
-                checkingPassword.Visibility = Visibility.Visible;
+                CheckingPassword.Visibility = Visibility.Visible;
                 checkingPasswordTimer.Start();
             }
         }
 
         private void emailBoxTimer_Tick(object sender, EventArgs e)
         {
-            if (!(emailTextBox.Text.Length > 0))
+            if (!(EmailTextBox.Text.Length > 0))
             {
                 return;
             }
 
-            checkingEmail.Visibility = Visibility.Hidden;
+            CheckingEmail.Visibility = Visibility.Hidden;
             checkingEmailPreTimer.Stop();
             checkingEmailTimer.Stop();
-            if(RegisterFormatValidator.IsEmailValid(emailTextBox.Text))
+            if(RegisterFormatValidator.IsEmailValid(EmailTextBox.Text))
             {
-                emailImageValid.Source = okeyImage;
-                isEmailValid = true;
-                passwordBox.IsEnabled = true;
-                confirmPasswordBox.IsEnabled = true;
-                if (isEmailValid && isPasswordValid)
-                    sendBtn.IsEnabled = true;
+                EmailImageValid.Source = _okeyImage;
+                _isEmailValid = true;
+                PasswordBox.IsEnabled = true;
+                ConfirmPasswordBox.IsEnabled = true;
+                if (_isEmailValid && _isPasswordValid)
+                    SendBtn.IsEnabled = true;
             }
             else
             {
-                passwordBox.IsEnabled = false;
-                confirmPasswordBox.IsEnabled = false;
-                passwordBox.Password = string.Empty;
-                confirmPasswordBox.Password = string.Empty;
-                emailImageValid.Source = badImage;
-                passwordImageValid.Visibility = Visibility.Hidden;
+                PasswordBox.IsEnabled = false;
+                ConfirmPasswordBox.IsEnabled = false;
+                PasswordBox.Password = string.Empty;
+                ConfirmPasswordBox.Password = string.Empty;
+                EmailImageValid.Source = _badImage;
+                PasswordImageValid.Visibility = Visibility.Hidden;
             }
-            emailImageValid.Visibility = Visibility.Visible;
+            EmailImageValid.Visibility = Visibility.Visible;
         }
 
         private void passwordBoxTimer_Tick(object sender, EventArgs e)
         {
-            if (!(confirmPasswordBox.Password.Length > 0))
+            if (!(ConfirmPasswordBox.Password.Length > 0))
             {
                 return;
             }
 
-            checkingPassword.Visibility = Visibility.Hidden;
+            CheckingPassword.Visibility = Visibility.Hidden;
             checkingPasswordPreTimer.Stop();
             checkingPasswordTimer.Stop();
-            if (RegisterFormatValidator.IsPasswordValid(confirmPasswordBox.Password) && passwordBox.Password == confirmPasswordBox.Password)
+            if (RegisterFormatValidator.IsPasswordValid(ConfirmPasswordBox.Password) && PasswordBox.Password == ConfirmPasswordBox.Password)
             {
-                passwordImageValid.Source = okeyImage;
-                isPasswordValid = true;
-                if (isEmailValid && isPasswordValid)
-                    sendBtn.IsEnabled = true;
+                PasswordImageValid.Source = _okeyImage;
+                _isPasswordValid = true;
+                if (_isEmailValid && _isPasswordValid)
+                    SendBtn.IsEnabled = true;
             }
             else
             {
-                passwordImageValid.Source = badImage;
+                PasswordImageValid.Source = _badImage;
             }
-            passwordImageValid.Visibility = Visibility.Visible;
+            PasswordImageValid.Visibility = Visibility.Visible;
         }
     }
 }

@@ -68,7 +68,7 @@ namespace Client
             tunnelCreator.Start();
         }
 
-        private void registerBtn_Click(object sender, RoutedEventArgs e)
+        private void RegisterBtn_Click(object sender, RoutedEventArgs e)
         {
             if(CheckConnectionStatus())
             {
@@ -77,15 +77,15 @@ namespace Client
             }
         }
 
-        private void confirmBtn_Click(object sender, RoutedEventArgs e)
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            if(loginBox.Text.Length == 0)
+            if(LoginBox.Text.Length == 0)
             {
                 MessageBox.Show("Type your login first.");
                 return;
             }
 
-            if(passwordBox.Password.Length == 0)
+            if(PasswordBox.Password.Length == 0)
             {
                 MessageBox.Show("Type your password first.");
                 return;
@@ -93,7 +93,7 @@ namespace Client
 
             if (CheckConnectionStatus())
             {
-                UserPasswordData userPasswordData = new UserPasswordData(loginBox.Text, passwordBox.Password);
+                UserPasswordData userPasswordData = new UserPasswordData(LoginBox.Text, PasswordBox.Password);
                 string toSend = userPasswordData.GetJsonString();
                 ControlMessage loginMessage = new ControlMessage(ConnectionInfo.Sender, "LOG_IN", toSend, tunnel.DiffieEncrypt(toSend));
                 using (WebClient client = new WebClient())
@@ -150,11 +150,11 @@ namespace Client
         {
             if (e.Key == Key.Enter)
             {
-                confirmBtn_Click(null,null);
+                LoginButton_Click(null,null);
             }
         }
 
-        private void ForgotPasswordBtn_OnClick_Click(object sender, RoutedEventArgs e)
+        private void ForgotPasswordBtn_Click(object sender, RoutedEventArgs e)
         {
             if (CheckConnectionStatus())
             {

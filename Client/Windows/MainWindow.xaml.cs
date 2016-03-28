@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Client.Windows;
 using CommunicatorCore.Classes.Model;
 using Config;
 
@@ -58,19 +59,13 @@ namespace Client
             }
         }
 
-        private void importKeys_Click(object sender, RoutedEventArgs e)
+        private void ImportKeys_Click(object sender, RoutedEventArgs e)
         {
             KeyImportWindow keyImporter = new KeyImportWindow();
             keyImporter.Show();
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
-        {
-            ChatWindow chat = new ChatWindow(ConnectionInfo.Sender);
-            chat.Show();
-        }
-
-        private void Contacts_OnClick_Click(object sender, RoutedEventArgs e)
+        private void Contacts_Click(object sender, RoutedEventArgs e)
         {
             if (!AreKeysInitialized())
             {
@@ -96,9 +91,8 @@ namespace Client
             decoder.LoadRsaFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
 
             BatchControlMessage returnedBatchMessage = new BatchControlMessage();
-            ControlMessage returnedMessage = new ControlMessage();
             returnedBatchMessage.LoadJson(reply);
-            returnedMessage = returnedBatchMessage.ControlMessage;
+            ControlMessage returnedMessage = returnedBatchMessage.ControlMessage;
 
             SymmetricCipher cipher = new SymmetricCipher();
             string AESKey = decoder.PrivateDecrypt(returnedBatchMessage.CipheredKey, decoder.PrivateRSA);
@@ -124,8 +118,6 @@ namespace Client
         void addContactToList(Contact contact, bool isEncrypted)
         {
             // We have to exclude already displayed users somehow!
-            string to;
-            string displayName;
             if (isEncrypted)
             {
                 SymmetricCipher decoder = new SymmetricCipher();
@@ -134,31 +126,60 @@ namespace Client
                 string decodedDisplayName = decoder.Decode(contact.DisplayName, key, string.Empty);
                 if (Sha1Util.CalculateSha(ConnectionInfo.Sender + decodedTo) != contact.ContactChecksum)
                 {
-                    to = "INVALID";
-                    displayName = "INVALID";
+                    ContactsData.Items.Add(new Contact { To = "INVALID", DisplayName = "INVALID" });
                 }
                 else
                 {
-                    to = decodedTo;
-                    displayName = decodedDisplayName;
+                    AddItemToContactGrid(decodedTo, decodedDisplayName);
                 }
             }
             else
             {
-                to = contact.To;
-                displayName = contact.DisplayName;
+                AddItemToContactGrid(contact.To, contact.DisplayName);
             }
-            ContactsData.Items.Add(new Contact { To = to, DisplayName = displayName });
-
         }
 
-        private void options_Click(object sender, RoutedEventArgs e)
+        private void AddItemToContactGrid(string to, string displayName)
+        {
+            if (!ItemAlreadyExist(to))
+            {
+                ContactsData.Items.Add(new Contact { To = to, DisplayName = displayName });
+            }
+            else
+            {
+                SetContactDisplayName(to, displayName);
+            }
+        }
+
+        private void SetContactDisplayName(string to, string decodedDisplayName)
+        {
+            for (int i = 0; i < ContactsData.Items.Count; i++)
+            {
+                Contact newContact = ContactsData.Items[i] as Contact;
+                if( newContact != null && newContact.To == to) {
+                    ContactsData.Items[i] = new Contact { To = to, DisplayName = decodedDisplayName};
+                }
+            }
+        }
+
+        private bool ItemAlreadyExist(string to)
+        {
+            for(int i = 0; i < ContactsData.Items.Count; i++) 
+            {
+                Contact contact = ContactsData.Items[i] as Contact;
+                if (contact.To == to)
+                    return true;
+            }
+            return false;
+        }
+
+        private void Options_Click(object sender, RoutedEventArgs e)
         {
             Options options = new Options();
             options.Show();
         }
 
-        private void AddContact_OnClick(object sender, RoutedEventArgs e)
+        private void AddContact_Click(object sender, RoutedEventArgs e)
         {
             if (AreKeysInitialized())
             {
@@ -205,7 +226,7 @@ namespace Client
                 if( selectedContact != null ) {
                     CryptoRSA cryptoService = new CryptoRSA();
                     cryptoService.LoadRsaFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
-                    cryptoService.LoadRsaFromPublicKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PUBLIC_KEY"));
+                    cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
 
                     SymmetricCipher cipher = new SymmetricCipher();
                     string token = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
@@ -217,7 +238,7 @@ namespace Client
                     string plainMessage = contact.GetJsonString();
                     string encryptedMessage = cryptoService.PublicEncrypt(plainMessage, cryptoService.PublicRSA);
 
-                    ControlMessage contactsRequestMessage = new ControlMessage(ConnectionInfo.Sender, "CONTACT_INSERT", plainMessage, encryptedMessage);
+                    ControlMessage contactsRequestMessage = new ControlMessage(ConnectionInfo.Sender, "CONTACT_DELETE", plainMessage, encryptedMessage);
                     using (WebClient client = new WebClient())
                     {
                         client.Proxy = null;
@@ -253,9 +274,17 @@ namespace Client
             ContactActionPanel.Visibility = ContactsData.SelectedItem == null ? Visibility.Hidden : Visibility.Visible;
         }
 
-        private void ChangePasswordMenuItem_OnClick(object sender, RoutedEventArgs e)
+        private void ChangePasswordMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            // We should implement changing password behavior
+            ChangePasswordWindow window = new ChangePasswordWindow();
+            window.Show();
+        }
+
+        private void ClearContacts_Click(object sender, RoutedEventArgs e)
+        {
+            ContactsData.Items.Clear();
         }
     }
+
+
 }

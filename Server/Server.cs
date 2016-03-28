@@ -37,7 +37,7 @@ namespace Server
                 Prefix = "http://" + GetIPv4Address() + ":11069";
             
             ServerLogger.LogMessage("Loading server prefixes");
-            string[] prefixes = { Prefix + "/connectionCheck/", Prefix + "/diffieTunnel/", Prefix + "/register/", Prefix + "/logIn/", Prefix + "/sendChatMessage/", Prefix + "/contacts/", Prefix + "/history/" };
+            string[] prefixes = { Prefix + "/connectionCheck/", Prefix + "/diffieTunnel/", Prefix + "/register/", Prefix + "/logIn/", Prefix + "/sendChatMessage/", Prefix + "/contacts/", Prefix + "/history/", Prefix + "/password/" };
             foreach (string prefix in prefixes)
                 Console.WriteLine(prefix);
 

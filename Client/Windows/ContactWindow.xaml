@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="Crypto Talk - " Height="260" Width="260" ResizeMode="NoResize" Icon="programIcon.ico" WindowStartupLocation="CenterScreen" Background="#FFCDCDCD">
+        Title="Crypto Talk - " Height="260" Width="260" ResizeMode="NoResize" Icon="../Image/programIcon.ico" WindowStartupLocation="CenterScreen" Background="#FFCDCDCD">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -15,8 +15,8 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
-            <Label x:Name="contactNameLabel" Content="Contact name:" HorizontalAlignment="Left" Margin="10,24,0,0" VerticalAlignment="Top"/>
-            <TextBox x:Name="contactName" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="10,56,0,-20" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="234"/>
+            <Label x:Name="ContactNameLabel" Content="Contact name:" HorizontalAlignment="Left" Margin="10,24,0,0" VerticalAlignment="Top"/>
+            <TextBox x:Name="ContactName" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="10,56,0,-20" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="234"/>
         </Grid>
 
         <Grid Grid.Row="1">
@@ -24,8 +24,8 @@
                 <ColumnDefinition Width="44*"/>
                 <ColumnDefinition Width="83*"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="contactDisplayNameLabel" Content="Contact display name: " HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top" Width="234" Grid.ColumnSpan="2"/>
-            <TextBox x:Name="contactDisplayName" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="10,74,0,-36" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="234" Grid.ColumnSpan="2"/>
+            <Label x:Name="ContactDisplayNameLabel" Content="Contact display name: " HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top" Width="234" Grid.ColumnSpan="2"/>
+            <TextBox x:Name="ContactDisplayName" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="10,74,0,-36" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="234" Grid.ColumnSpan="2"/>
         </Grid>
 
         <Button x:Name="SaveContact" Grid.Row="3" Content="Save" HorizontalAlignment="Center" Margin="66,57,68,-40" VerticalAlignment="Top" Width="120" Height="30" Click="save_Click"/>

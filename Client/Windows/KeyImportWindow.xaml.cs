@@ -17,7 +17,7 @@ namespace Client
         public KeyImportWindow()
         {
             InitializeComponent();
-            save.IsEnabled = false;
+            SaveButton.IsEnabled = false;
 
             LoadConfiguration();
         }
@@ -27,17 +27,17 @@ namespace Client
             if (ConfigurationHandler.HasValueOnKey("PATH_TO_PRIVATE_KEY"))
             {
                 pathToPrivateKey = ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY");
-                privateKeyPath.Text = Path.GetFileName(pathToPrivateKey);
+                PrivateKeyPath.Text = Path.GetFileName(pathToPrivateKey);
             }
 
             if (ConfigurationHandler.HasValueOnKey("PATH_TO_PUBLIC_KEY"))
             {
                 pathToPublicKey = ConfigurationHandler.GetValueFromKey("PATH_TO_PUBLIC_KEY");
-                publicKeyPath.Text = Path.GetFileName(pathToPublicKey);
+                PublicKeyPath.Text = Path.GetFileName(pathToPublicKey);
             }
             if (ConfigurationHandler.HasValueOnKey("TOKEN_VALUE"))
             {
-                tokenValue.Text = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
+                TokenValue.Text = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
             }
         }
 
@@ -52,21 +52,21 @@ namespace Client
             return result == true ? dlg.FileName : string.Empty;
         }
 
-        private void searchPublicKey_Click(object sender, RoutedEventArgs e)
+        private void SearchPublicKeyButton_Click(object sender, RoutedEventArgs e)
         {
-            save.IsEnabled = false;
+            SaveButton.IsEnabled = false;
             pathToPublicKey = SelectFile();
-            publicKeyPath.Text = Path.GetFileName(pathToPublicKey);
+            PublicKeyPath.Text = Path.GetFileName(pathToPublicKey);
         }
 
-        private void searchPrivateKey_Click(object sender, RoutedEventArgs e)
+        private void SearchPrivateKeyButton_Click(object sender, RoutedEventArgs e)
         {
-            save.IsEnabled = false;
+            SaveButton.IsEnabled = false;
             pathToPrivateKey = SelectFile();
-            privateKeyPath.Text = Path.GetFileName(pathToPrivateKey);
+            PrivateKeyPath.Text = Path.GetFileName(pathToPrivateKey);
         }
 
-        private void checkKeys_Click(object sender, RoutedEventArgs e)
+        private void CheckKeysButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -81,7 +81,7 @@ namespace Client
                 if (checker == decryptedCheck)
                 {
                     MessageBox.Show("TEST_PASSED");
-                    save.IsEnabled = true;
+                    SaveButton.IsEnabled = true;
                 }
                 else
                 {
@@ -94,11 +94,11 @@ namespace Client
             }
         }
 
-        private void save_Click(object sender, RoutedEventArgs e)
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             ConfigurationHandler.SetValueOnKey("PATH_TO_PRIVATE_KEY", pathToPrivateKey);
             ConfigurationHandler.SetValueOnKey("PATH_TO_PUBLIC_KEY", pathToPublicKey);
-            ConfigurationHandler.SetValueOnKey("TOKEN_VALUE", tokenValue.Text);
+            ConfigurationHandler.SetValueOnKey("TOKEN_VALUE", TokenValue.Text);
             this.Close();
         }
     }

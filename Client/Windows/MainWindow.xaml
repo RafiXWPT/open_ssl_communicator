@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Client"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Client.MainWindow"
         mc:Ignorable="d"
-        Title="Title" Height="400" MaxHeight="800" MinHeight="300" Width="423" MinWidth="260" MaxWidth="800" Loaded="Window_Loaded" Background="#FFCDCDCD" Icon="programIcon.ico" WindowStartupLocation="CenterScreen">
+        Title="Title" Height="400" MaxHeight="800" MinHeight="300" Width="423" MinWidth="260" MaxWidth="800" Loaded="Window_Loaded" Background="#FFCDCDCD" Icon="../Image/programIcon.ico" WindowStartupLocation="CenterScreen">
 
     <Grid>
 
@@ -19,16 +19,26 @@
         <DockPanel>
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_File">
-                    <MenuItem Header="_Import Keys" Click="importKeys_Click"/>
-                    <MenuItem Header="_Change Password" Click="ChangePasswordMenuItem_OnClick"></MenuItem>
+                    <MenuItem Header="_Import Keys" Click="ImportKeys_Click"/>
+                    <MenuItem Header="_Change Password" Click="ChangePasswordMenuItem_Click"/>
+                    <MenuItem Header="Generate New Keys" />
                     <Separator />
                     <MenuItem Header="_Exit" />
                 </MenuItem>
                 <MenuItem Header="Contacts" >
-                    <MenuItem Header="_Add Contact" Click="AddContact_OnClick"/>
-                    <MenuItem Header="_Load Contacts" Click="Contacts_OnClick_Click" />
+                    <MenuItem Header="_Add Contact" Click="AddContact_Click" >
+                        <MenuItem.Icon >
+                            <Image Source="../Image/user.png" Width="15" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Load Contacts" Click="Contacts_Click" >
+                        <MenuItem.Icon >
+                            <Image Source="../Image/users.png" Width="15" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Clear Contacts" Click="ClearContacts_Click" />
                 </MenuItem>
-                <MenuItem Header="Options" Click="options_Click" />
+                <MenuItem Header="Options" Click="Options_Click" />
             </Menu>
         </DockPanel>
 
@@ -41,10 +51,10 @@
         <Grid Grid.Row="1">
             <Grid x:Name="ContactActionPanel" Margin="361,0,10,0" Visibility="Hidden">
                 <Button x:Name="EditContactButton"  Click="OnEditContactBtn_Click" Margin="0,35,0,171" Height="39" Width="43" >
-                    <Image Source="okey.png" />
+                    <Image Source="../Image/edit.png" />
                 </Button>
                 <Button x:Name="DeleteContactButton"  Click="OnDeleteContactBtn_Click" Margin="1,79,0,127" Height="39" Width="43">
-                    <Image Source="programIcon.ico" />    
+                    <Image Source="../Image/delete.png"  />    
                 </Button>
             </Grid>
 
@@ -72,7 +82,6 @@
         </Grid>
 
         <Grid Grid.Row="2">
-            <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Margin="93,10,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
         </Grid>
 
     </Grid>

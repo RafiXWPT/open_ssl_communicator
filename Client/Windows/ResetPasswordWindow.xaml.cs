@@ -37,7 +37,7 @@ namespace Client
 
             if (creator.isTunnelActive(tunnel))
             {
-                UserPasswordData userPasswordData = new UserPasswordData(emailTextBox.Text, string.Empty);
+                UserPasswordData userPasswordData = new UserPasswordData(EmailTextBox.Text, string.Empty);
                 string toSend = userPasswordData.GetJsonString();
                 ControlMessage registrationMessage = new ControlMessage(ConnectionInfo.Sender, "RESET_PASSWORD", toSend, tunnel.DiffieEncrypt(toSend));
                 using (WebClient client = new WebClient())
