@@ -46,7 +46,7 @@ namespace Client
             }
 
             targetWindow.Show();
-            targetWindow.DeliverMessage(msg);
+            targetWindow.UpdateMessageStatus(msg);
         }
     }
 }

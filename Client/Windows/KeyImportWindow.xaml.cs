@@ -2,6 +2,7 @@
 using System.IO;
 using CommunicatorCore.Classes.Model;
 using System;
+using System.Net;
 using Config;
 
 namespace Client
@@ -11,8 +12,12 @@ namespace Client
     /// </summary>
     public partial class KeyImportWindow : Window
     {
-        private string pathToPrivateKey;
-        private string pathToPublicKey;
+        private readonly Uri _passwordUriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" +
+                ConfigurationHandler.GetValueFromKey("PASSWORD_API") + "/");
+
+
+        private string _pathToPrivateKey;
+        private string _pathToPublicKey;
 
         public KeyImportWindow()
         {
@@ -26,18 +31,18 @@ namespace Client
         {
             if (ConfigurationHandler.HasValueOnKey("PATH_TO_PRIVATE_KEY"))
             {
-                pathToPrivateKey = ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY");
-                PrivateKeyPath.Text = Path.GetFileName(pathToPrivateKey);
+                _pathToPrivateKey = ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY");
+                PrivateKeyPath.Text = Path.GetFileName(_pathToPrivateKey);
             }
 
             if (ConfigurationHandler.HasValueOnKey("PATH_TO_PUBLIC_KEY"))
             {
-                pathToPublicKey = ConfigurationHandler.GetValueFromKey("PATH_TO_PUBLIC_KEY");
-                PublicKeyPath.Text = Path.GetFileName(pathToPublicKey);
+                _pathToPublicKey = ConfigurationHandler.GetValueFromKey("PATH_TO_PUBLIC_KEY");
+                PublicKeyPath.Text = Path.GetFileName(_pathToPublicKey);
             }
             if (ConfigurationHandler.HasValueOnKey("TOKEN_VALUE"))
             {
-                TokenValue.Text = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
+                TokenValueTextBox.Text = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
             }
         }
 
@@ -55,37 +60,29 @@ namespace Client
         private void SearchPublicKeyButton_Click(object sender, RoutedEventArgs e)
         {
             SaveButton.IsEnabled = false;
-            pathToPublicKey = SelectFile();
-            PublicKeyPath.Text = Path.GetFileName(pathToPublicKey);
+            _pathToPublicKey = SelectFile();
+            PublicKeyPath.Text = Path.GetFileName(_pathToPublicKey);
         }
 
         private void SearchPrivateKeyButton_Click(object sender, RoutedEventArgs e)
         {
             SaveButton.IsEnabled = false;
-            pathToPrivateKey = SelectFile();
-            PrivateKeyPath.Text = Path.GetFileName(pathToPrivateKey);
+            _pathToPrivateKey = SelectFile();
+            PrivateKeyPath.Text = Path.GetFileName(_pathToPrivateKey);
         }
 
-        private void CheckKeysButton_Click(object sender, RoutedEventArgs e)
+        private void ValidateKeysButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                CryptoRSA cryptoService = new CryptoRSA();
-                cryptoService.LoadRsaFromPrivateKey(pathToPrivateKey);
-                cryptoService.LoadRsaFromPublicKey(pathToPublicKey);
-
-                string checker = "CHECK_ME";
-                string encryptedCheck = cryptoService.PublicEncrypt(checker, cryptoService.PublicRSA);
-                string decryptedCheck = cryptoService.PrivateDecrypt(encryptedCheck, cryptoService.PrivateRSA);
-
-                if (checker == decryptedCheck)
+                if (AreKeysValid() && IsTokenValid())
                 {
-                    MessageBox.Show("TEST_PASSED");
+                    MessageBox.Show("Test passed!");
                     SaveButton.IsEnabled = true;
                 }
                 else
                 {
-                    MessageBox.Show("TEST_FAILED");
+                    MessageBox.Show("Test failed!");
                 }
             }
             catch(Exception ex)
@@ -94,11 +91,53 @@ namespace Client
             }
         }
 
+        private bool IsTokenValid()
+        {
+            CryptoRSA cryptoService = new CryptoRSA();
+            cryptoService.LoadRsaFromPrivateKey(_pathToPrivateKey);
+            cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
+
+            UserTokenDto userTokenDto = new UserTokenDto(ConnectionInfo.Sender, TokenValueTextBox.Text);
+            string plainMessage = userTokenDto.GetJsonString();
+            string encryptedMessage = cryptoService.PublicEncrypt(plainMessage);
+            ControlMessage contactsRequestMessage = new ControlMessage(ConnectionInfo.Sender, "TOKEN_VALIDATE", plainMessage, encryptedMessage);
+            using (WebClient client = new WebClient())
+            {
+                client.Proxy = null;
+                string reply = NetworkController.Instance.SendMessage(_passwordUriString, client, contactsRequestMessage);
+                return HandleTokenResponse(reply, cryptoService);
+            }
+        }
+
+        private bool HandleTokenResponse(string reply, CryptoRSA cryptoService)
+        {
+            ControlMessage returnedMessage = new ControlMessage();
+            returnedMessage.LoadJson(reply);
+            string decryptedContent = cryptoService.PrivateDecrypt(returnedMessage.MessageContent);
+            if (returnedMessage.Checksum != Sha1Util.CalculateSha(decryptedContent))
+            {
+                return false;
+            }
+            return decryptedContent == "TOKEN_VALIDATE_OK";
+        }
+
+        private bool AreKeysValid()
+        {
+            CryptoRSA cryptoService = new CryptoRSA();
+            cryptoService.LoadRsaFromPrivateKey(_pathToPrivateKey);
+            cryptoService.LoadRsaFromPublicKey(_pathToPublicKey);
+
+            string checker = "CHECK_ME";
+            string encryptedCheck = cryptoService.PublicEncrypt(checker);
+            string decryptedCheck = cryptoService.PrivateDecrypt(encryptedCheck);
+            return checker == decryptedCheck;
+        }
+
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            ConfigurationHandler.SetValueOnKey("PATH_TO_PRIVATE_KEY", pathToPrivateKey);
-            ConfigurationHandler.SetValueOnKey("PATH_TO_PUBLIC_KEY", pathToPublicKey);
-            ConfigurationHandler.SetValueOnKey("TOKEN_VALUE", TokenValue.Text);
+            ConfigurationHandler.SetValueOnKey("PATH_TO_PRIVATE_KEY", _pathToPrivateKey);
+            ConfigurationHandler.SetValueOnKey("PATH_TO_PUBLIC_KEY", _pathToPublicKey);
+            ConfigurationHandler.SetValueOnKey("TOKEN_VALUE", TokenValueTextBox.Text);
             this.Close();
         }
     }

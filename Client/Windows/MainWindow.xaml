@@ -54,12 +54,19 @@
                 <Button x:Name="DeleteContactButton"  Click="OnDeleteContactBtn_Click" Margin="0,60,0,0" Height="45" Width="45" VerticalAlignment="Top">
                     <Image Source="../Image/delete.png" Stretch="Fill" />
                 </Button>
-                <Button x:Name="UnselectButton"  Click="Unselect_Click" Margin="0,110,0,0" Height="45" Width="45" VerticalAlignment="Top">
+                <Button x:Name="UnselectButton"  Click="OnUnselectBtn_Click" Margin="0,110,0,0" Height="45" Width="45" VerticalAlignment="Top">
                     <Image Source="../Image/return.png" Stretch="Fill" />
                 </Button>
             </Grid>
             <DataGrid x:Name="ContactsData" HorizontalAlignment="Stretch" Margin="10,10,60,10" VerticalAlignment="Stretch" SelectionMode="Single" BorderThickness="1" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" RowDetailsVisibilityMode="Collapsed" IsReadOnly="True" MouseDoubleClick="ContactsData_OnMouseDoubleClick" SelectionChanged="ContactsData_OnSelectionChanged" Background="#FFE6E6C8">
                 <DataGrid.Columns>
+                    <DataGridTemplateColumn IsReadOnly="true" Width="SizeToCells">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding Image}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding Path=To}" Header="ID" IsReadOnly="True" Width="*"/>
                     <DataGridTextColumn Binding="{Binding Path=DisplayName}" Header="Nick Name" IsReadOnly="True" Width="*"/>
                 </DataGrid.Columns>

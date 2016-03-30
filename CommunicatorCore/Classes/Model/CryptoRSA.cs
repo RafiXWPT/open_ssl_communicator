@@ -10,21 +10,21 @@ namespace CommunicatorCore.Classes.Model
 {
     public class CryptoRSA
     {
-        private RSA publicRSA;
+        private RSA _publicRSA;
         public RSA PublicRSA
         {
             get
             {
-                return publicRSA;
+                return _publicRSA;
             }
         }
 
-        private RSA privateRSA;
+        private RSA _privateRSA;
         public RSA PrivateRSA
         {
             get
             {
-                return privateRSA;
+                return _privateRSA;
             }
         }
 
@@ -34,28 +34,33 @@ namespace CommunicatorCore.Classes.Model
 
         public void LoadRsaFromPublicKey(string pathToPublicKey)
         {
-            string publicKey = string.Empty;
+            string publicKey;
             using (StreamReader sr = new StreamReader(pathToPublicKey))
             {
                 publicKey = sr.ReadToEnd();
             }
             using (var key = CryptoKey.FromPublicKey(publicKey, string.Empty))
             {
-                publicRSA = key.GetRSA();
+                _publicRSA = key.GetRSA();
             }
         }
 
         public void LoadRsaFromPrivateKey(string pathToPrivateKey)
         {
-            string privateKey = string.Empty;
+            string privateKey;
             using (StreamReader sr = new StreamReader(pathToPrivateKey))
             {
                 privateKey = sr.ReadToEnd();
             }
             using (var key = CryptoKey.FromPrivateKey(privateKey, string.Empty))
             {
-                privateRSA = key.GetRSA();
+                _privateRSA = key.GetRSA();
             }
+        }
+
+        public string PublicEncrypt(string textToEncrypt)
+        {
+            return PublicEncrypt(textToEncrypt, _publicRSA);
         }
 
         public string PublicEncrypt(string textToEncrypt, RSA rsa)
@@ -67,10 +72,15 @@ namespace CommunicatorCore.Classes.Model
 
                 return Convert.ToBase64String(output);
             }
-            catch
+            catch (Exception e)
             {
                 return string.Empty;
             }
+        }
+
+        public string PrivateDecrypt(string textToDecrypt)
+        {
+            return PrivateDecrypt(textToDecrypt, _privateRSA);
         }
 
         public string PrivateDecrypt(string textToDecrypt, RSA rsa)
@@ -82,7 +92,7 @@ namespace CommunicatorCore.Classes.Model
 
                 return Encoding.UTF8.GetString(output);
             }
-            catch
+            catch (Exception e)
             {
                 return string.Empty;
             }

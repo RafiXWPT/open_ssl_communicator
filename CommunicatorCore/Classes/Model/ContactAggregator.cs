@@ -17,7 +17,7 @@ namespace CommunicatorCore.Classes.Model
 
         public ContactAggregator(List<Contact> contacts)
         {
-            Contacts = contacts;
+            this.Contacts = contacts;
         }
 
         public void LoadJson(string jsonString)

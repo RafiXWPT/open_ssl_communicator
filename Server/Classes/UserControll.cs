@@ -19,38 +19,53 @@ namespace Server
         }
 
         private readonly UsersDao _usersDao;
-        private readonly System.Timers.Timer clearingUsers = new System.Timers.Timer(TimeSpan.FromMinutes(1).TotalMilliseconds);
+        private readonly System.Timers.Timer _clearingUsers = new System.Timers.Timer(TimeSpan.FromMinutes(1).TotalMilliseconds);
 
-        private ISet<User> users = new HashSet<User>();
+        private readonly ISet<User> _users = new HashSet<User>();
 
         public UserControll()
         {
             instance = this;
             _usersDao = new UsersDao();
             
-            clearingUsers.Elapsed += ClearUsersInApplication;
-            clearingUsers.AutoReset = true;
-            clearingUsers.Enabled = true;
+            _clearingUsers.Elapsed += ClearUsersInApplication;
+            _clearingUsers.AutoReset = true;
+            _clearingUsers.Enabled = true;
         }
 
         public int GetUsersOnline()
         {
-            return users.Count;
+            return _users.Count;
         }
 
-        public void AddUserToDatabase(UserPasswordData userPasswordData)
+        public UserStatus GetUserStatus(string username)
         {
-            _usersDao.InsertUser(userPasswordData);
+            User user = new User(username, false);
+            if (_users.Contains(user))
+            {
+                return _users.First(u => u.Equals(user)).Status;
+            }
+            return UserStatus.Offline;
+        }
+
+        public bool IsTokenValid(UserTokenDto userTokenDto)
+        {
+            return _usersDao.ValidateUserToken(userTokenDto);
+        }
+
+        public void AddUserToDatabase(UserPasswordData userPasswordData, string token)
+        {
+            _usersDao.InsertUser(userPasswordData, token);
         }
 
         public void AddTemporaryUserToApplication(User user)
         {
-            users.Add(user);
+            _users.Add(user);
         }
 
         public User GetUserFromApplication(string username)
         {
-            return users.ToList().Find(user => user.Name == username);
+            return _users.ToList().Find(user => user.Name == username);
         }
 
         public bool CheckIfUserExist(string username)
@@ -72,22 +87,22 @@ namespace Server
         {
             User newUser = new User(loggedUserName, false);
             newUser.UpdateStatus(UserStatus.Offline);
-            users.Add(newUser);
+            _users.Add(newUser);
         }
 
         void ClearUsersInApplication(object source, ElapsedEventArgs e)
         {
             ServerLogger.LogMessage("Cleaning Users...");
-            Parallel.ForEach(users, (obj) =>
+            Parallel.ForEach(_users, (obj) =>
             {
                 if((obj.IsTemporary && (DateTime.Now - obj.LastConCheck()).TotalMinutes > 1) || (!obj.IsTemporary && (DateTime.Now - obj.LastConCheck()).TotalMinutes > 3))
                 {
                     ServerLogger.LogMessage("Clearing User: " + obj.Name + " because of idle time.");
-                    users.Remove(obj);
+                    _users.Remove(obj);
                 }
             });
 
-            ServerLogger.LogMessage("Cleaning compleet. Total Users in system after clean: " + users.Count);
+            ServerLogger.LogMessage("Cleaning compleet. Total Users in system after clean: " + _users.Count);
         }
 
     }

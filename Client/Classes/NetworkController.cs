@@ -150,7 +150,7 @@ namespace Client
             ChatController.DeliverToChatWindow(message);
         }
 
-        public string SendMessage(Uri address, WebClient client, ControlMessage message)
+        public string SendMessage(Uri address, WebClient client, INetworkMessage message)
         {
             NameValueCollection headers = new NameValueCollection();
 

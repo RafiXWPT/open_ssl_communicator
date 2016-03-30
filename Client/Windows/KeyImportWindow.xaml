@@ -29,10 +29,10 @@
 
         <Grid Grid.Row="2">
             <Label x:Name="TokenLabel" Content="Load token:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-            <TextBox x:Name="TokenValue" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" Height="23" Margin="10,35,10,5" TextWrapping="NoWrap" Text="" VerticalAlignment="Top"/>
+            <TextBox x:Name="TokenValueTextBox" VerticalContentAlignment="Center" HorizontalAlignment="Stretch" Height="23" Margin="10,35,10,5" TextWrapping="NoWrap" Text="" VerticalAlignment="Top"/>
         </Grid>
 
-        <Button x:Name="CheckKeysButton" Grid.Row="3" Content="Check Keys" HorizontalAlignment="Stretch" Margin="10,5,10,5" Height="30" VerticalAlignment="Center" Click="CheckKeysButton_Click"/>
+        <Button x:Name="ValidateKeysButton" Grid.Row="3" Content="Validate Keys" HorizontalAlignment="Stretch" Margin="10,5,10,5" Height="30" VerticalAlignment="Center" Click="ValidateKeysButton_Click"/>
 
         <Button x:Name="SaveButton" Grid.Row="4" Content="Save" HorizontalAlignment="Stretch" Margin="10,5,10,10" Height="30" VerticalAlignment="Center" Click="SaveButton_Click"/>
 

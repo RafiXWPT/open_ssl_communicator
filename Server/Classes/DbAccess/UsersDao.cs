@@ -23,12 +23,13 @@ namespace Server.Classes.DbAccess
             return result.Any();
         }
 
-        public void InsertUser(UserPasswordData userPasswordData)
+        public void InsertUser(UserPasswordData userPasswordData, string token)
         {
             BsonDocument userDocument = new BsonDocument
             {
-                {"_id", userPasswordData.Username},
-                {"password", userPasswordData.HashedPassword}
+                { "_id" , userPasswordData.Username},
+                { "password" , userPasswordData.HashedPassword},
+                { "token" , token }
             };
             IMongoCollection<BsonDocument> usersCollection = MongoDbAccess.GetUsersCollection();
             usersCollection.InsertOne(userDocument);
@@ -55,6 +56,16 @@ namespace Server.Classes.DbAccess
             FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
             FilterDefinition<BsonDocument> filter = builder.Eq("_id", userPasswordData.Username) &
                          builder.Eq("password", userPasswordData.HashedPassword);
+            var result = usersCollection.Find(filter).ToList();
+            return result.Any();
+        }
+
+        public bool ValidateUserToken(UserTokenDto userTokenDto)
+        {
+            IMongoCollection<BsonDocument> usersCollection = MongoDbAccess.GetUsersCollection();
+            FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
+            FilterDefinition<BsonDocument> filter = builder.Eq("_id", userTokenDto.Username) &
+                         builder.Eq("token", userTokenDto.HashedToken);
             var result = usersCollection.Find(filter).ToList();
             return result.Any();
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Windows;
@@ -8,6 +9,7 @@ using Client.Windows;
 using CommunicatorCore.Classes.Model;
 using Config;
 using System.Windows.Media.Imaging;
+using Client.Classes;
 
 namespace Client
 {
@@ -30,6 +32,7 @@ namespace Client
 
         private ConnectionChecker connectionChecker;
         private readonly NetworkController _networkController;
+        private StatusController _statusController;
 
         public MainWindow(ConnectionChecker connectionChecker, NetworkController networkController,
             string loggedUserName)
@@ -105,6 +108,14 @@ namespace Client
             }
             else if (returnedMessage.MessageType == "CONTACT_GET_OK")
             {
+                if (_statusController == null)
+                {
+                    _statusController = new StatusController();
+                }
+                else
+                {
+                    _statusController.ClearUsers();
+                }
                 ContactAggregator aggregator = new ContactAggregator();
                 aggregator.LoadJson(decryptedContent);
                 aggregator.Contacts.ForEach(contact => addContactToList(contact, true));
@@ -156,6 +167,11 @@ namespace Client
             if (!ItemAlreadyExist(to))
             {
                 ContactsData.Items.Add(new Contact { To = to, DisplayName = displayName });
+                if (_statusController == null)
+                {
+                    _statusController = new StatusController();
+                }
+                _statusController.AddUser(to);
             }
             else
             {
@@ -255,13 +271,13 @@ namespace Client
                     {
                         client.Proxy = null;
                         string reply = NetworkController.Instance.SendMessage(_contactsUriString, client, contactsRequestMessage);
-                        HandleContactsResponse(reply, cryptoService, selectedItemIndex);
+                        HandleContactsResponse(reply, cryptoService, contact.To, selectedItemIndex);
                     }
                 }
             }
         }
 
-        private void HandleContactsResponse(string reply, CryptoRSA cryptoService, int index)
+        private void HandleContactsResponse(string reply, CryptoRSA cryptoService,string username, int index)
         {
             ControlMessage returnedMessage = new ControlMessage();
             returnedMessage.LoadJson(reply);
@@ -274,6 +290,7 @@ namespace Client
             {
                 MessageBox.Show("Contact removed successfully!");
                 ContactsData.Items.RemoveAt(index);
+                _statusController.RemoveUser(username);
             }
             else
             {
@@ -304,7 +321,7 @@ namespace Client
             Close();
         }
 
-        private void Unselect_Click(object sender, RoutedEventArgs e)
+        private void OnUnselectBtn_Click(object sender, RoutedEventArgs e)
         {
             ContactsData.UnselectAll();
             ContactActionPanel.Visibility = Visibility.Hidden;

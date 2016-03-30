@@ -47,7 +47,7 @@ namespace Client
 
         static void UpdateMainWindowConnectionImage()
         {
-            Application.Current.Dispatcher.Invoke(new Action(() => updateMainWindowConnectionImage()));
+             Application.Current.Dispatcher.Invoke(new Action(() => updateMainWindowConnectionImage()));
         }
 
         static void updateMainWindowConnectionImage()

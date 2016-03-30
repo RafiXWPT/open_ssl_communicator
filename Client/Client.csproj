@@ -106,6 +106,7 @@
     </ApplicationDefinition>
     <Compile Include="Classes\ChatController.cs" />
     <Compile Include="Classes\IdleController.cs" />
+    <Compile Include="Classes\StatusController.cs" />
     <Compile Include="Windows\ChangePasswordWindow.xaml.cs">
       <DependentUpon>ChangePasswordWindow.xaml</DependentUpon>
     </Compile>
@@ -273,14 +274,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Image\return.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="OpenSSLShittyItems\libeay32.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="OpenSSLShittyItems\ssleay32.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

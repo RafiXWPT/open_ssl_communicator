@@ -11,6 +11,7 @@ using Server.Classes;
 using System.Threading;
 using OpenSSL.Crypto;
 using System.Collections.Specialized;
+using CommunicatorCore.Classes.Exceptions;
 
 namespace Server
 {
@@ -26,33 +27,40 @@ namespace Server
             string messageContent = userToHandle.Request.Headers["messageContent"];
             try
             {
-                ControlMessage message = ParseMessageContent(messageContent);
-                switch (wantedUrl)
+                if(wantedUrl ==  "/status/" )
                 {
-                    case "/connectionCheck/":
-                        ConnectionCheck(message, sender, userToHandle);
-                        break;
-                    case "/diffieTunnel/":
-                        DiffieTunnel(message, userToHandle);
-                        break;
-                    case "/register/":
-                        Register(message, userToHandle);
-                        break;
-                    case "/logIn/":
-                        LogIn(message, userToHandle);
-                        break;
-                    case "/sendChatMessage/":
-                        SendChatMessage(message, userToHandle);
-                        break;
-                    case "/contacts/":
-                        HandleContactMessage(message, userToHandle);
-                        break;
-                    case "/history/":
-                        HandleMessageHistory(message, userToHandle);
-                        break;
-                    case "/password/":
-                        HandlePasswordMessage(message, userToHandle);
-                        break;
+                    BatchControlMessage batchControlMessage = ParseBatchMessageContent(messageContent);
+                    HandleContactStatusMessage(batchControlMessage, userToHandle);
+                }
+                else { 
+                    ControlMessage message = ParseMessageContent(messageContent);
+                    switch (wantedUrl)
+                    {
+                        case "/connectionCheck/":
+                            ConnectionCheck(message, sender, userToHandle);
+                            break;
+                        case "/diffieTunnel/":
+                            DiffieTunnel(message, userToHandle);
+                            break;
+                        case "/register/":
+                            Register(message, userToHandle);
+                            break;
+                        case "/logIn/":
+                            LogIn(message, userToHandle);
+                            break;
+                        case "/sendChatMessage/":
+                            SendChatMessage(message, userToHandle);
+                            break;
+                        case "/contacts/":
+                            HandleContactMessage(message, userToHandle);
+                            break;
+                        case "/history/":
+                            HandleMessageHistory(message, userToHandle);
+                            break;
+                        case "/password/":
+                            HandlePasswordMessage(message, userToHandle);
+                            break;
+                    }
                 }
             }
             catch (Exception ex)
@@ -62,16 +70,72 @@ namespace Server
             }
         }
 
-        private void HandlePasswordMessage(ControlMessage message, HttpListenerContext userToHandle)
+        private void HandleContactStatusMessage(BatchControlMessage batchControlMessage, HttpListenerContext userToHandle)
         {
+            BatchControlMessage returnMessage;
+            ControlMessage message = batchControlMessage.ControlMessage;
             string returnMessageContent = string.Empty;
             CryptoRSA crypter = GetUserServerCrypter(message.MessageSender);
-            string decryptedMessageContent = crypter.PrivateDecrypt(message.MessageContent, crypter.PrivateRSA);
+            string decryptedMessageKey = crypter.PrivateDecrypt(batchControlMessage.CipheredKey);
+            SymmetricCipher cipher = new SymmetricCipher();
+            string decryptedMessageContent = cipher.Decode(message.MessageContent, decryptedMessageKey,
+                string.Empty);
+            ServerLogger.LogMessage("Received request on contact status from: " + message.MessageSender);
+            if (message.Checksum != Sha1Util.CalculateSha(decryptedMessageContent))
+            {
+                ServerLogger.LogMessage(decryptedMessageContent);
+                returnMessage = CreateInvalidBatchResponseMessage(crypter, crypter.PublicRSA);
+            }
+            else if (message.MessageType == "CONTACT_STATUS")
+            {
+                UserConnectionStatusAggregator aggregator = new UserConnectionStatusAggregator();
+                aggregator.LoadJson(decryptedMessageContent);
+
+                foreach (var userConnectionStatus in aggregator.ConnectionStatus)
+                {
+                    userConnectionStatus.ConnectionStatus =
+                        UserControll.Instance.GetUserStatus(userConnectionStatus.Username).ToString();
+                }
+                string messageContent = aggregator.GetJsonString();
+                string cipheredReturnMessageContent = cipher.Encode(messageContent, decryptedMessageKey, string.Empty);
+                ControlMessage returnControlMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_STATUS_OK", messageContent, cipheredReturnMessageContent);
+                string cipheredKey = crypter.PublicEncrypt(decryptedMessageKey);
+                returnMessage = new BatchControlMessage(returnControlMessage, cipheredKey);
+            }
+            else
+            {
+                throw new UnsupportedOperationException("Operation type: " + message.MessageType +
+                                                        " is not yet supported");
+            }
+            SendResponse(userToHandle, returnMessage.GetJsonString());
+        }
+
+        private BatchControlMessage CreateInvalidBatchResponseMessage(CryptoRSA crypter, RSA publicRsa)
+        {
+            BatchControlMessage invalidBatchControlMessage = new BatchControlMessage();
+            invalidBatchControlMessage.ControlMessage = CreateInvalidResponseMessage(crypter, publicRsa);
+            invalidBatchControlMessage.CipheredKey = string.Empty;
+            return invalidBatchControlMessage;
+        }
+
+        private BatchControlMessage ParseBatchMessageContent(string messageContent)
+        {
+            BatchControlMessage batchControlMessage = new BatchControlMessage();
+            batchControlMessage.LoadJson(messageContent);
+            return batchControlMessage;
+        }
+
+        private void HandlePasswordMessage(ControlMessage message, HttpListenerContext userToHandle)
+        {
+            ControlMessage returnMessage;
+            string returnMessageContent = string.Empty;
+            CryptoRSA crypter = GetUserServerCrypter(message.MessageSender);
+            string decryptedMessageContent = crypter.PrivateDecrypt(message.MessageContent);
             ServerLogger.LogMessage("Received request on password service from: " + message.MessageSender);
             if (message.Checksum != Sha1Util.CalculateSha(decryptedMessageContent))
             {
-                ControlMessage returnMessage = CreateInvalidResponseMessage(crypter, crypter.PublicRSA);
-                returnMessageContent = returnMessage.GetJsonString();
+                ServerLogger.LogMessage(decryptedMessageContent);
+                returnMessage = CreateInvalidResponseMessage(crypter, crypter.PublicRSA);
             }
             else if (message.MessageType == "CHANGE_PASSWORD")
             {
@@ -98,10 +162,26 @@ namespace Server
                     messageContent = "CHANGE_OK";
                 }
                 string encryptedMessageContent = crypter.PublicEncrypt(messageContent, crypter.PublicRSA);
-                ControlMessage returnMessage = new ControlMessage(MESSAGE_SENDER, "CHANGE_PASSWORD", messageContent, encryptedMessageContent);
-                returnMessageContent = returnMessage.GetJsonString();
+                returnMessage = new ControlMessage(MESSAGE_SENDER, "CHANGE_PASSWORD", messageContent, encryptedMessageContent);
             }
-            SendResponse(userToHandle, returnMessageContent);
+            else if (message.MessageType == "TOKEN_VALIDATE")
+            {
+                ServerLogger.LogMessage("User : " + message.MessageSender + " is validating his token");
+                UserTokenDto userTokenDto = new UserTokenDto();
+                userTokenDto.LoadJson(decryptedMessageContent);
+                string messageContent = UserControll.Instance.IsTokenValid(userTokenDto)
+                    ? "TOKEN_VALIDATE_OK"
+                    : "TOKEN_INVALID";
+                string encryptedMessageContent = crypter.PublicEncrypt(messageContent);
+                returnMessage = new ControlMessage(MESSAGE_SENDER, "TOKEN_VALIDATE", messageContent,
+                    encryptedMessageContent);
+            }
+            else
+            {
+                throw new UnsupportedOperationException("Operation type: " + message.MessageType +
+                                                        " is not yet supported");
+            }
+            SendResponse(userToHandle, returnMessage.GetJsonString());
         }
 
         private CryptoRSA GetUserServerCrypter(string messageSender)
@@ -112,7 +192,6 @@ namespace Server
             return crypter;
         }
 
-        // Temporary fix!
         private void HandleException(Exception exception, HttpListenerContext userToHandle) 
         {
             ControlMessage replyMessage = new ControlMessage(MESSAGE_SENDER, "INVALID", exception.Message);
@@ -232,8 +311,8 @@ namespace Server
                     else
                     {
                         KeyGenerator.GenerateKeyPair(userPasswordData.Username);
-                        UserControll.Instance.AddUserToDatabase(userPasswordData);
                         string userToken = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+                        UserControll.Instance.AddUserToDatabase(userPasswordData, Sha1Util.CalculateSha(userToken));
                         string emailContent = "Your unique token for contacts and history access: " + userToken +
                                               ". DO NOT LOOSE IT!!!";
                         EmailMessage emailMessage = new EmailMessage("Crypto Talk Registration", emailContent, userPasswordData.Username);

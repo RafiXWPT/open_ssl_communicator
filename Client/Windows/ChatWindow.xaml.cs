@@ -188,14 +188,13 @@ namespace Client
 
         void PrepareMessage(string UID, string textBoxContent)
         {
-            ControlMessage message = new ControlMessage();
             try
             {
                 Message chatMessage = new Message(UID, ConnectionInfo.Sender, TargetID, textBoxContent);
                 string encryptedChatMessage = cryptoService.PublicEncrypt(chatMessage.GetJsonString(), cryptoService.PublicRSA);
-                message = new ControlMessage(ConnectionInfo.Sender, "CHAT_MESSAGE", encryptedChatMessage);
+                ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "CHAT_MESSAGE", encryptedChatMessage);
 
-                Thread SendReceiveMessage = StartThreadWithParam(UID, message);
+                Thread sendReceiveMessageThread = StartThreadWithParam(UID, message);
                 ChatText.Text = string.Empty;
             }
             catch(Exception ex)
@@ -245,13 +244,14 @@ namespace Client
         }
 
         // Maybe method name change?
-        public void DeliverMessage(Message message)
+        // M: ??
+        public void UpdateMessageStatus(Message message)
         {
-            Application.Current.Dispatcher.Invoke(() => deliverMessage(message));
+            Application.Current.Dispatcher.Invoke(() => updateMessageStatus(message));
         }
 
         // Maybe method name change?
-        void deliverMessage(Message message)
+        void updateMessageStatus(Message message)
         {
             string messageUID = message.MessageUID;
             string messageContent = message.MessageContent;

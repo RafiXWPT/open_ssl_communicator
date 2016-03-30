@@ -31,7 +31,12 @@ namespace Client.Windows
                     MessageBox.Show("Password is not secure, try different one.");
                     return;
                 }
-                
+                if (PasswordBox.Password != ConfirmPasswordBox.Password)
+                {
+                    MessageBox.Show("Passwords are different.");
+                    return;
+                }
+
                 ChangePasswordDTO changePasswordDto = new ChangePasswordDTO(ConnectionInfo.Sender, CurrentPasswordBox.Password, ConfirmPasswordBox.Password);
 
                 CryptoRSA cryptoService = new CryptoRSA();
