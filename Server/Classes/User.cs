@@ -21,7 +21,7 @@ namespace Server
         public bool IsTemporary { get; }
         string Address { get; set; }
         DateTime LastConnectionCheck { get; set; }
-        UserStatus Status { get; set; }
+        public UserStatus Status { get; set; }
 
         // DIFFIE HELLMAN PART
         public DiffieHellmanTunnel Tunnel { get; }
@@ -39,6 +39,11 @@ namespace Server
         public void UpdateAddress(string address)
         {
             Address = address;
+        }
+
+        public string GetAddress()
+        {
+            return Address;
         }
 
         public void UpdateLastConnectionCheck(DateTime time)
@@ -72,7 +77,6 @@ namespace Server
             return Name.Equals(other.Name);
         }
 
-        
         public override int GetHashCode()
         {
             return 31 + Name.GetHashCode();

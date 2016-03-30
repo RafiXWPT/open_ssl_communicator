@@ -41,7 +41,17 @@ namespace Client
             {
                 while (CheckConnection)
                 {
-                    ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "CHECK_CONNECTION", "CONN_CHECK");
+                    ControlMessage message;
+
+                    if (IdleController.GetIdleTime() > 1000*60*3)
+                    {
+                        message = new ControlMessage(ConnectionInfo.Sender, "CHECK_CONNECTION", "IDLE_CHECK");
+                    }
+                    else
+                    {
+                        message = new ControlMessage(ConnectionInfo.Sender, "CHECK_CONNECTION", "CONN_CHECK");
+                    }
+
                     Stopwatch watch = new Stopwatch();
 
                     using (WebClient client = new WebClient())

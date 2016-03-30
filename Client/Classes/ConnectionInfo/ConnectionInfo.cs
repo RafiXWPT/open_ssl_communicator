@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Config;
+using System.Windows.Media.Imaging;
+using System.Windows;
 
 namespace Client
 {
@@ -31,7 +33,7 @@ namespace Client
             ticks.Add(connectionTick);
             Latency = ticks.Average();
 
-            if(Latency > 1000 || lostConnection)
+            if(Latency > 1024 || lostConnection)
             {
                 Connected = false;
             }
@@ -39,6 +41,48 @@ namespace Client
             {
                 Connected = true;
             }
+
+            UpdateMainWindowConnectionImage();
+        }
+
+        static void UpdateMainWindowConnectionImage()
+        {
+            Application.Current.Dispatcher.Invoke(new Action(() => updateMainWindowConnectionImage()));
+        }
+
+        static void updateMainWindowConnectionImage()
+        {
+            if (MainWindow.Instance == null)
+                return;
+
+            string uri = AppDomain.CurrentDomain.BaseDirectory.ToString() + @"\Images\";
+            if (!Connected)
+            {
+                uri += "redbtn.png";
+            }
+            else if (Latency < 64)
+            {
+                uri += "greenbtn.png";
+            }
+            else if (Latency < 128)
+            {
+                uri += "lightgreenbtn.png";
+            }
+            else if (Latency < 256)
+            {
+                uri += "yellowbtn.png";
+            }
+            else if (Latency < 512)
+            {
+                uri += "darkorangebtn.png";
+            }
+            else if (Latency >= 512)
+            {
+                uri += "darkorangebtn.png";
+            }
+
+            BitmapImage image = new BitmapImage(new Uri(uri, UriKind.RelativeOrAbsolute));
+            MainWindow.Instance.UpdateLatency(Math.Round(Latency,2), image);
         }
     }
 }

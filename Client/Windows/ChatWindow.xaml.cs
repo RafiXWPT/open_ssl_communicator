@@ -105,21 +105,21 @@ namespace Client
             return ConfigurationHandler.GetValueFromKey(propertyName) == "True";
         }
 
-        void AddMessageToChatWindow(string UID, string userName, string messageContent, bool isFromSelf = false)
+        void AddMessageToChatWindow(string UID, string userName, string messageContent, bool isFromSelf = false, int pos = 0)
         {
             DisplayMessage message = new DisplayMessage(UID, userName, messageContent, isFromSelf);
 
 
             /* This Probaly should be somewhere else    */
             if (userName == "TUNNEL CREATOR")
-                message.TripStatus = "DELIVERED";
+                message.UpdateMessageStatus("DELIVERED");
             else
-                message.TripStatus = "SENDED";
+                message.UpdateMessageStatus("SENDED");
             /*                                          */
 
 
             chatWindowMessages.Add(message);
-            ListBox.Items.Insert(0, message);
+            ListBox.Items.Insert(pos, message);
      
             PlaySound(isFromSelf);
             if (!isFromSelf && IsPropertyTrue("BLINK_CHAT") )
@@ -131,7 +131,7 @@ namespace Client
             ControlMessage message = new ControlMessage();
             try
             {
-                Message chatMessage = new Message(Guid.NewGuid().ToString(), ConnectionInfo.Sender, ConnectionInfo.Sender, "INIT");
+                Message chatMessage = new Message(Guid.NewGuid().ToString(), ConnectionInfo.Sender, TargetID, "INIT");
                 string encryptedChatMessage = cryptoService.PublicEncrypt(chatMessage.GetJsonString(), cryptoService.PublicRSA);
                 message = new ControlMessage(ConnectionInfo.Sender, "CHAT_INIT", encryptedChatMessage);
 
@@ -150,11 +150,22 @@ namespace Client
                 {
                     ListBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Encrypted channel has been established.");
+                        AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Encrypted channel has been established.", false, chatWindowMessages.Count);
                     }));
                     ChatText.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
                         ChatText.IsEnabled = true;
+                    }));
+                }
+                else if (responseString == "OFFLINE")
+                {
+                    ListBox.Dispatcher.BeginInvoke(new Action(delegate ()
+                    {
+                        AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Secound user is offline.", false, chatWindowMessages.Count);
+                    }));
+                    ChatText.Dispatcher.BeginInvoke(new Action(delegate ()
+                    {
+                        ChatText.IsEnabled = false;
                     }));
                 }
                 else
@@ -165,7 +176,7 @@ namespace Client
                     }));
                     ChatText.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        ChatText.IsEnabled = true;
+                        ChatText.IsEnabled = false;
                     }));
                 }
             }
@@ -180,7 +191,7 @@ namespace Client
             ControlMessage message = new ControlMessage();
             try
             {
-                Message chatMessage = new Message(UID, ConnectionInfo.Sender, ConnectionInfo.Sender, textBoxContent);
+                Message chatMessage = new Message(UID, ConnectionInfo.Sender, TargetID, textBoxContent);
                 string encryptedChatMessage = cryptoService.PublicEncrypt(chatMessage.GetJsonString(), cryptoService.PublicRSA);
                 message = new ControlMessage(ConnectionInfo.Sender, "CHAT_MESSAGE", encryptedChatMessage);
 
@@ -218,8 +229,12 @@ namespace Client
                     string responseString = Encoding.UTF8.GetString(responseByte);
                     if (responseString == "RECEIVED")
                     {
-                        chatWindowMessages.Find(x => x.UID == UID).TripStatus = "SEND_ACK";
+                        chatWindowMessages.Find(x => x.UID == UID).UpdateMessageStatus("SEND_ACK");
                         RefreshMessages();
+                    }
+                    else if(responseString == "OFFLINE")
+                    {
+                        ChatText.IsEnabled = false;
                     }
                 }
             }
@@ -238,15 +253,28 @@ namespace Client
         // Maybe method name change?
         void deliverMessage(Message message)
         {
-            /* This is code for INCOMING messages without our knowlage */
             string messageUID = message.MessageUID;
             string messageContent = message.MessageContent;
 
-            DisplayMessage dspMsg = new DisplayMessage(messageUID, TargetID, messageContent, false);
+            DisplayMessage dspMsg = chatWindowMessages.Find(x => x.UID == messageUID);
+            if(dspMsg != null)
+            {
+                if(messageContent == "DELIVERED")
+                {
+                    dspMsg.UpdateMessageStatus("DELIVERED");
+                }
+            }
+            else
+            {
+                dspMsg = new DisplayMessage(messageUID, TargetID, messageContent, false);
 
-            dspMsg.TripStatus = "DELIVERED";
-            chatWindowMessages.Add(dspMsg);
-            ListBox.Items.Insert(0, dspMsg);
+                dspMsg.UpdateMessageStatus("DELIVERED");
+                chatWindowMessages.Add(dspMsg);
+                ListBox.Items.Insert(0, dspMsg);
+                PlaySound();
+            }
+
+            RefreshMessages();
         }
 
         public void RefreshMessages()

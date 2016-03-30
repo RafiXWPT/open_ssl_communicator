@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Client"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
-        Title="Log-in" Height="300.256" Width="310" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="../Image/programIcon.ico" Loaded="Window_Loaded" Background="#00A2FF">
+        Title="Log-in" Height="300.256" Width="310" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="../Image/programIcon.ico" Loaded="Window_Loaded" Background="#FFCDCDCD">
     <Grid>
         <Image x:Name="LoginLogo" HorizontalAlignment="Center" Height="106" Margin="0,10,0,0" VerticalAlignment="Top" Width="185" Source="../Image/programLogo.png" Stretch="Fill"/>
 
@@ -15,9 +15,9 @@
 
         <TextBox x:Name="LoginBox" HorizontalAlignment="Left" Height="30" Margin="85,121,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="180" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" KeyDown="GetEnter_Down"/>
         <PasswordBox x:Name="PasswordBox" HorizontalAlignment="Left" Height="30" Width="180" Margin="85,156,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" KeyDown="GetEnter_Down"/>
-        <Button x:Name="LoginButton" Content="Log in" HorizontalAlignment="Left" Margin="85,191,0,0" VerticalAlignment="Top" Width="120" Height="30" Click="LoginButton_Click" Background="#47DBFF"/>
+        <Button x:Name="LoginButton" Content="Log in" HorizontalAlignment="Left" Margin="85,191,0,0" VerticalAlignment="Top" Width="120" Height="30" Click="LoginButton_Click"/>
         <Label x:Name="DnthvaccLabel" Content="Problems with logging?" HorizontalAlignment="Left" Margin="10,226,0,0" VerticalAlignment="Top" Height="30" VerticalContentAlignment="Center"/>
-        <Button x:Name="RegisterBtn" Content="Register" HorizontalAlignment="Left" Margin="150,226,0,0" VerticalAlignment="Top" Width="60" Height="30" Click="RegisterBtn_Click" Background="#47DBFF"/>
-        <Button x:Name="ForgotPasswordBtn" Content="Reset" HorizontalAlignment="Left" Margin="224,226,0,0" VerticalAlignment="Top" Width="60" Height="30" Click="ForgotPasswordBtn_Click" Background="#47DBFF"/>
+        <Button x:Name="RegisterBtn" Content="Register" HorizontalAlignment="Left" Margin="150,226,0,0" VerticalAlignment="Top" Width="60" Height="30" Click="RegisterBtn_Click"/>
+        <Button x:Name="ForgotPasswordBtn" Content="Reset" HorizontalAlignment="Left" Margin="224,226,0,0" VerticalAlignment="Top" Width="60" Height="30" Click="ForgotPasswordBtn_Click"/>
     </Grid>
 </Window>

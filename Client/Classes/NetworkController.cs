@@ -93,7 +93,7 @@ namespace Client
         {
             string wantedUrl = serverMessage.Request.RawUrl;
             string messageContent = serverMessage.Request.Headers["messageContent"];
-            MessageBox.Show(messageContent);
+
             try
             {
                 if (wantedUrl == "/chatMessage/")

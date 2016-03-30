@@ -71,6 +71,7 @@ namespace Server
         public void AddUserToApplication(string tempUserName, string loggedUserName)
         {
             User newUser = new User(loggedUserName, false);
+            newUser.UpdateStatus(UserStatus.Offline);
             users.Add(newUser);
         }
 

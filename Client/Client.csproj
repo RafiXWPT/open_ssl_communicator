@@ -74,7 +74,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ManagedOpenSsl, Version=0.6.0.0, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="ManagedOpenSsl, Version=0.6.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\OpenSSLWrapper\x86\ManagedOpenSsl.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -102,6 +105,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Classes\ChatController.cs" />
+    <Compile Include="Classes\IdleController.cs" />
     <Compile Include="Windows\ChangePasswordWindow.xaml.cs">
       <DependentUpon>ChangePasswordWindow.xaml</DependentUpon>
     </Compile>
@@ -251,6 +255,32 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Image\contact-4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\openSSLNoText.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\darkorangebtn.png" />
+    <Resource Include="Image\greenbtn.png" />
+    <Resource Include="Image\lightgreenbtn.png" />
+    <Resource Include="Image\redbtn.png" />
+    <Resource Include="Image\yellowbtn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\chatImageDelivered.png" />
+    <Resource Include="Image\chatImageSended.png" />
+    <Resource Include="Image\chatImageSendedAck.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\return.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="OpenSSLShittyItems\libeay32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenSSLShittyItems\ssleay32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -59,6 +59,8 @@ namespace Client
             connectionChecker.StartCheckConnection();
 
             EstablishTunnel();
+
+            LoginBox.Focus();
         }
 
         private void EstablishTunnel()

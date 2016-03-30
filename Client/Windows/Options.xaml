@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="Options" Height="310" Width="250" Background="#00A2FF" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="Options" Height="310" Width="250" Background="#FFCDCDCD" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -33,7 +33,7 @@
             </StackPanel>
         </Grid>
         <Grid Grid.Row="3">
-            <Button x:Name="SaveOptionsBtn" Content="Save Options" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Click="SaveOptionsBtn_Click" Background="#47DBFF"/>
+            <Button x:Name="SaveOptionsBtn" Content="Save Options" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Click="SaveOptionsBtn_Click"/>
         </Grid>
     </Grid>
 </Window>

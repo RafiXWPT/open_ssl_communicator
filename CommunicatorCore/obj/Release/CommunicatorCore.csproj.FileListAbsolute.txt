@@ -7,3 +7,11 @@ D:\GitProjects\BSK\CommunicatorCore\obj\Release\CommunicatorCore.csprojResolveAs
 D:\GitProjects\BSK\CommunicatorCore\bin\Release\WpfAnimatedGif.dll
 D:\GitProjects\BSK\CommunicatorCore\bin\Release\WpfAnimatedGif.xml
 D:\GitProjects\BSK\CommunicatorCore\bin\Release\ManagedOpenSsl.dll
+X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Release\CommunicatorCore.dll
+X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Release\CommunicatorCore.pdb
+X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Release\ManagedOpenSsl.dll
+X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Release\Newtonsoft.Json.dll
+X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Release\WpfAnimatedGif.dll
+X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Release\WpfAnimatedGif.xml
+X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\obj\Release\CommunicatorCore.dll
+X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\obj\Release\CommunicatorCore.pdb

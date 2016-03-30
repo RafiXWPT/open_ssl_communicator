@@ -42,10 +42,11 @@ namespace Client
             ChatWindow targetWindow = chatWindows.Find(x => x.TargetID == msg.MessageSender);
             if (targetWindow == null)
             {
-                ChatWindow window = new ChatWindow(msg.MessageSender);
-                window.Show();
-                window.DeliverMessage(msg);
+                targetWindow = new ChatWindow(msg.MessageSender);
             }
+
+            targetWindow.Show();
+            targetWindow.DeliverMessage(msg);
         }
     }
 }

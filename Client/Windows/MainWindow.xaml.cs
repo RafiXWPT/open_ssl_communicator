@@ -7,6 +7,7 @@ using System.Windows.Input;
 using Client.Windows;
 using CommunicatorCore.Classes.Model;
 using Config;
+using System.Windows.Media.Imaging;
 
 namespace Client
 {
@@ -108,6 +109,17 @@ namespace Client
                 aggregator.LoadJson(decryptedContent);
                 aggregator.Contacts.ForEach(contact => addContactToList(contact, true));
             }
+        }
+
+        public void UpdateLatency(double latency, BitmapImage image)
+        {
+            Application.Current.Dispatcher.Invoke(() => updateLatency(latency, image));
+        }
+
+        void updateLatency(double latency, BitmapImage image)
+        {
+            latencyLabel.Content = "Latency: " + Math.Round(latency, 2) + "ms";
+            latencyStatus.Source = image;
         }
 
         public void AddContactToList(Contact contact, bool isEncrypted = false)
@@ -219,7 +231,7 @@ namespace Client
 
         private void OnDeleteContactBtn_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you sure?", "Delete Confirmation", System.Windows.MessageBoxButton.YesNo);
+            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure?", "Delete Confirmation", MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes) { 
                 Contact selectedContact = ContactsData.SelectedItem as Contact;
                 int selectedItemIndex = ContactsData.SelectedIndex;
@@ -284,7 +296,18 @@ namespace Client
         {
             ContactsData.Items.Clear();
         }
+
+        private void ExitApplication_Click(object sender, RoutedEventArgs e)
+        {
+            _networkController.StopChatListener();
+            connectionChecker.StopCheckConnection();
+            Close();
+        }
+
+        private void Unselect_Click(object sender, RoutedEventArgs e)
+        {
+            ContactsData.UnselectAll();
+            ContactActionPanel.Visibility = Visibility.Hidden;
+        }
     }
-
-
 }

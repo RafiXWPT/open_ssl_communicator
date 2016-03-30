@@ -10,6 +10,7 @@ using MongoDB.Driver;
 using Server.Classes;
 using System.Threading;
 using OpenSSL.Crypto;
+using System.Collections.Specialized;
 
 namespace Server
 {
@@ -133,6 +134,14 @@ namespace Server
             if (message.MessageType == "CHECK_CONNECTION" && message.MessageContent == "CONN_CHECK")
             {
                 response = "CONN_AVAIL";
+                if(user != null)
+                    user.UpdateStatus(UserStatus.Online);
+            }
+            else if(message.MessageType == "CHECK_CONNECTION" && message.MessageContent == "IDLE_CHECK")
+            {
+                response = "CONN_AVAIL";
+                if(user != null)
+                    user.UpdateStatus(UserStatus.AFK);
             }
             else
             {
@@ -225,7 +234,7 @@ namespace Server
                         KeyGenerator.GenerateKeyPair(userPasswordData.Username);
                         UserControll.Instance.AddUserToDatabase(userPasswordData);
                         string userToken = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
-                        string emailContent = "Your unique token for contacts & history access: " + userToken +
+                        string emailContent = "Your unique token for contacts and history access: " + userToken +
                                               ". DO NOT LOOSE IT!!!";
                         EmailMessage emailMessage = new EmailMessage("Crypto Talk Registration", emailContent, userPasswordData.Username);
                         emailMessage.Send(true);
@@ -278,7 +287,7 @@ namespace Server
                 string responseType = "LOGIN_UNSUCCESFULL";
 
                 string decryptedMessage = user.Tunnel.DiffieDecrypt(message.MessageContent);
-                Console.WriteLine(decryptedMessage);
+
                 if (Sha1Util.CalculateSha(decryptedMessage) != message.Checksum)
                 {
                     responseContent = "INVALID";
@@ -322,6 +331,7 @@ namespace Server
 
         private void SendChatMessage(ControlMessage message, HttpListenerContext userToHandle)
         {
+            Console.WriteLine("sender: " + userToHandle.Request.RemoteEndPoint);
             string response = string.Empty;
             string messageContent = string.Empty;
             Message chatMessage = new Message();
@@ -333,34 +343,93 @@ namespace Server
                 ServerLogger.LogMessage("User: " + message.MessageSender + " initializing asymetric tunnel.");
                 messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
                 chatMessage.LoadJson(messageContent);
+
+                string target = chatMessage.MessageDestination;
+
                 if(chatMessage.MessageContent == "INIT")
                 {
-                    response = "OK";
-                    ServerLogger.LogMessage("Tunnel for: " + message.MessageSender + " has been initialized.");
+                    User user = UserControll.Instance.GetUserFromApplication(target);
+                    if(user == null)
+                    {
+                        response = "OFFLINE";
+                        ServerLogger.LogMessage("Tunnel for: " + message.MessageSender + " has not been initialized.");
+                    }
+                    else if (user.Status == UserStatus.Online)
+                    {
+                        response = "OK";
+                        ServerLogger.LogMessage("Tunnel for: " + message.MessageSender + " has been initialized.");
+                    }
                 }
                 else
                 {
                     response = "BAD";
                     ServerLogger.LogMessage("Tunnel for: " + message.MessageSender + " has not been initialized.");
                 }
+
+                SendResponse(userToHandle, response);
             }
             else if (message.MessageType == "CHAT_MESSAGE")
             {
                 ServerLogger.LogMessage("User: " + message.MessageSender + " sends chat message.");
+
                 messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
                 chatMessage.LoadJson(messageContent);
-                response = "RECEIVED";
-                /* Okey, here we are, now we must reply to Client1 about getting message */
-                // SendReponse(...)
-                /* Next, we have to search user by Message.Destination 
-                   When we have it, send msg on http://Client2Ip:11070/chatMessage/ with same UID from Client1
-                   UID will be our identifier for all chat transactions
-                   When Client2 receive MSG and reply to server with "RECEIVED" we should reply back "DELIVERED"
-                   to: http://Client1Ip:11070/chatMessage/ with same UID of the message
-                */
-            }
 
-            SendResponse(userToHandle, response);
+                string destination = chatMessage.MessageDestination;
+                User user = UserControll.Instance.GetUserFromApplication(destination);
+
+                if(user == null)
+                {
+                    response = "OFFLINE";
+                    SendResponse(userToHandle, response);
+                }
+                else if (user.Status == UserStatus.Online)
+                {
+                    response = "RECEIVED";
+                    SendResponse(userToHandle, response);
+
+                    bool status = TunnelChatMessage(chatMessage, user.GetAddress());
+                    if(status)
+                    {
+                        Message delvmsg = new Message(chatMessage.MessageUID, destination, message.MessageSender, "DELIVERED");
+                        TunnelChatMessage(delvmsg, UserControll.Instance.GetUserFromApplication(message.MessageSender).GetAddress());
+                    }
+
+                }
+            }
+        }
+
+        bool TunnelChatMessage(Message message, string destination)
+        {
+            Uri uri = new Uri("http://" + destination + ":11070/chatMessage/");
+            CryptoRSA cryptoService = new CryptoRSA();
+            cryptoService.LoadRsaFromPublicKey("keys/" + message.MessageDestination+"_Public.pem");
+            string encryptedChatMessage = cryptoService.PublicEncrypt(message.GetJsonString(), cryptoService.PublicRSA);
+            ControlMessage msg = new ControlMessage("SERVER", "CHAT_MESSAGE", encryptedChatMessage);
+
+            string responseString = string.Empty;
+            NameValueCollection headers = new NameValueCollection();
+            NameValueCollection data = new NameValueCollection();
+
+            try
+            {
+                using (WebClient client = new WebClient())
+                {
+                    client.Proxy = null;
+                    headers["messageContent"] = msg.GetJsonString();
+                    client.Headers.Add(headers);
+                    data["DateTime"] = DateTime.Now.ToShortDateString();
+                    byte[] responseByte = client.UploadValues(uri, "POST", data);
+                    responseString = Encoding.UTF8.GetString(responseByte);
+                }
+
+                return responseString == "RECEIVED";
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return false;
+            }
         }
 
         private void HandleContactMessage(ControlMessage message, HttpListenerContext userToHandle)
