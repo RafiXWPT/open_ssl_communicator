@@ -1,17 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using CommunicatorCore.Classes.Model;
 using Config;
 
@@ -35,8 +24,14 @@ namespace Client.Windows
             {
                 MessageBox.Show("Load your keys at first!");
             }
-            else { 
-                // We should validate passwords!
+            else
+            {
+                if(!RegisterFormatValidator.IsPasswordValid(ConfirmPasswordBox.Password))
+                {
+                    MessageBox.Show("Password is not secure, try different one.");
+                    return;
+                }
+                
                 ChangePasswordDTO changePasswordDto = new ChangePasswordDTO(ConnectionInfo.Sender, CurrentPasswordBox.Password, ConfirmPasswordBox.Password);
 
                 CryptoRSA cryptoService = new CryptoRSA();
@@ -54,7 +49,6 @@ namespace Client.Windows
                     HandlePasswordResponse(reply, cryptoService);
                 }
             }
-
         }
 
         private bool AreKeysInitialized()
