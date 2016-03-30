@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Client"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
-        Title="Log-in" Height="300.256" Width="310" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="../Image/programIcon.ico" Loaded="Window_Loaded" Background="#FFCDCDCD">
+        Title="Log-in" Height="300.256" Width="310" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="../Image/programIcon.ico" Loaded="Window_Loaded" Background="#FFEBE1D2">
     <Grid>
         <Image x:Name="LoginLogo" HorizontalAlignment="Center" Height="106" Margin="0,10,0,0" VerticalAlignment="Top" Width="185" Source="../Image/programLogo.png" Stretch="Fill"/>
 

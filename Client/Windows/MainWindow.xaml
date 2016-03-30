@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Client"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Client.MainWindow"
         mc:Ignorable="d"
-        Title="Title" Height="400" MaxHeight="800" MinHeight="300" Width="350" MinWidth="350" MaxWidth="800" Loaded="Window_Loaded" Background="#FFCDCDCD" Icon="../Image/programIcon.ico" WindowStartupLocation="CenterScreen">
+        Title="Title" Height="400" MaxHeight="800" MinHeight="300" Width="350" MinWidth="350" MaxWidth="800" Loaded="Window_Loaded" Background="#FFEBE1D2" Icon="../Image/programIcon.ico" WindowStartupLocation="CenterScreen">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -58,7 +58,7 @@
                     <Image Source="../Image/return.png" Stretch="Fill" />
                 </Button>
             </Grid>
-            <DataGrid x:Name="ContactsData" HorizontalAlignment="Stretch" Margin="10,10,60,10" VerticalAlignment="Stretch" SelectionMode="Single" BorderThickness="1" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" RowDetailsVisibilityMode="Collapsed" IsReadOnly="True" MouseDoubleClick="ContactsData_OnMouseDoubleClick" SelectionChanged="ContactsData_OnSelectionChanged" Background="#FF828282">
+            <DataGrid x:Name="ContactsData" HorizontalAlignment="Stretch" Margin="10,10,60,10" VerticalAlignment="Stretch" SelectionMode="Single" BorderThickness="1" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" RowDetailsVisibilityMode="Collapsed" IsReadOnly="True" MouseDoubleClick="ContactsData_OnMouseDoubleClick" SelectionChanged="ContactsData_OnSelectionChanged" Background="#FFE6E6C8">
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Path=To}" Header="ID" IsReadOnly="True" Width="*"/>
                     <DataGridTextColumn Binding="{Binding Path=DisplayName}" Header="Nick Name" IsReadOnly="True" Width="*"/>

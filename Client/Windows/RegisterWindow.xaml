@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Client"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
-        Title="Register" Height="275" Width="300" Loaded="Window_Loaded" Icon="../Image/programIcon.ico" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FFCDCDCD">
+        Title="Register" Height="275" Width="300" Loaded="Window_Loaded" Icon="../Image/programIcon.ico" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Background="#FFEBE1D2">
     <Grid>
         <Label x:Name="EmailLabel" Content="Email:" HorizontalAlignment="Left" Margin="10,10,30,0" VerticalAlignment="Top"/>
         <TextBox x:Name="EmailTextBox" HorizontalAlignment="Left" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="30" Margin="10,40,30,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="200" KeyUp="emailTextBox_KeyUp" KeyDown="EmailTextBox_KeyDown"/>

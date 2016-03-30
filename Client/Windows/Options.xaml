@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
-        Title="Options" Height="310" Width="250" Background="#FFCDCDCD" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="Options" Height="310" Width="250" Background="#FFEBE1D2" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
