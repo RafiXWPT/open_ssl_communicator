@@ -416,11 +416,19 @@ namespace Server
             Message chatMessage = new Message();
             CryptoRSA transcoder = new CryptoRSA();
             transcoder.LoadRsaFromPrivateKey(SERVER_PRIVATE_KEY);
+            transcoder.LoadRsaFromPublicKey("keys/" + message.MessageSender + "_Public.pem");
 
-            if (message.MessageType == "CHAT_INIT")
+            messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
+
+            if (message.Checksum != Sha1Util.CalculateSha(messageContent))
+            {
+                ControlMessage returnMessage = CreateInvalidResponseMessage(transcoder, transcoder.PublicRSA);
+                response = returnMessage.GetJsonString();
+                SendResponse(userToHandle, response);
+            }
+            else if (message.MessageType == "CHAT_INIT")
             {
                 ServerLogger.LogMessage("User: " + message.MessageSender + " initializing asymetric tunnel.");
-                messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
                 chatMessage.LoadJson(messageContent);
 
                 string target = chatMessage.MessageDestination;
@@ -451,12 +459,12 @@ namespace Server
             {
                 ServerLogger.LogMessage("User: " + message.MessageSender + " sends chat message.");
 
-                messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
                 chatMessage.LoadJson(messageContent);
 
                 string destination = chatMessage.MessageDestination;
                 User user = UserControll.Instance.GetUserFromApplication(destination);
 
+                MessageControl.Instance.InsertMessage(chatMessage);
                 if(user == null)
                 {
                     response = "OFFLINE";

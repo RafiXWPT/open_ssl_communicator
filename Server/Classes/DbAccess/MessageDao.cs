@@ -16,9 +16,10 @@ namespace Server.Classes.DbAccess
         {
             BsonDocument messageDocument = new BsonDocument
             {
+                { "_id", message.MessageUID },
                 { "from", message.MessageSender},
                 { "to", message.MessageDestination},
-                { "content", message.MessageContent },
+                { "content", message.MessageCipheredContent },
                 { "date", message.MessageDate }
             };
             IMongoCollection<BsonDocument> messageCollection = MongoDbAccess.GetMessagesCollection();
@@ -52,9 +53,10 @@ namespace Server.Classes.DbAccess
         {
             return messagesBatch.ToList().ConvertAll(document => new Message
             {
+                MessageUID = document["_id"].AsString,
                 MessageSender = document["from"].AsString,
                 MessageDestination = document["to"].AsString,
-                MessageContent = document["content"].AsString,
+                MessageCipheredContent = document["content"].AsString,
                 MessageDate = document["date"].ToUniversalTime()
             });
         }

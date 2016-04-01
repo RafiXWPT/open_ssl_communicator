@@ -27,18 +27,21 @@ namespace Client
     /// </summary>
     public partial class ChatWindow : Window
     {
-        private readonly Uri uriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("SEND_CHAT_MESSAGE_API") + "/");
-        private readonly Uri incomingMessage = new Uri("Media/incoming.wav", UriKind.Relative);
-        private readonly Uri outcomingMessage = new Uri("Media/outcoming.wav", UriKind.Relative);
-        private readonly FlashWindow flashWindow = new FlashWindow(Application.Current);
-        public string TargetID { get; }
+        private readonly Uri _messageUri = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("SEND_CHAT_MESSAGE_API") + "/");
+        private readonly Uri _incomingMessageUri = new Uri("Media/incoming.wav", UriKind.Relative);
+        private readonly Uri _outcomingMessageUri = new Uri("Media/outcoming.wav", UriKind.Relative);
+        private readonly FlashWindow _flashWindow = new FlashWindow(Application.Current);
 
-        NameValueCollection headers = new NameValueCollection();
-        NameValueCollection data = new NameValueCollection();
-        MediaPlayer player = new MediaPlayer();
-        List<DisplayMessage> chatWindowMessages = new List<DisplayMessage>();
+        private readonly string _token;
+        private readonly SymmetricCipher _cipher;
+        public string TargetId { get; }
 
-        private readonly CryptoRSA cryptoService;
+        private readonly NameValueCollection _headers = new NameValueCollection();
+        private readonly NameValueCollection _data = new NameValueCollection();
+        private readonly MediaPlayer _player = new MediaPlayer();
+        private readonly List<DisplayMessage> _chatWindowMessages = new List<DisplayMessage>();
+
+        private readonly CryptoRSA _cryptoService;
 
         public ChatWindow(string target) : this(target, target)
         {
@@ -47,13 +50,16 @@ namespace Client
         public ChatWindow(string target, string windowName)
         {
             InitializeComponent();
-            TargetID = target;
+            TargetId = target;
             Title = Title + " - " + windowName;
             
             ChatController.AddNewWindow(this);
 
-            cryptoService = new CryptoRSA();
-            cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
+            _cryptoService = new CryptoRSA();
+            _cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
+            _token = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
+            _cipher = new SymmetricCipher();
+
             ChatText.IsEnabled = false;
         }
 
@@ -90,13 +96,13 @@ namespace Client
         {
             if(outcoming && IsPropertyTrue("OUTCOMING_SOUND"))
             {
-                player.Open(outcomingMessage);
-                player.Play();
+                _player.Open(_outcomingMessageUri);
+                _player.Play();
             }
             else if (!outcoming && IsPropertyTrue("INCOMING_SOUND") )
             {
-                player.Open(incomingMessage);
-                player.Play();
+                _player.Open(_incomingMessageUri);
+                _player.Play();
             }
         }
 
@@ -111,19 +117,16 @@ namespace Client
 
 
             /* This Probaly should be somewhere else    */
-            if (userName == "TUNNEL CREATOR")
-                message.UpdateMessageStatus("DELIVERED");
-            else
-                message.UpdateMessageStatus("SENDED");
+            message.UpdateMessageStatus( userName == "TUNNEL CREATOR"? "DELIVERED" : "SENDED");
             /*                                          */
 
 
-            chatWindowMessages.Add(message);
+            _chatWindowMessages.Add(message);
             ListBox.Items.Insert(pos, message);
      
             PlaySound(isFromSelf);
             if (!isFromSelf && IsPropertyTrue("BLINK_CHAT") )
-                flashWindow.FlashApplicationWindow();
+                _flashWindow.FlashApplicationWindow();
         }
 
         void SendInitMessage()
@@ -131,18 +134,18 @@ namespace Client
             ControlMessage message = new ControlMessage();
             try
             {
-                Message chatMessage = new Message(Guid.NewGuid().ToString(), ConnectionInfo.Sender, TargetID, "INIT");
-                string encryptedChatMessage = cryptoService.PublicEncrypt(chatMessage.GetJsonString(), cryptoService.PublicRSA);
+                Message chatMessage = new Message(Guid.NewGuid().ToString(), ConnectionInfo.Sender, TargetId, "INIT");
+                string encryptedChatMessage = _cryptoService.PublicEncrypt(chatMessage.GetJsonString(), _cryptoService.PublicRSA);
                 message = new ControlMessage(ConnectionInfo.Sender, "CHAT_INIT", encryptedChatMessage);
 
                 string responseString = string.Empty;
                 using (var wb = new WebClient())
                 {
                     wb.Proxy = null;
-                    headers["messageContent"] = message.GetJsonString();
-                    wb.Headers.Add(headers);
-                    data["DateTime"] = DateTime.Now.ToShortDateString();
-                    byte[] responseByte = wb.UploadValues(uriString, "POST", data);
+                    _headers["messageContent"] = message.GetJsonString();
+                    wb.Headers.Add(_headers);
+                    _data["DateTime"] = DateTime.Now.ToShortDateString();
+                    byte[] responseByte = wb.UploadValues(_messageUri, "POST", _data);
                     responseString = Encoding.UTF8.GetString(responseByte);
                 }
 
@@ -150,7 +153,7 @@ namespace Client
                 {
                     ListBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Encrypted channel has been established.", false, chatWindowMessages.Count);
+                        AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Encrypted channel has been established.", false, _chatWindowMessages.Count);
                     }));
                     ChatText.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
@@ -161,7 +164,7 @@ namespace Client
                 {
                     ListBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
-                        AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Secound user is offline.", false, chatWindowMessages.Count);
+                        AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Secound user is offline.", false, _chatWindowMessages.Count);
                     }));
                     ChatText.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
@@ -190,8 +193,9 @@ namespace Client
         {
             try
             {
-                Message chatMessage = new Message(UID, ConnectionInfo.Sender, TargetID, textBoxContent);
-                string encryptedChatMessage = cryptoService.PublicEncrypt(chatMessage.GetJsonString(), cryptoService.PublicRSA);
+                string cipheredContent = _cipher.Encode(textBoxContent, _token, string.Empty);
+                Message chatMessage = new Message(UID, ConnectionInfo.Sender, TargetId, textBoxContent, cipheredContent);
+                string encryptedChatMessage = _cryptoService.PublicEncrypt(chatMessage.GetJsonString(), _cryptoService.PublicRSA);
                 ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "CHAT_MESSAGE", encryptedChatMessage);
 
                 Thread sendReceiveMessageThread = StartThreadWithParam(UID, message);
@@ -219,16 +223,16 @@ namespace Client
                 {
                     wb.Proxy = null;
 
-                    headers["messageContent"] = message.GetJsonString();
-                    wb.Headers.Add(headers);
+                    _headers["messageContent"] = message.GetJsonString();
+                    wb.Headers.Add(_headers);
 
-                    data["DateTime"] = DateTime.Now.ToShortDateString();
+                    _data["DateTime"] = DateTime.Now.ToShortDateString();
 
-                    byte[] responseByte = wb.UploadValues(uriString, "POST", data);
+                    byte[] responseByte = wb.UploadValues(_messageUri, "POST", _data);
                     string responseString = Encoding.UTF8.GetString(responseByte);
                     if (responseString == "RECEIVED")
                     {
-                        chatWindowMessages.Find(x => x.UID == UID).UpdateMessageStatus("SEND_ACK");
+                        _chatWindowMessages.Find(x => x.UID == UID).UpdateMessageStatus("SEND_ACK");
                         RefreshMessages();
                     }
                     else if(responseString == "OFFLINE")
@@ -256,20 +260,17 @@ namespace Client
             string messageUID = message.MessageUID;
             string messageContent = message.MessageContent;
 
-            DisplayMessage dspMsg = chatWindowMessages.Find(x => x.UID == messageUID);
-            if(dspMsg != null)
+            DisplayMessage dspMsg = _chatWindowMessages.Find(x => x.UID == messageUID);
+            if(dspMsg != null && messageContent == "DELIVERED")
             {
-                if(messageContent == "DELIVERED")
-                {
-                    dspMsg.UpdateMessageStatus("DELIVERED");
-                }
+                dspMsg.UpdateMessageStatus("DELIVERED");
             }
             else
             {
-                dspMsg = new DisplayMessage(messageUID, TargetID, messageContent, false);
+                dspMsg = new DisplayMessage(messageUID, TargetId, messageContent, false);
 
                 dspMsg.UpdateMessageStatus("DELIVERED");
-                chatWindowMessages.Add(dspMsg);
+                _chatWindowMessages.Add(dspMsg);
                 ListBox.Items.Insert(0, dspMsg);
                 PlaySound();
             }

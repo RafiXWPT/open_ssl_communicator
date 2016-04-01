@@ -62,7 +62,9 @@ namespace Client.Classes
             ControlMessage returnedControlMessage = returnedBatchMessage.ControlMessage;
             string decryptedKey = _crypter.PrivateDecrypt(returnedBatchMessage.CipheredKey);
             string decryptedContent = _cipher.Decode(returnedControlMessage.MessageContent, decryptedKey, string.Empty);
-            MessageBox.Show(decryptedContent);
+            UserConnectionStatusAggregator connectionStatusAggregator = new UserConnectionStatusAggregator();
+            connectionStatusAggregator.LoadJson(decryptedContent);
+            // Decrypted content contains jsons about user statuses
         }
 
         public void RemoveUser(string username)

@@ -39,7 +39,7 @@ namespace Client
 
         static void deliverSTA(Message msg)
         {
-            ChatWindow targetWindow = chatWindows.Find(x => x.TargetID == msg.MessageSender);
+            ChatWindow targetWindow = chatWindows.Find(x => x.TargetId == msg.MessageSender);
             if (targetWindow == null)
             {
                 targetWindow = new ChatWindow(msg.MessageSender);

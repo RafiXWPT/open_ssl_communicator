@@ -38,8 +38,9 @@ namespace Server
             
             ServerLogger.LogMessage("Loading server prefixes");
             string[] prefixes = { Prefix + "/connectionCheck/", Prefix + "/diffieTunnel/", Prefix + "/register/", Prefix + "/logIn/", Prefix + "/sendChatMessage/", Prefix + "/contacts/", Prefix + "/history/", Prefix + "/password/", Prefix + "/status/" };
-            foreach (string prefix in prefixes)
+            foreach (string prefix in prefixes) { 
                 Console.WriteLine(prefix);
+            }
 
             try
             {

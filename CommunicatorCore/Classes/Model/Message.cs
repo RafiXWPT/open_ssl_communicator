@@ -9,14 +9,20 @@ namespace CommunicatorCore.Classes.Model
         public string MessageSender { get; set; }
         public string MessageDestination { get; set; }
         public string MessageContent { get; set; }
+        public string MessageCipheredContent { get; set; }
         public DateTime MessageDate { get; set; }
 
-        public Message(string UID, string sender, string destionation, string content)
+        public Message(string uid, string sender, string destination, string content): this(uid, sender, destination,content, content)
         {
-            this.MessageUID = UID;
+        }
+
+        public Message(string uid, string sender, string destination, string content, string messageCipheredContent)
+        {
+            this.MessageUID = uid;
             this.MessageSender = sender;
-            this.MessageDestination = destionation;
+            this.MessageDestination = destination;
             this.MessageContent = content;
+            this.MessageCipheredContent = messageCipheredContent;
             this.MessageDate = DateTime.Now;
         }
 
@@ -29,6 +35,8 @@ namespace CommunicatorCore.Classes.Model
             this.MessageSender = tmp.MessageSender;
             this.MessageDestination = tmp.MessageDestination;
             this.MessageContent = tmp.MessageContent;
+            this.MessageCipheredContent = tmp.MessageCipheredContent;
+            this.MessageDate = tmp.MessageDate;
         }
 
         public string GetJsonString()
