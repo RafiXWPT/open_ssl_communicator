@@ -86,13 +86,19 @@
       <Project>{c9d712b8-90db-48e0-bd9e-0a6d1d06ed49}</Project>
       <Name>CommunicatorCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Tasks\Tasks.csproj">
+      <Project>{cb10e02a-7236-424c-a700-d40521215522}</Project>
+      <Name>Tasks</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
+       Other similar extension points exist, see Microsoft.Common.targets. -->
+  <UsingTask AssemblyFile="Tasks.dll" TaskName="Tasks.AsyncExec" />
   <Target Name="BeforeBuild">
+    <MakeDir Directories="db" />
   </Target>
-  <Target Name="AfterBuild">
+  <Target Name="AfterBuild" >
+	<AsyncExec Command="init.bat" />  
   </Target>
-  -->
 </Project>

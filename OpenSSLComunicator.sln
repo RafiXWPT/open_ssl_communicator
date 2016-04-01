@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunicatorCore", "Communi
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CryptoTalkInstaller", "CryptoTalkInstaller\CryptoTalkInstaller.vdproj", "{7E75A4FF-967A-4AFF-BDCE-4E69115961E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tasks", "Tasks\Tasks.csproj", "{CB10E02A-7236-424C-A700-D40521215522}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,14 @@ Global
 		{7E75A4FF-967A-4AFF-BDCE-4E69115961E6}.Debug|x86.ActiveCfg = Debug
 		{7E75A4FF-967A-4AFF-BDCE-4E69115961E6}.Release|Any CPU.ActiveCfg = Release
 		{7E75A4FF-967A-4AFF-BDCE-4E69115961E6}.Release|x86.ActiveCfg = Release
+		{CB10E02A-7236-424C-A700-D40521215522}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB10E02A-7236-424C-A700-D40521215522}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB10E02A-7236-424C-A700-D40521215522}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CB10E02A-7236-424C-A700-D40521215522}.Debug|x86.Build.0 = Debug|Any CPU
+		{CB10E02A-7236-424C-A700-D40521215522}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB10E02A-7236-424C-A700-D40521215522}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB10E02A-7236-424C-A700-D40521215522}.Release|x86.ActiveCfg = Release|Any CPU
+		{CB10E02A-7236-424C-A700-D40521215522}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
