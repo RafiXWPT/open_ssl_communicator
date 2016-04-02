@@ -28,11 +28,11 @@ namespace Server
 
         static void Main(string[] args)
         {
-//            foreach (string s in args)
-//            {
-//                if (s == "-l")
+            foreach (string s in args)
+            {
+                if (s == "-l")
                     Prefix = "http://localhost:11069";
-//            }
+            }
             if(Prefix == string.Empty)
                 Prefix = "http://" + GetIPv4Address() + ":11069";
             
@@ -96,13 +96,13 @@ namespace Server
             try
             {
                 string UID = Guid.NewGuid().ToString();
-                string targetIP = "192.168.0.103";
-                string target = "rafixwpt@protonmail.com";
+                string targetIP = "192.168.0.5";
+                string target = "mail.rafixwpt@gmail.com";
                 string sender = "cipa@protonmail.com";
                 string content = "TakiTamRandom";
                 Message msg = new Message(UID, sender, target, content);
                 CryptoRSA cryptoService = new CryptoRSA();
-                cryptoService.LoadRsaFromPublicKey("keys/rafixwpt@protonmail.com_Public.pem");
+                cryptoService.LoadRsaFromPublicKey("keys/mail.rafixwpt@gmail.com_Public.pem");
                 string encryptedChatMessage = cryptoService.PublicEncrypt(msg.GetJsonString(), cryptoService.PublicRSA);
                 ControlMessage message = new ControlMessage("SERVER", "CHAT_MESSAGE", encryptedChatMessage);
 

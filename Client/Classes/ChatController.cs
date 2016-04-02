@@ -24,6 +24,14 @@ namespace Client
             chatWindows.Remove(window);
         }
 
+        public static void CloseWindows()
+        {
+            foreach(ChatWindow window in chatWindows)
+            {
+                window.Close();
+            }
+        }
+
         public static void DeliverToChatWindow(ControlMessage message)
         {
             Message msg = new Message();

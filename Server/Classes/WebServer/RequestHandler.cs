@@ -202,6 +202,7 @@ namespace Server
         void ConnectionCheck(ControlMessage message, string sender, HttpListenerContext userToHandle)
         {
             string response;
+            string forceRelog = string.Empty;
             User user = UserControll.Instance.GetUserFromApplication(message.MessageSender);
 
             if (user != null)
@@ -209,16 +210,20 @@ namespace Server
                 user.UpdateLastConnectionCheck(DateTime.Now);
                 user.UpdateAddress(sender);
             }
+            else
+            {
+                forceRelog = "_RELOG";
+            }
 
             if (message.MessageType == "CHECK_CONNECTION" && message.MessageContent == "CONN_CHECK")
             {
-                response = "CONN_AVAIL";
+                response = "CONN_AVAIL" + forceRelog;
                 if(user != null)
                     user.UpdateStatus(UserStatus.Online);
             }
             else if(message.MessageType == "CHECK_CONNECTION" && message.MessageContent == "IDLE_CHECK")
             {
-                response = "CONN_AVAIL";
+                response = "CONN_AVAIL" + forceRelog;
                 if(user != null)
                     user.UpdateStatus(UserStatus.AFK);
             }
@@ -420,8 +425,9 @@ namespace Server
 
             messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
 
-            if (message.Checksum != Sha1Util.CalculateSha(messageContent))
+            if (message.Checksum != Sha1Util.CalculateSha(message.MessageContent))
             {
+                Console.WriteLine("bad checksum");
                 ControlMessage returnMessage = CreateInvalidResponseMessage(transcoder, transcoder.PublicRSA);
                 response = returnMessage.GetJsonString();
                 SendResponse(userToHandle, response);

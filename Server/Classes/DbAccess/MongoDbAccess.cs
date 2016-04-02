@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using CommunicatorCore.Classes;
 using MongoDB.Driver.Core.Clusters;
 
 namespace Server.Classes.DbAccess
 {
-   
     public class MongoDbAccess
     {
         private const string ConnectionString = "mongodb://localhost/";

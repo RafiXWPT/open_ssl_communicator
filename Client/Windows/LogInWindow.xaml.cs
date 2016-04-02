@@ -35,6 +35,15 @@ namespace Client
         public LogInWindow()
         {
             InitializeComponent();
+            connectionChecker = new ConnectionChecker();
+            networkController = new NetworkController();
+        }
+
+        public LogInWindow(ConnectionChecker connectionChecker)
+        {
+            InitializeComponent();
+            this.connectionChecker = connectionChecker;
+            networkController = new NetworkController();
         }
 
         void EstablishTunnelThread()
@@ -53,9 +62,6 @@ namespace Client
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            connectionChecker = new ConnectionChecker();
-            networkController = new NetworkController();
-
             connectionChecker.StartCheckConnection();
 
             EstablishTunnel();

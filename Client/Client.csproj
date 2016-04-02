@@ -105,10 +105,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Classes\ChatController.cs" />
+    <Compile Include="Classes\Contacts\DisplayContact.cs" />
     <Compile Include="Classes\IdleController.cs" />
-    <Compile Include="Classes\StatusController.cs" />
+    <Compile Include="Classes\Contacts\StatusController.cs" />
     <Compile Include="Windows\ChangePasswordWindow.xaml.cs">
       <DependentUpon>ChangePasswordWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\MessagesArchive.xaml.cs">
+      <DependentUpon>MessagesArchive.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\ResetPasswordWindow.xaml.cs">
       <DependentUpon>ResetPasswordWindow.xaml</DependentUpon>
@@ -135,6 +139,10 @@
       <DependentUpon>RegisterWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Windows\ChangePasswordWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\MessagesArchive.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -274,6 +282,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Image\return.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\statusAFK.png" />
+    <Resource Include="Image\statusOffline.png" />
+    <Resource Include="Image\statusOnline.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

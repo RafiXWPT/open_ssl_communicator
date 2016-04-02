@@ -20,7 +20,7 @@ namespace Client
             }
         }
 
-        private readonly HttpListener _listener = new HttpListener();
+        private HttpListener _listener = new HttpListener();
 
         string GetIPv4Address()
         {
@@ -36,17 +36,15 @@ namespace Client
         }
 
         public bool IsChatListening { get; set; }
-        ManualResetEvent listenintChat_event;
         Thread chatListener;
 
         public NetworkController()
         {
-            _instance = this;
+           _instance = this;
         }
 
         public void StartChatListener()
         {
-            listenintChat_event = new ManualResetEvent(false);
             chatListener = new Thread(Listening_thread);
             chatListener.IsBackground = true;
             IsChatListening = true;
@@ -56,7 +54,8 @@ namespace Client
         public void StopChatListener()
         {
             IsChatListening = false;
-            listenintChat_event.Set();
+            _listener.Stop();
+            _listener.Close();
         }
 
         void Listening_thread()
@@ -120,7 +119,7 @@ namespace Client
             }
             catch (Exception ex)
             {
-
+                MessageBox.Show(ex.ToString());
             }
 
             CloseResponseStream(context);
@@ -134,7 +133,7 @@ namespace Client
             }
             catch (Exception ex)
             {
-
+                MessageBox.Show(ex.ToString());
             }
         }
 

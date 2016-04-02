@@ -9,7 +9,7 @@ using System.Windows;
 using CommunicatorCore.Classes.Model;
 using Config;
 
-namespace Client.Classes
+namespace Client
 {
     public class StatusController
     {
@@ -20,9 +20,13 @@ namespace Client.Classes
         private readonly CryptoRSA _crypter;
         private readonly SymmetricCipher _cipher = new SymmetricCipher();
 
+        private static StatusController instance;
+        public static StatusController Instance { get { return instance; } }
+
         // FIXME: We have to put path to server key in one place
         public StatusController()
         {
+            instance = this;
             AutoResetEvent autoResetEvent = new AutoResetEvent(false);
             _timer = new Timer(CheckStatus, autoResetEvent, 0, 10000);
             _crypter = new CryptoRSA();
@@ -31,7 +35,7 @@ namespace Client.Classes
         }
 
         // This method is called by the _timer delegate.
-        public void CheckStatus(Object stateInfo)
+        public void CheckStatus(object stateInfo)
         {
             AutoResetEvent autoEvent = (AutoResetEvent)stateInfo;
             autoEvent.Set();
@@ -51,6 +55,8 @@ namespace Client.Classes
                     string reply = NetworkController.Instance.SendMessage(_contactsUriString, client, batchMessage);
                     HandleContactsStatusResponse(reply);
                 }
+
+                MainWindow.Instance.UpdateContactsStatus();
             }
 
         }
@@ -65,6 +71,10 @@ namespace Client.Classes
             UserConnectionStatusAggregator connectionStatusAggregator = new UserConnectionStatusAggregator();
             connectionStatusAggregator.LoadJson(decryptedContent);
             // Decrypted content contains jsons about user statuses
+            foreach(UserConnectionStatus status in connectionStatusAggregator.ConnectionStatus)
+            {
+                _connectionStatus.Find(x => x.Username == status.Username).ConnectionStatus = status.ConnectionStatus;
+            }
         }
 
         public void RemoveUser(string username)
@@ -75,6 +85,16 @@ namespace Client.Classes
         public void AddUser(string username)
         {
             _connectionStatus.Add(new UserConnectionStatus(username));
+        }
+
+        public string GetUserStatus(string username)
+        {
+            string status = "Offline";
+            string getStatus = _connectionStatus.Find(x => x.Username == username).ConnectionStatus;
+            if (getStatus != null)
+                status = getStatus;
+
+            return status;
         }
 
         public void ClearUsers()

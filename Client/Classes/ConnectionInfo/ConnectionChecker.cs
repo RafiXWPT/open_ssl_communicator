@@ -64,9 +64,16 @@ namespace Client
                         string response = NetworkController.Instance.SendMessage(uriString, client, message);
                         watch.Stop();
 
-                        if (response == "CONN_AVAIL")
+                        if (response.Contains("CONN_AVAIL"))
                         {
-                            ConnectionInfo.UpdateConnection(Convert.ToDouble(watch.ElapsedMilliseconds));
+                            if(response.Contains("_RELOG") && ConnectionInfo.isLogged)
+                            {
+                                MainWindow.Instance.RelogRequest();
+                            }
+                            else
+                            {
+                                ConnectionInfo.UpdateConnection(Convert.ToDouble(watch.ElapsedMilliseconds));
+                            }
                         }
                         else
                         {

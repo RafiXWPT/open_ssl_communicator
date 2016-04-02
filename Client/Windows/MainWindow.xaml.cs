@@ -9,7 +9,6 @@ using Client.Windows;
 using CommunicatorCore.Classes.Model;
 using Config;
 using System.Windows.Media.Imaging;
-using Client.Classes;
 
 namespace Client
 {
@@ -40,6 +39,7 @@ namespace Client
             _instance = this;
 
             InitializeComponent();
+            ConnectionInfo.isLogged = true;
             this.connectionChecker = connectionChecker;
             this._networkController = networkController;
             this.Title = "Crypto Talk - " + loggedUserName;
@@ -133,6 +133,33 @@ namespace Client
             latencyStatus.Source = image;
         }
 
+        public void RelogRequest()
+        {
+            Application.Current.Dispatcher.Invoke(() => relogRequest());
+        }
+
+        void relogRequest()
+        {
+            connectionChecker.StopCheckConnection();
+            _networkController.StopChatListener();
+            ChatController.CloseWindows();
+
+            LogInWindow window = new LogInWindow(connectionChecker);
+            ConnectionInfo.ResetInfo();
+            window.Show();
+            Close();
+        }
+
+        public void UpdateContactsStatus()
+        {
+            Application.Current.Dispatcher.Invoke(() => updateContactsStatus());
+        }
+
+        void updateContactsStatus()
+        {
+            ContactsData.Items.Refresh();
+        }
+
         public void AddContactToList(Contact contact, bool isEncrypted = false)
         {
             Application.Current.Dispatcher.Invoke( () => addContactToList(contact, isEncrypted));
@@ -149,7 +176,7 @@ namespace Client
                 string decodedDisplayName = decoder.Decode(contact.DisplayName, key, string.Empty);
                 if (Sha1Util.CalculateSha(ConnectionInfo.Sender + decodedTo) != contact.ContactChecksum)
                 {
-                    ContactsData.Items.Add(new Contact { To = "INVALID", DisplayName = "INVALID" });
+                    ContactsData.Items.Add(new DisplayContact("INVALID", "INVALID"));
                 }
                 else
                 {
@@ -166,7 +193,7 @@ namespace Client
         {
             if (!ItemAlreadyExist(to))
             {
-                ContactsData.Items.Add(new Contact { To = to, DisplayName = displayName });
+                ContactsData.Items.Add(new DisplayContact(to, displayName));
                 if (_statusController == null)
                 {
                     _statusController = new StatusController();
@@ -183,9 +210,9 @@ namespace Client
         {
             for (int i = 0; i < ContactsData.Items.Count; i++)
             {
-                Contact newContact = ContactsData.Items[i] as Contact;
-                if( newContact != null && newContact.To == to) {
-                    ContactsData.Items[i] = new Contact { To = to, DisplayName = decodedDisplayName};
+                DisplayContact newContact = ContactsData.Items[i] as DisplayContact;
+                if( newContact != null && newContact.ContactID == to) {
+                    ContactsData.Items[i] = new DisplayContact(to, decodedDisplayName);
                 }
             }
         }
@@ -194,8 +221,8 @@ namespace Client
         {
             for(int i = 0; i < ContactsData.Items.Count; i++) 
             {
-                Contact contact = ContactsData.Items[i] as Contact;
-                if (contact.To == to)
+                DisplayContact contact = ContactsData.Items[i] as DisplayContact;
+                if (contact.ContactID == to)
                     return true;
             }
             return false;
@@ -227,20 +254,20 @@ namespace Client
 
         private void ContactsData_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var selectedContact = ContactsData.SelectedItem as Contact;
+            var selectedContact = ContactsData.SelectedItem as DisplayContact;
             if (selectedContact != null)
             {
-                ChatWindow chatWindow = new ChatWindow(selectedContact.To, selectedContact.DisplayName);
+                ChatWindow chatWindow = new ChatWindow(selectedContact.ContactID, selectedContact.DisplayName);
                 chatWindow.Show();
             }
         }
 
         private void OnEditContactBtn_Click(object sender, RoutedEventArgs e)
         {
-            var selectedContact = ContactsData.SelectedItem as Contact;
+            var selectedContact = ContactsData.SelectedItem as DisplayContact;
             if (selectedContact != null)
             {
-                ContactWindow editContactWindow = new ContactWindow(selectedContact.To, selectedContact.DisplayName);
+                ContactWindow editContactWindow = new ContactWindow(selectedContact.ContactID, selectedContact.DisplayName);
                 editContactWindow.Show();
             }
         }
@@ -249,7 +276,7 @@ namespace Client
         {
             MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure?", "Delete Confirmation", MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes) { 
-                Contact selectedContact = ContactsData.SelectedItem as Contact;
+                DisplayContact selectedContact = ContactsData.SelectedItem as DisplayContact;
                 int selectedItemIndex = ContactsData.SelectedIndex;
                 if( selectedContact != null ) {
                     CryptoRSA cryptoService = new CryptoRSA();
@@ -259,8 +286,8 @@ namespace Client
                     SymmetricCipher cipher = new SymmetricCipher();
                     string token = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
 
-                    Contact contact = new Contact(ConnectionInfo.Sender, selectedContact.To, selectedContact.DisplayName);
-                    contact.CipheredTo = cipher.Encode(selectedContact.To, token, string.Empty);
+                    Contact contact = new Contact(ConnectionInfo.Sender, selectedContact.ContactID, selectedContact.DisplayName);
+                    contact.CipheredTo = cipher.Encode(selectedContact.ContactID, token, string.Empty);
                     contact.DisplayName = cipher.Encode(selectedContact.DisplayName, token, string.Empty);
 
                     string plainMessage = contact.GetJsonString();
@@ -325,6 +352,12 @@ namespace Client
         {
             ContactsData.UnselectAll();
             ContactActionPanel.Visibility = Visibility.Hidden;
+        }
+
+        private void Archive_Click(object sender, RoutedEventArgs e)
+        {
+            MessagesArchive archive = new MessagesArchive();
+            archive.Show();
         }
     }
 }

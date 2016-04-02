@@ -95,7 +95,7 @@ namespace Server
             ServerLogger.LogMessage("Cleaning Users...");
             Parallel.ForEach(_users, (obj) =>
             {
-                if((obj.IsTemporary && (DateTime.Now - obj.LastConCheck()).TotalMinutes > 1) || (!obj.IsTemporary && (DateTime.Now - obj.LastConCheck()).TotalMinutes > 3))
+                if((obj.IsTemporary && (DateTime.Now - obj.LastConCheck()).TotalMinutes > 1) || (!obj.IsTemporary && (DateTime.Now - obj.LastConCheck()).TotalSeconds > 20))
                 {
                     ServerLogger.LogMessage("Clearing User: " + obj.Name + " because of idle time.");
                     _users.Remove(obj);

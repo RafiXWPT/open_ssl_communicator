@@ -1,0 +1,38 @@
+﻿<Window x:Class="Client.Windows.MessagesArchive"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Client.Windows"
+        mc:Ignorable="d"
+        Title="Crypto Talk - Archive" Height="300" MinHeight="300" Width="500" MinWidth="500" Icon="/Client;component/Image/programIcon.ico" WindowStartupLocation="CenterScreen" Background="#FFEBE1D2">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="7*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" Margin="10,10,5,10">
+            <DataGrid x:Name="contactsData" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Path=DisplayName}" Header="Nick Name" IsReadOnly="True" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <Grid Grid.Column="1" Margin="5,10,10,10">
+            <ListBox x:Name="messagesList" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{Binding Path=UserName}"/>
+                            <TextBlock Text="{Binding Path=MessageContent}" TextWrapping="Wrap"/>
+                            <!-- <Image Width="20" Height="20" Stretch="Fill" Margin="0,0,10,5" HorizontalAlignment="Right" Source="{Binding Path=MessageStatus}"/> -->
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+        
+    </Grid>
+</Window>

@@ -12,9 +12,7 @@ namespace CommunicatorCore.Classes.Model
         public string MessageCipheredContent { get; set; }
         public DateTime MessageDate { get; set; }
 
-        public Message(string uid, string sender, string destination, string content): this(uid, sender, destination,content, content)
-        {
-        }
+        public Message(string uid, string sender, string destination, string content): this(uid, sender, destination, content, content) { }
 
         public Message(string uid, string sender, string destination, string content, string messageCipheredContent)
         {
