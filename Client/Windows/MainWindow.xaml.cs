@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,7 +30,7 @@ namespace Client
 
         public static MainWindow Instance { get { return _instance; } }
 
-        private ConnectionChecker connectionChecker;
+        private readonly ConnectionChecker _connectionChecker;
         private readonly NetworkController _networkController;
         private StatusController _statusController;
 
@@ -40,7 +41,7 @@ namespace Client
 
             InitializeComponent();
             ConnectionInfo.isLogged = true;
-            this.connectionChecker = connectionChecker;
+            this._connectionChecker = connectionChecker;
             this._networkController = networkController;
             this.Title = "Crypto Talk - " + loggedUserName;
         }
@@ -73,7 +74,7 @@ namespace Client
         {
             if (!AreKeysInitialized())
             {
-                MessageBox.Show("Load keys at first");
+                ShowKeysUnloadedBox();
             }
             else
             {
@@ -140,11 +141,11 @@ namespace Client
 
         void relogRequest()
         {
-            connectionChecker.StopCheckConnection();
+            _connectionChecker.StopCheckConnection();
             _networkController.StopChatListener();
             ChatController.CloseWindows();
 
-            LogInWindow window = new LogInWindow(connectionChecker);
+            LogInWindow window = new LogInWindow(_connectionChecker);
             ConnectionInfo.ResetInfo();
             window.Show();
             Close();
@@ -243,7 +244,7 @@ namespace Client
             }
             else
             {
-                MessageBox.Show("Load you keys at first");
+                ShowKeysUnloadedBox();
             }
         }
 
@@ -332,8 +333,14 @@ namespace Client
 
         private void ChangePasswordMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            ChangePasswordWindow window = new ChangePasswordWindow();
-            window.Show();
+            if (!AreKeysInitialized())
+            {
+                ShowKeysUnloadedBox();
+            }
+            else { 
+                ChangePasswordWindow window = new ChangePasswordWindow();
+                window.Show();
+            }
         }
 
         private void ClearContacts_Click(object sender, RoutedEventArgs e)
@@ -344,7 +351,7 @@ namespace Client
         private void ExitApplication_Click(object sender, RoutedEventArgs e)
         {
             _networkController.StopChatListener();
-            connectionChecker.StopCheckConnection();
+            _connectionChecker.StopCheckConnection();
             Close();
         }
 
@@ -354,10 +361,27 @@ namespace Client
             ContactActionPanel.Visibility = Visibility.Hidden;
         }
 
+        // I think this should be changed to more optimal form
         private void Archive_Click(object sender, RoutedEventArgs e)
         {
-            MessagesArchive archive = new MessagesArchive();
-            archive.Show();
+            if (!AreKeysInitialized())
+            {
+                ShowKeysUnloadedBox();
+            }
+            else { 
+                List<DisplayContact> contacts = new List<DisplayContact>();
+                foreach (var contact in ContactsData.Items)
+                {
+                    contacts.Add(contact as DisplayContact);
+                }
+                MessagesArchive archive = new MessagesArchive(contacts);
+                archive.Show();
+            }
+        }
+
+        private void ShowKeysUnloadedBox()
+        {
+            MessageBox.Show("Load keys at first!");
         }
     }
 }

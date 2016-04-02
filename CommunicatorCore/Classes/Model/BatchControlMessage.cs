@@ -14,7 +14,6 @@ namespace CommunicatorCore.Classes.Model
 
         public BatchControlMessage()
         {
-            
         }
 
         public BatchControlMessage(ControlMessage message, string key)

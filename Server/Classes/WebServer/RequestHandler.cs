@@ -12,6 +12,8 @@ using System.Threading;
 using OpenSSL.Crypto;
 using System.Collections.Specialized;
 using CommunicatorCore.Classes.Exceptions;
+using CommunicatorCore.Classes.Service;
+using Server;
 
 namespace Server
 {
@@ -31,6 +33,11 @@ namespace Server
                 {
                     BatchControlMessage batchControlMessage = ParseBatchMessageContent(messageContent);
                     HandleContactStatusMessage(batchControlMessage, userToHandle);
+                }
+                else if (wantedUrl == "/messageHistory/")
+                {
+                    BatchControlMessage batchControlMessage = ParseBatchMessageContent(messageContent);
+                    HandleMessageHistory(batchControlMessage, userToHandle);
                 }
                 else { 
                     ControlMessage message = ParseMessageContent(messageContent);
@@ -53,9 +60,6 @@ namespace Server
                             break;
                         case "/contacts/":
                             HandleContactMessage(message, userToHandle);
-                            break;
-                        case "/history/":
-                            HandleMessageHistory(message, userToHandle);
                             break;
                         case "/password/":
                             HandlePasswordMessage(message, userToHandle);
@@ -84,7 +88,7 @@ namespace Server
             if (message.Checksum != Sha1Util.CalculateSha(decryptedMessageContent))
             {
                 ServerLogger.LogMessage(decryptedMessageContent);
-                returnMessage = CreateInvalidBatchResponseMessage(crypter, crypter.PublicRSA);
+                returnMessage = ControlMessageParser.CreateInvalidBatchResponseMessage(crypter, cipher, MESSAGE_SENDER);
             }
             else if (message.MessageType == "CONTACT_STATUS")
             {
@@ -96,11 +100,8 @@ namespace Server
                     userConnectionStatus.ConnectionStatus =
                         UserControll.Instance.GetUserStatus(userConnectionStatus.Username).ToString();
                 }
-                string messageContent = aggregator.GetJsonString();
-                string cipheredReturnMessageContent = cipher.Encode(messageContent, decryptedMessageKey, string.Empty);
-                ControlMessage returnControlMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_STATUS_OK", messageContent, cipheredReturnMessageContent);
-                string cipheredKey = crypter.PublicEncrypt(decryptedMessageKey);
-                returnMessage = new BatchControlMessage(returnControlMessage, cipheredKey);
+                returnMessage = ControlMessageParser.CreateResponseBatchMessage(crypter, cipher, MESSAGE_SENDER,
+                    "CONTACT_STATUS_OK", aggregator);
             }
             else
             {
@@ -110,13 +111,6 @@ namespace Server
             SendResponse(userToHandle, returnMessage.GetJsonString());
         }
 
-        private BatchControlMessage CreateInvalidBatchResponseMessage(CryptoRSA crypter, RSA publicRsa)
-        {
-            BatchControlMessage invalidBatchControlMessage = new BatchControlMessage();
-            invalidBatchControlMessage.ControlMessage = CreateInvalidResponseMessage(crypter, publicRsa);
-            invalidBatchControlMessage.CipheredKey = string.Empty;
-            return invalidBatchControlMessage;
-        }
 
         private BatchControlMessage ParseBatchMessageContent(string messageContent)
         {
@@ -127,7 +121,7 @@ namespace Server
 
         private void HandlePasswordMessage(ControlMessage message, HttpListenerContext userToHandle)
         {
-            ControlMessage returnMessage;
+            INetworkMessage returnMessage;
             string returnMessageContent = string.Empty;
             CryptoRSA crypter = GetUserServerCrypter(message.MessageSender);
             string decryptedMessageContent = crypter.PrivateDecrypt(message.MessageContent);
@@ -135,7 +129,7 @@ namespace Server
             if (message.Checksum != Sha1Util.CalculateSha(decryptedMessageContent))
             {
                 ServerLogger.LogMessage(decryptedMessageContent);
-                returnMessage = CreateInvalidResponseMessage(crypter, crypter.PublicRSA);
+                returnMessage = ControlMessageParser.CreateInvalidResponseMessage(crypter, MESSAGE_SENDER);
             }
             else if (message.MessageType == "CHANGE_PASSWORD")
             {
@@ -161,8 +155,8 @@ namespace Server
                     UserControll.Instance.UpdateUser(updatedUserPassword);
                     messageContent = "CHANGE_OK";
                 }
-                string encryptedMessageContent = crypter.PublicEncrypt(messageContent, crypter.PublicRSA);
-                returnMessage = new ControlMessage(MESSAGE_SENDER, "CHANGE_PASSWORD", messageContent, encryptedMessageContent);
+                returnMessage = ControlMessageParser.CreateResponseControlMessage(crypter, MESSAGE_SENDER,
+                    "CHANGE_PASSWORD", messageContent);
             }
             else if (message.MessageType == "TOKEN_VALIDATE")
             {
@@ -172,9 +166,8 @@ namespace Server
                 string messageContent = UserControll.Instance.IsTokenValid(userTokenDto)
                     ? "TOKEN_VALIDATE_OK"
                     : "TOKEN_INVALID";
-                string encryptedMessageContent = crypter.PublicEncrypt(messageContent);
-                returnMessage = new ControlMessage(MESSAGE_SENDER, "TOKEN_VALIDATE", messageContent,
-                    encryptedMessageContent);
+                returnMessage = ControlMessageParser.CreateResponseControlMessage(crypter, MESSAGE_SENDER,
+                    "TOKEN_VALIDATE", messageContent);
             }
             else
             {
@@ -291,7 +284,6 @@ namespace Server
 
         void Register(ControlMessage message, HttpListenerContext userToHandle)
         {
-            string response = string.Empty;
             User user = UserControll.Instance.GetUserFromApplication(message.MessageSender);
 
             if (user != null)
@@ -299,19 +291,17 @@ namespace Server
                 ServerLogger.LogMessage(message.MessageSender + " is about to register.");
                 UserPasswordData userPasswordData = new UserPasswordData();
                 userPasswordData.LoadJson(user.Tunnel.DiffieDecrypt(message.MessageContent));
-                ControlMessage controlMessage;
 
-                string responseContent;
+                string plainContent = string.Empty;
+                string returnMessageType = string.Empty;
 
                 if (message.MessageType == "REGISTER_ME")
                 {
                     if (UserControll.Instance.CheckIfUserExist(userPasswordData.Username))
                     {
                         ServerLogger.LogMessage("Requested user already exist.");
-                        responseContent = user.Tunnel.DiffieEncrypt("REGISTER_INVALID");
-
-                        controlMessage = new ControlMessage(MESSAGE_SENDER, "REGISTER_INFO", responseContent);
-                        response = controlMessage.GetJsonString();
+                        returnMessageType = "REGISTER_INFO";
+                        plainContent = "REGISTER_INVALID";
                    }
                     else
                     {
@@ -323,9 +313,8 @@ namespace Server
                         EmailMessage emailMessage = new EmailMessage("Crypto Talk Registration", emailContent, userPasswordData.Username);
                         emailMessage.Send(true);
 
-                        responseContent = user.Tunnel.DiffieEncrypt("REGISTER_OK");
-                        controlMessage = new ControlMessage(MESSAGE_SENDER, "REGISTER_INFO", responseContent);
-                        response = controlMessage.GetJsonString();
+                        returnMessageType = "REGISTER_INFO";
+                        plainContent = "REGISTER_OK";
 
                         ServerLogger.LogMessage("User added to database, registration succesfull");
                     }
@@ -336,9 +325,8 @@ namespace Server
                     {
                         ServerLogger.LogMessage(message.MessageSender + " is trying to reset password of user: " +
                                                 userPasswordData.Username + " which does not exist");
-                        responseContent = user.Tunnel.DiffieEncrypt("RESET_INVALID");
-                        controlMessage = new ControlMessage(MESSAGE_SENDER, "RESET_PASSWORD", responseContent);
-                        response = controlMessage.GetJsonString();
+                        returnMessageType = "RESET_PASSWORD";
+                        plainContent = "RESET_INVALID";
                     }
                     else
                     {
@@ -349,13 +337,17 @@ namespace Server
                         string emailContent = "Your new generated password is: " + generatedPassword;
                         EmailMessage emailMessage = new EmailMessage("Crypto Talk Password Reset", emailContent, userPasswordData.Username);
                         emailMessage.Send();
-                        responseContent = user.Tunnel.DiffieEncrypt("RESET_OK");
-                        controlMessage = new ControlMessage(MESSAGE_SENDER, "RESET_PASSWORD", responseContent);
-                        response = controlMessage.GetJsonString();
+
+                        returnMessageType = "RESET_PASSWORD";
+                        plainContent = "RESET_OK";
+
                         ServerLogger.LogMessage(userPasswordData.Username + " password reset ended successfully.");
                     }
                 }
-                SendResponse(userToHandle, response);
+                INetworkMessage returnedControlMessage = ControlMessageParser.CreateResponseControlMessage(user.Tunnel,
+                    MESSAGE_SENDER, returnMessageType, plainContent);
+
+                SendResponse(userToHandle, returnedControlMessage.GetJsonString());
             }
         }
 
@@ -417,18 +409,19 @@ namespace Server
         {
             Console.WriteLine("sender: " + userToHandle.Request.RemoteEndPoint);
             string response = string.Empty;
-            string messageContent = string.Empty;
+            
             Message chatMessage = new Message();
             CryptoRSA transcoder = new CryptoRSA();
             transcoder.LoadRsaFromPrivateKey(SERVER_PRIVATE_KEY);
             transcoder.LoadRsaFromPublicKey("keys/" + message.MessageSender + "_Public.pem");
 
-            messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
+            string messageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
 
             if (message.Checksum != Sha1Util.CalculateSha(message.MessageContent))
             {
                 Console.WriteLine("bad checksum");
-                ControlMessage returnMessage = CreateInvalidResponseMessage(transcoder, transcoder.PublicRSA);
+                ControlMessage returnMessage = ControlMessageParser.CreateInvalidResponseMessage(transcoder,
+                    MESSAGE_SENDER);
                 response = returnMessage.GetJsonString();
                 SendResponse(userToHandle, response);
             }
@@ -480,9 +473,8 @@ namespace Server
                 {
                     response = "RECEIVED";
                     SendResponse(userToHandle, response);
-
-                    bool status = TunnelChatMessage(chatMessage, user.GetAddress());
-                    if(status)
+                    
+                    if( TunnelChatMessage(chatMessage, user.GetAddress()) )
                     {
                         Message delvmsg = new Message(chatMessage.MessageUID, destination, message.MessageSender, "DELIVERED");
                         TunnelChatMessage(delvmsg, UserControll.Instance.GetUserFromApplication(message.MessageSender).GetAddress());
@@ -500,7 +492,6 @@ namespace Server
             string encryptedChatMessage = cryptoService.PublicEncrypt(message.GetJsonString(), cryptoService.PublicRSA);
             ControlMessage msg = new ControlMessage("SERVER", "CHAT_MESSAGE", encryptedChatMessage);
 
-            string responseString = string.Empty;
             NameValueCollection headers = new NameValueCollection();
             NameValueCollection data = new NameValueCollection();
 
@@ -513,10 +504,10 @@ namespace Server
                     client.Headers.Add(headers);
                     data["DateTime"] = DateTime.Now.ToShortDateString();
                     byte[] responseByte = client.UploadValues(uri, "POST", data);
-                    responseString = Encoding.UTF8.GetString(responseByte);
+                    string responseString = Encoding.UTF8.GetString(responseByte);
+                    return responseString == "RECEIVED";
                 }
-
-                return responseString == "RECEIVED";
+                
             }
             catch(Exception ex)
             {
@@ -527,56 +518,51 @@ namespace Server
 
         private void HandleContactMessage(ControlMessage message, HttpListenerContext userToHandle)
         {
-            string response = string.Empty;
-            ControlMessage returnMessage;
+            INetworkMessage returnMessage;
             CryptoRSA transcoder = GetUserServerCrypter(message.MessageSender);
 
             string decryptedMessageContent = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
             if (Sha1Util.CalculateSha(decryptedMessageContent) != message.Checksum)
             {
-                returnMessage = CreateInvalidResponseMessage(transcoder, transcoder.PublicRSA);
-                response = returnMessage.GetJsonString();
+                returnMessage = ControlMessageParser.CreateInvalidResponseMessage(transcoder, MESSAGE_SENDER);
             }
             else if (message.MessageType == "CONTACT_INSERT" || message.MessageType == "CONTACT_UPDATE")
             {
                 Contact contact = new Contact();
                 contact.LoadJson(decryptedMessageContent);
+
+                string plainResponse;
+                string responseMessageType;
+
                 if (!UserControll.Instance.CheckIfUserExist(contact.To))
                 {
-                    string userDoesNotExistResponse = "User does not exist";
-                    string encryptedMessage = transcoder.PublicEncrypt(userDoesNotExistResponse, transcoder.PublicRSA);
-                    returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_USER_NOT_EXIST", userDoesNotExistResponse, encryptedMessage);
+                    plainResponse = "User does not exist";
+                    responseMessageType = "CONTACT_INSERT_USER_NOT_EXIST";
                 }
                 else if (ContactControl.Instance.CheckIfContactExist(contact) && message.MessageType == "CONTACT_INSERT")
                 {
-                    string contactAlreadyExists = "Contact already exists";
-                    string encryptedMessage = transcoder.PublicEncrypt(contactAlreadyExists, transcoder.PublicRSA);
-                    returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_ALREADY_EXIST", contactAlreadyExists, encryptedMessage);
+                    plainResponse = "Contact already exists";
+                    responseMessageType = "CONTACT_INSERT_ALREADY_EXIST";
                 }
                 else
                 {
-                    string userInsertSuccessfullyMessage = "Successfully added user to contacts";
+                    plainResponse = "Successfully added user to contacts";
+                    responseMessageType = "CONTACT_INSERT_SUCCESS";
                     ContactControl.Instance.UpsertContact(contact);
-                    string encryptedMessage = transcoder.PublicEncrypt(userInsertSuccessfullyMessage, transcoder.PublicRSA);
-                    returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_INSERT_SUCCESS", userInsertSuccessfullyMessage, encryptedMessage);
                 }
-                response = returnMessage.GetJsonString();
+                returnMessage = ControlMessageParser.CreateResponseControlMessage(transcoder, MESSAGE_SENDER,
+                    responseMessageType, plainResponse);
             }
             else if (message.MessageType == "CONTACT_GET")
             {
                 ServerLogger.LogMessage("User: " + message.MessageSender + " is trying to get his contacts");
                 List<Contact> contacts = ContactControl.Instance.GetContacts(message.MessageSender);
                 ContactAggregator aggregator = new ContactAggregator(contacts);
-                string contactsJson = aggregator.GetJsonString();
-
+            
                 SymmetricCipher cipher = new SymmetricCipher();
-                string oneTimePass = Guid.NewGuid().ToString();
-                string contactsEncryptedByAes = cipher.Encode(contactsJson, oneTimePass, string.Empty);
-                string encryptedAesKey = transcoder.PublicEncrypt(oneTimePass, transcoder.PublicRSA);
-                
-                returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_GET_OK", contactsJson, contactsEncryptedByAes);
-                BatchControlMessage batchControlMessage = new BatchControlMessage(returnMessage, encryptedAesKey);
-                response = batchControlMessage.GetJsonString();
+            
+                returnMessage = ControlMessageParser.CreateResponseBatchMessage(transcoder, cipher, MESSAGE_SENDER,
+                    "CONTACT_GET_OK", aggregator);
             }
             else if (message.MessageType == "CONTACT_DELETE")
             {
@@ -586,46 +572,57 @@ namespace Server
                 ContactControl.Instance.DeleteContact(contact);
 
                 string userDeletedSuccessfullyMessage = "Contact deleted successfully";
-                string cipheredMessage = transcoder.PublicEncrypt(userDeletedSuccessfullyMessage, transcoder.PublicRSA);
-                returnMessage = new ControlMessage(MESSAGE_SENDER, "CONTACT_REMOVE_OK", userDeletedSuccessfullyMessage, cipheredMessage);
-                response = returnMessage.GetJsonString();
+                returnMessage = ControlMessageParser.CreateResponseControlMessage(transcoder, MESSAGE_SENDER,
+                    "CONTACT_REMOVE_OK", userDeletedSuccessfullyMessage);
             }
             else
             {
                 throw new NotImplementedException("Message type not yet supported");
             }
 
-            SendResponse(userToHandle, response);
+            SendResponse(userToHandle, returnMessage.GetJsonString());
         }
 
-        private ControlMessage CreateInvalidResponseMessage(CryptoRSA transcoder, RSA publicRsa)
+        // We'll always receive BatchControllMessage to preserve consistency
+        void HandleMessageHistory(BatchControlMessage message, HttpListenerContext userToHandle)
         {
-            const string invalidMessage = "INVALID_CHECKSUM";
-            return new ControlMessage(MESSAGE_SENDER, "INVALID", invalidMessage, transcoder.PublicEncrypt(invalidMessage, publicRsa));
-        }
+            ControlMessage receivedControlMessage = message.ControlMessage;
+            SymmetricCipher cipher = new SymmetricCipher();
+            CryptoRSA transcoder = GetUserServerCrypter(receivedControlMessage.MessageSender);
 
-        void HandleMessageHistory(ControlMessage message, HttpListenerContext userToHandle)
-        {
-			string response = String.Empty;
-            ControlMessage responseMessage;
-            CryptoRSA transcoder = GetUserServerCrypter(message.MessageSender);
+            INetworkMessage responseMessage;
+            
 
-            string decryptedMessage = transcoder.PrivateDecrypt(message.MessageContent, transcoder.PrivateRSA);
-            if (decryptedMessage != message.Checksum)
+            string decryptedKey = transcoder.PrivateDecrypt(message.CipheredKey);
+            string decryptedMessage = cipher.Decode(receivedControlMessage.MessageContent, decryptedKey, string.Empty);
+            ServerLogger.LogMessage(decryptedMessage);
+            if (Sha1Util.CalculateSha(decryptedMessage) != receivedControlMessage.Checksum)
             {
-                responseMessage = CreateInvalidResponseMessage(transcoder, transcoder.PrivateRSA);
+                responseMessage = ControlMessageParser.CreateInvalidBatchResponseMessage(transcoder, cipher, MESSAGE_SENDER);
             }
-            else { 
+            else if( receivedControlMessage.MessageType == "MESSAGE_SAVE") { 
+                ServerLogger.LogMessage(receivedControlMessage.MessageSender + " is about to save his contact history");
+                MessageAggregator messageAggregator = new MessageAggregator();
+                messageAggregator.LoadJson(decryptedMessage);
+                MessageControl.Instance.InsertMessages(messageAggregator.Messages);
+
+                responseMessage = ControlMessageParser.CreateResponseControlMessage(transcoder, MESSAGE_SENDER, "MESSAGE_SAVE", "MESSAGE_SAVE_OK");
+            }
+            else if (receivedControlMessage.MessageType == "MESSAGE_GET")
+            {
+                ServerLogger.LogMessage(receivedControlMessage.MessageSender + " is about to get his history");
                 Contact contact = new Contact();
                 contact.LoadJson(decryptedMessage);
-                List<Message> messagesHistory = MessageControl.Instance.GetMessages(contact);
-                MessageHistoryAggregator historyAggregator = new MessageHistoryAggregator(messagesHistory);
-                string plainMessageContent = historyAggregator.GetJsonString();
-                string encryptedMessageContent = transcoder.PublicEncrypt(plainMessageContent, transcoder.PublicRSA);
-                responseMessage = new ControlMessage(MESSAGE_SENDER, "HISTORY_OK", plainMessageContent, encryptedMessageContent);
+                List<Message> historicalMessages = MessageControl.Instance.GetMessages(contact);
+                MessageAggregator messageAggregator = new MessageAggregator(historicalMessages);
+                responseMessage = ControlMessageParser.CreateResponseBatchMessage(transcoder, cipher, MESSAGE_SENDER,
+                    "MESSAGE_GET_OK", messageAggregator);
             }
-            response = responseMessage.GetJsonString();
-            SendResponse(userToHandle, response);
+            else
+            {
+                throw new NotImplementedException(receivedControlMessage.MessageType + " is not yet implemented");
+            }
+            SendResponse(userToHandle, responseMessage.GetJsonString());
         }
 
         void SendResponse(HttpListenerContext context, string response)

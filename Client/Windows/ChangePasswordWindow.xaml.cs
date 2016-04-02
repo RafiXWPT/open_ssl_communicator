@@ -20,45 +20,33 @@ namespace Client.Windows
 
         private void ChangePasswordButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!AreKeysInitialized())
+            if(!RegisterFormatValidator.IsPasswordValid(ConfirmPasswordBox.Password))
             {
-                MessageBox.Show("Load your keys at first!");
+                MessageBox.Show("Password is not secure, try different one.");
+                return;
             }
-            else
+            if (PasswordBox.Password != ConfirmPasswordBox.Password)
             {
-                if(!RegisterFormatValidator.IsPasswordValid(ConfirmPasswordBox.Password))
-                {
-                    MessageBox.Show("Password is not secure, try different one.");
-                    return;
-                }
-                if (PasswordBox.Password != ConfirmPasswordBox.Password)
-                {
-                    MessageBox.Show("Passwords are different.");
-                    return;
-                }
-
-                ChangePasswordDTO changePasswordDto = new ChangePasswordDTO(ConnectionInfo.Sender, CurrentPasswordBox.Password, ConfirmPasswordBox.Password);
-
-                CryptoRSA cryptoService = new CryptoRSA();
-                cryptoService.LoadRsaFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
-                cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
-
-                string plainMessage = changePasswordDto.GetJsonString();
-                string encryptedMessage = cryptoService.PublicEncrypt(plainMessage, cryptoService.PublicRSA);
-
-                ControlMessage contactsRequestMessage = new ControlMessage(ConnectionInfo.Sender, "CHANGE_PASSWORD", plainMessage, encryptedMessage);
-                using (WebClient client = new WebClient())
-                {
-                    client.Proxy = null;
-                    string reply = NetworkController.Instance.SendMessage(_passwordChangeUrl, client, contactsRequestMessage);
-                    HandlePasswordResponse(reply, cryptoService);
-                }
+                MessageBox.Show("Passwords are different.");
+                return;
             }
-        }
 
-        private bool AreKeysInitialized()
-        {
-            return ConfigurationHandler.HasValueOnKey("PATH_TO_PRIVATE_KEY");
+            ChangePasswordDTO changePasswordDto = new ChangePasswordDTO(ConnectionInfo.Sender, CurrentPasswordBox.Password, ConfirmPasswordBox.Password);
+
+            CryptoRSA cryptoService = new CryptoRSA();
+            cryptoService.LoadRsaFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
+            cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
+
+            string plainMessage = changePasswordDto.GetJsonString();
+            string encryptedMessage = cryptoService.PublicEncrypt(plainMessage, cryptoService.PublicRSA);
+
+            ControlMessage contactsRequestMessage = new ControlMessage(ConnectionInfo.Sender, "CHANGE_PASSWORD", plainMessage, encryptedMessage);
+            using (WebClient client = new WebClient())
+            {
+                client.Proxy = null;
+                string reply = NetworkController.Instance.SendMessage(_passwordChangeUrl, client, contactsRequestMessage);
+                HandlePasswordResponse(reply, cryptoService);
+            }
         }
 
         private void HandlePasswordResponse(string reply, CryptoRSA cryptoService)

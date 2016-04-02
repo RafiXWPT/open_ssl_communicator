@@ -67,10 +67,11 @@
     <Compile Include="Classes\Model\ControlMessage.cs" />
     <Compile Include="Classes\Model\INetworkMessage.cs" />
     <Compile Include="Classes\Model\Message.cs" />
-    <Compile Include="Classes\Model\MessageHistoryAggregator.cs" />
+    <Compile Include="Classes\Model\MessageAggregator.cs" />
     <Compile Include="Classes\Model\UserConnectionStatus.cs" />
     <Compile Include="Classes\Model\UserConnectionStatusAggregator.cs" />
     <Compile Include="Classes\Model\UserTokenDto.cs" />
+    <Compile Include="Classes\Service\ControlMessageParser.cs" />
     <Compile Include="Classes\Service\Sha1Util.cs" />
     <Compile Include="Classes\Service\SymmetricCipher.cs" />
     <Compile Include="Classes\Model\UserPasswordData.cs" />

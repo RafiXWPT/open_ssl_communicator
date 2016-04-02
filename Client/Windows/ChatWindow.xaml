@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
 
 
-        <ListBox x:Name="ListBox" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,10,2" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
+        <ListBox x:Name="ChatMessagesListBox" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,10,2" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">

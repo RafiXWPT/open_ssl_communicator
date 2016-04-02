@@ -20,7 +20,7 @@ namespace Client
             }
         }
 
-        private HttpListener _listener = new HttpListener();
+        private readonly HttpListener _listener = new HttpListener();
 
         string GetIPv4Address()
         {
@@ -36,7 +36,7 @@ namespace Client
         }
 
         public bool IsChatListening { get; set; }
-        Thread chatListener;
+        Thread _chatListener;
 
         public NetworkController()
         {
@@ -45,10 +45,10 @@ namespace Client
 
         public void StartChatListener()
         {
-            chatListener = new Thread(Listening_thread);
-            chatListener.IsBackground = true;
+            _chatListener = new Thread(Listening_thread);
+            _chatListener.IsBackground = true;
             IsChatListening = true;
-            chatListener.Start();
+            _chatListener.Start();
         }
 
         public void StopChatListener()
@@ -60,7 +60,7 @@ namespace Client
 
         void Listening_thread()
         {
-            _listener.Prefixes.Add("http://"+GetIPv4Address()+":11070/chatMessage/");
+            _listener.Prefixes.Add("http://" + GetIPv4Address() + ":11070/chatMessage/");
             _listener.Start();
             RunChatService(); 
         }
@@ -153,8 +153,9 @@ namespace Client
         {
             NameValueCollection headers = new NameValueCollection();
 
-            if (client.Headers.Count > 0)
+            if (client.Headers.Count > 0) { 
                 client.Headers.Clear();
+            }
 
             headers["messageContent"] = message.GetJsonString();
             client.Headers.Add(headers);

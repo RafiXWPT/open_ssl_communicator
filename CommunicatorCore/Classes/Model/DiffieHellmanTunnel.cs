@@ -17,20 +17,20 @@ namespace CommunicatorCore.Classes.Model
 
         public DiffieHellmanTunnelStatus Status { get; set; }
 
-        ECDiffieHellmanCng diffie = new ECDiffieHellmanCng();
+        private readonly ECDiffieHellmanCng _diffie = new ECDiffieHellmanCng();
 
         public DiffieHellmanTunnel()
         {
-            diffie.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
-            diffie.HashAlgorithm = CngAlgorithm.Sha256;
-            PublicKey = diffie.PublicKey.ToByteArray();
+            _diffie.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
+            _diffie.HashAlgorithm = CngAlgorithm.Sha256;
+            PublicKey = _diffie.PublicKey.ToByteArray();
             Status = DiffieHellmanTunnelStatus.NOT_ESTABLISHED;
         }
 
         public void CreateKey(string publicPart)
         {
             byte[] bytePublicPart = Convert.FromBase64String(publicPart);
-            TunnelKey = diffie.DeriveKeyMaterial(CngKey.Import(bytePublicPart, CngKeyBlobFormat.EccPublicBlob));
+            TunnelKey = _diffie.DeriveKeyMaterial(CngKey.Import(bytePublicPart, CngKeyBlobFormat.EccPublicBlob));
             aes.Key = TunnelKey;
         }
 

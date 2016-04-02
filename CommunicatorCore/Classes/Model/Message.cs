@@ -11,17 +11,26 @@ namespace CommunicatorCore.Classes.Model
         public string MessageContent { get; set; }
         public string MessageCipheredContent { get; set; }
         public DateTime MessageDate { get; set; }
+        public string Checksum { get; set; }
 
         public Message(string uid, string sender, string destination, string content): this(uid, sender, destination, content, content) { }
 
         public Message(string uid, string sender, string destination, string content, string messageCipheredContent)
+            : this(uid, sender, destination, content, messageCipheredContent, DateTime.Now)
+        {
+        }
+
+
+        public Message(string uid, string sender, string destination, string content, string messageCipheredContent,
+            DateTime datetime)
         {
             this.MessageUID = uid;
             this.MessageSender = sender;
             this.MessageDestination = destination;
             this.MessageContent = content;
             this.MessageCipheredContent = messageCipheredContent;
-            this.MessageDate = DateTime.Now;
+            this.MessageDate = datetime;
+            this.Checksum = Sha1Util.CalculateSha(content);
         }
 
         public Message() { }

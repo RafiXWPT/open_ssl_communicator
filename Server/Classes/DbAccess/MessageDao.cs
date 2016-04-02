@@ -14,16 +14,30 @@ namespace Server.Classes.DbAccess
     {
         public void InsertMessage(Message message)
         {
-            BsonDocument messageDocument = new BsonDocument
+            BsonDocument messageDocument = createBsonDocument(message);
+            IMongoCollection<BsonDocument> messageCollection = MongoDbAccess.GetMessagesCollection();
+            messageCollection.InsertOne(messageDocument);
+        }
+
+        private BsonDocument createBsonDocument(Message message)
+        {
+            return new BsonDocument
             {
-                { "_id", message.MessageUID },
                 { "from", message.MessageSender},
                 { "to", message.MessageDestination},
                 { "content", message.MessageCipheredContent },
-                { "date", message.MessageDate }
+                { "date", message.MessageDate },
+                { "checksum", message.Checksum }
             };
+        }
+
+        public void InsertMessages(List<Message> messages)
+        {
+            List<BsonDocument> messageBatch = new List<BsonDocument>();
+            messages.ForEach(message => messageBatch.Add( createBsonDocument(message)));
             IMongoCollection<BsonDocument> messageCollection = MongoDbAccess.GetMessagesCollection();
-            messageCollection.InsertOne(messageDocument);
+
+            messageCollection.InsertMany(messageBatch);
         }
 
         public List<Message> GetMessages(Contact contactDto)
@@ -57,8 +71,11 @@ namespace Server.Classes.DbAccess
                 MessageSender = document["from"].AsString,
                 MessageDestination = document["to"].AsString,
                 MessageCipheredContent = document["content"].AsString,
-                MessageDate = document["date"].ToUniversalTime()
+                MessageDate = document["date"].ToUniversalTime(),
+                Checksum = document["checksum"].AsString
             });
         }
+
+
     }
 }

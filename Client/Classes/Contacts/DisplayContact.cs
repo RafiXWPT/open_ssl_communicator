@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Client
 {
-    class DisplayContact
+    public class DisplayContact
     {
 
         public string DisplayStatus { get { return GetStatus(); } }

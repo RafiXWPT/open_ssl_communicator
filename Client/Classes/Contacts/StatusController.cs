@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using CommunicatorCore.Classes.Model;
+using CommunicatorCore.Classes.Service;
 using Config;
 
 namespace Client
@@ -16,7 +17,7 @@ namespace Client
         private readonly Uri _contactsUriString = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" +
             ConfigurationHandler.GetValueFromKey("STATUS_API") + "/");
         private readonly Timer _timer;
-        private readonly List<UserConnectionStatus> _connectionStatus = new List<UserConnectionStatus>();
+        private readonly List<UserConnectionStatus> _contactStatuses = new List<UserConnectionStatus>();
         private readonly CryptoRSA _crypter;
         private readonly SymmetricCipher _cipher = new SymmetricCipher();
 
@@ -40,14 +41,11 @@ namespace Client
             AutoResetEvent autoEvent = (AutoResetEvent)stateInfo;
             autoEvent.Set();
 
-            if( _connectionStatus.Count > 0 ) { 
-                UserConnectionStatusAggregator userConnectionStatusAggregator = new UserConnectionStatusAggregator(_connectionStatus);
-                string token = Guid.NewGuid().ToString();
-                string encryptedToken = _crypter.PublicEncrypt(token);
-                string plainMessage = userConnectionStatusAggregator.GetJsonString();
-                string encryptedMessage = _cipher.Encode(plainMessage, token, string.Empty);
-                ControlMessage statusControlMessage = new ControlMessage(ConnectionInfo.Sender, "CONTACT_STATUS", plainMessage, encryptedMessage);
-                BatchControlMessage batchMessage = new BatchControlMessage(statusControlMessage, encryptedToken);
+            if( _contactStatuses.Count > 0 ) { 
+                UserConnectionStatusAggregator userConnectionStatusAggregator = new UserConnectionStatusAggregator(_contactStatuses);
+
+                BatchControlMessage batchMessage = ControlMessageParser.CreateResponseBatchMessage(_crypter, _cipher,
+                    ConnectionInfo.Sender, "CONTACT_STATUS", userConnectionStatusAggregator);
 
                 using (WebClient client = new WebClient())
                 {
@@ -73,33 +71,34 @@ namespace Client
             // Decrypted content contains jsons about user statuses
             foreach(UserConnectionStatus status in connectionStatusAggregator.ConnectionStatus)
             {
-                _connectionStatus.Find(x => x.Username == status.Username).ConnectionStatus = status.ConnectionStatus;
+                _contactStatuses.Find(x => x.Username == status.Username).ConnectionStatus = status.ConnectionStatus;
             }
         }
 
         public void RemoveUser(string username)
         {
-            _connectionStatus.Remove(new UserConnectionStatus(username));
+            _contactStatuses.Remove(new UserConnectionStatus(username));
         }
 
         public void AddUser(string username)
         {
-            _connectionStatus.Add(new UserConnectionStatus(username));
+            _contactStatuses.Add(new UserConnectionStatus(username));
         }
 
         public string GetUserStatus(string username)
         {
             string status = "Offline";
-            string getStatus = _connectionStatus.Find(x => x.Username == username).ConnectionStatus;
-            if (getStatus != null)
+            string getStatus = _contactStatuses.Find(x => x.Username == username).ConnectionStatus;
+            if (getStatus != null) { 
                 status = getStatus;
+            }
 
             return status;
         }
 
         public void ClearUsers()
         {
-            _connectionStatus.Clear();
+            _contactStatuses.Clear();
         }
         
     }

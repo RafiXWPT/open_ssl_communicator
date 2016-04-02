@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -18,6 +19,7 @@ using System.IO;
 using OpenSSL.Crypto;
 using System.Threading;
 using System.Media;
+using CommunicatorCore.Classes.Service;
 using Config;
 
 namespace Client
@@ -28,6 +30,7 @@ namespace Client
     public partial class ChatWindow : Window
     {
         private readonly Uri _messageUri = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("SEND_CHAT_MESSAGE_API") + "/");
+        private readonly Uri _messageArchiveUri = new Uri("http://" + ConnectionInfo.Address + ":" + ConnectionInfo.Port + "/" + ConfigurationHandler.GetValueFromKey("MESSAGE_HISTORY_API") + "/");
         private readonly Uri _incomingMessageUri = new Uri("Media/incoming.wav", UriKind.Relative);
         private readonly Uri _outcomingMessageUri = new Uri("Media/outcoming.wav", UriKind.Relative);
         private readonly FlashWindow _flashWindow = new FlashWindow(Application.Current);
@@ -61,6 +64,59 @@ namespace Client
             _cipher = new SymmetricCipher();
 
             ChatText.IsEnabled = false;
+
+            // Adding event to execute before window is closed
+            Closing += OnWindowClosing;
+        }
+
+        private void OnWindowClosing(object sender, CancelEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show("Do you want to add conversation to the archive?", "Save conversation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                List<Message> messages = new List<Message>();
+                foreach (DisplayMessage displayedMessaged in ChatMessagesListBox.Items)
+                {
+                    string cipheredContent = _cipher.Encode(displayedMessaged.MessageContent, _token, string.Empty);
+                    string messageSender = displayedMessaged.IsFromSelf ? ConnectionInfo.Sender : displayedMessaged.UserName;
+                    string messageDestionation = displayedMessaged.IsFromSelf ? displayedMessaged.UserName : ConnectionInfo.Sender;
+                    Message message = new Message(displayedMessaged.UID, messageSender, messageDestionation, displayedMessaged.MessageContent, cipheredContent, displayedMessaged.DateTime);
+                    messages.Add(message);
+                }
+                SendMessagesToArchive(messages);
+            }
+        }
+
+        // We'll send BatchControlMessage but we'll only receive ControlMessage to determine if everything is ok
+        private void SendMessagesToArchive(List<Message> messages)
+        {
+            MessageAggregator messageAggregator = new MessageAggregator(messages);
+            MessageBox.Show(messageAggregator.GetJsonString());
+            BatchControlMessage batchControlMessage = ControlMessageParser.CreateResponseBatchMessage(_cryptoService,
+                _cipher, ConnectionInfo.Sender, "MESSAGE_SAVE", messageAggregator);
+            using (WebClient client = new WebClient())
+            {
+                client.Proxy = null;
+                string reply = NetworkController.Instance.SendMessage(_messageArchiveUri, client, batchControlMessage);
+                HandleMessageSaveResponse(reply);
+            }
+        }
+
+        private void HandleMessageSaveResponse(string reply)
+        {
+            ControlMessage controlMessage = new ControlMessage();
+            controlMessage.LoadJson(reply);
+            string decryptedContent = _cryptoService.PrivateDecrypt(controlMessage.MessageContent);
+            string outcomeMessage = string.Empty;
+            if (Sha1Util.CalculateSha(decryptedContent) != controlMessage.Checksum)
+            {
+                outcomeMessage = "Bad checksum";
+            }
+            else if( decryptedContent == "MESSAGE_SAVE_OK")
+            {
+                outcomeMessage = "Messages saved successfully";
+            }
+            MessageBox.Show(outcomeMessage);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -122,7 +178,7 @@ namespace Client
 
 
             _chatWindowMessages.Add(message);
-            ListBox.Items.Insert(pos, message);
+            ChatMessagesListBox.Items.Insert(pos, message);
      
             PlaySound(isFromSelf);
             if (!isFromSelf && IsPropertyTrue("BLINK_CHAT") )
@@ -151,7 +207,7 @@ namespace Client
 
                 if (responseString == "OK")
                 {
-                    ListBox.Dispatcher.BeginInvoke(new Action(delegate ()
+                    ChatMessagesListBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
                         AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Encrypted channel has been established.", false, _chatWindowMessages.Count);
                     }));
@@ -162,7 +218,7 @@ namespace Client
                 }
                 else if (responseString == "OFFLINE")
                 {
-                    ListBox.Dispatcher.BeginInvoke(new Action(delegate ()
+                    ChatMessagesListBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
                         AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Secound user is offline.", false, _chatWindowMessages.Count);
                     }));
@@ -173,7 +229,7 @@ namespace Client
                 }
                 else
                 {
-                    ListBox.Dispatcher.BeginInvoke(new Action(delegate ()
+                    ChatMessagesListBox.Dispatcher.BeginInvoke(new Action(delegate ()
                     {
                         AddMessageToChatWindow(Guid.NewGuid().ToString(), "TUNNEL CREATOR", "Encrypted channel is not established.");
                     }));
@@ -271,7 +327,7 @@ namespace Client
 
                 dspMsg.UpdateMessageStatus("DELIVERED");
                 _chatWindowMessages.Add(dspMsg);
-                ListBox.Items.Insert(0, dspMsg);
+                ChatMessagesListBox.Items.Insert(0, dspMsg);
                 PlaySound();
             }
 
@@ -285,7 +341,7 @@ namespace Client
 
         void Refresh()
         {
-            ListBox.Items.Refresh();
+            ChatMessagesListBox.Items.Refresh();
         }
 
         private void ChatText_KeyDown(object sender, KeyEventArgs e)
@@ -293,5 +349,6 @@ namespace Client
             if (e.Key == Key.Enter)
                 SendMsg();
         }
+
     }
 }

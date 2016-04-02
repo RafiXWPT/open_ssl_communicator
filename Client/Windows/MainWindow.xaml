@@ -63,15 +63,7 @@
             </Grid>
             <DataGrid x:Name="ContactsData" HorizontalAlignment="Stretch" Margin="10,10,60,10" VerticalAlignment="Stretch" SelectionMode="Single" BorderThickness="1" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" RowDetailsVisibilityMode="Collapsed" IsReadOnly="True" MouseDoubleClick="ContactsData_OnMouseDoubleClick" SelectionChanged="ContactsData_OnSelectionChanged" Background="#FFE6E6C8">
                 <DataGrid.Columns>
-                 <!--   <DataGridTemplateColumn IsReadOnly="true" Width="SizeToCells">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Image Source="{Binding Image}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                 -->
-                    <DataGridTemplateColumn Header="Image" IsReadOnly="True">
+                    <DataGridTemplateColumn Header="Status" IsReadOnly="True">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Image Source="{Binding DisplayStatus}" />

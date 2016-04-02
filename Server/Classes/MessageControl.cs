@@ -30,6 +30,11 @@ namespace Server.Classes
             _messageDao.InsertMessage(message);
         }
 
+        public void InsertMessages(List<Message> messages)
+        {
+            _messageDao.InsertMessages(messages);
+        }
+
         public List<Message> GetMessages(Contact contact)
         {
             return _messageDao.GetMessages(contact);

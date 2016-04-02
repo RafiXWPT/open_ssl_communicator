@@ -9,6 +9,7 @@ namespace Client
         public string MessageContent { get; }
         public string MessageStatus { get; set; }
         public bool IsFromSelf { get; }
+        public DateTime DateTime { get; }
 
         public DisplayMessage(string UID, string userName, string messageContent, bool isFromSelf)
         {
@@ -16,6 +17,7 @@ namespace Client
             UserName = "[" + DateTime.Now + "] " + userName + " says:";
             MessageContent = messageContent;
             IsFromSelf = isFromSelf;
+            DateTime = DateTime.Now;
             UpdateMessageStatus("SENDED");
         }
 
