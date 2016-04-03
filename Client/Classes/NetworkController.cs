@@ -24,15 +24,7 @@ namespace Client
 
         string GetIPv4Address()
         {
-            IPAddress[] ips = Dns.GetHostAddresses(Dns.GetHostName());
-            foreach (IPAddress i in ips)
-            {
-                if (i.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return i.ToString();
-                }
-            }
-            return "localhost";
+            return Config.ConfigurationHandler.GetValueFromKey("LISTEN_CHAT_ADDRESS");
         }
 
         public bool IsChatListening { get; set; }

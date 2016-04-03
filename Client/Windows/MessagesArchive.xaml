@@ -13,7 +13,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0" Margin="10,10,5,10">
-            <DataGrid x:Name="ArchiveContactsData" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" SelectionChanged="ArchiveContactsData_OnSelectionChanged">
+            <DataGrid x:Name="ArchiveContactsData" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" SelectionChanged="ArchiveContactsData_OnSelectionChanged" Background="#FFE6E6C8">
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Path=DisplayName}" Header="Nick Name" IsReadOnly="True" Width="*"/>
                 </DataGrid.Columns>
@@ -21,7 +21,7 @@
         </Grid>
 
         <Grid Grid.Column="1" Margin="5,10,10,10">
-            <ListBox x:Name="ArchiveMessagesList" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch">
+            <ListBox x:Name="ArchiveMessagesList" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" Background="#FFE6E6C8">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Vertical">

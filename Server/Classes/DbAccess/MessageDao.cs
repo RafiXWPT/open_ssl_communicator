@@ -45,8 +45,10 @@ namespace Server.Classes.DbAccess
             List<Message> messages = new List<Message>();
 
             FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
-            FilterDefinition<BsonDocument> filter = (builder.Eq("from", contactDto.From) & builder.Eq("to", contactDto.To));
-                                                    
+            FilterDefinition<BsonDocument> filter = (builder.Eq("from", contactDto.From) & builder.Eq("to", contactDto.To))
+                                                    |
+                                                    (builder.Eq("from", contactDto.To) & builder.Eq("to", contactDto.From));
+
             SortDefinition<BsonDocument> sort = Builders<BsonDocument>.Sort.Descending("date");
             IMongoCollection<BsonDocument> messagesCollection = MongoDbAccess.GetMessagesCollection();
 
@@ -57,23 +59,7 @@ namespace Server.Classes.DbAccess
                     messages.AddRange(ProcessMessageBatch(cursor.Current));
                 }
             }
-
-            Console.WriteLine("Po 1 filtrze: " + messages.Count);
-
-            builder = Builders<BsonDocument>.Filter;
-            filter = (builder.Eq("from", contactDto.To) & builder.Eq("to", contactDto.From));
-
-            sort = Builders<BsonDocument>.Sort.Descending("date");
-            messagesCollection = MongoDbAccess.GetMessagesCollection();
-
-            using (var cursor = messagesCollection.Find(filter).Sort(sort).ToCursor())
-            {
-                while (cursor.MoveNext())
-                {
-                    messages.AddRange(ProcessMessageBatch(cursor.Current));
-                }
-            }
-            Console.WriteLine("Po 2 filtrze: " + messages.Count);
+            
             return messages;
         }
 

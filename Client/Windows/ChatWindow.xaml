@@ -9,11 +9,12 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="7*" />
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="3*"/>
         </Grid.RowDefinitions>
 
 
-        <ListBox x:Name="ChatMessagesListBox" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,10,2" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
+        <ListBox x:Name="ChatMessagesListBox" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,10,5" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="#FFE6E6C8" >
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
@@ -24,7 +25,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-
-        <TextBox x:Name="ChatText" Grid.Row="1" HorizontalAlignment="Stretch" Margin="10,2,10,10" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" KeyDown="ChatText_KeyDown"/>
+        <Separator Grid.Row="1" Margin="10,0,10,0"/>
+        <TextBox x:Name="ChatText" Grid.Row="2" HorizontalAlignment="Stretch" Margin="10,6,10,10" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" KeyDown="ChatText_KeyDown" Background="#FFE6E6C8"/>
     </Grid>
 </Window>

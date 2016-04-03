@@ -1,7 +1,6 @@
 ﻿using System;
 using Server.Classes.DbAccess;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using CommunicatorCore.Classes.Model;
 using System.Collections.Specialized;
@@ -11,30 +10,19 @@ namespace Server
 {
     class Server
     {
-        static string GetIPv4Address()
-        {
-            IPAddress[] ips = Dns.GetHostAddresses(Dns.GetHostName());
-            foreach (IPAddress i in ips)
-            {
-                if (i.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return i.ToString();
-                }
-            }
-            return "localhost";
-        }
-
         public static string Prefix = string.Empty;
 
         static void Main(string[] args)
         {
             foreach (string s in args)
             {
-                if (s == "-l")
-                    Prefix = "http://localhost:11069";
+                if (s.Contains("--address"))
+                {
+                    Prefix = "http://" + s.Split(':')[1] + ":11069";
+                }
             }
             if(Prefix == string.Empty)
-                Prefix = "http://" + GetIPv4Address() + ":11069";
+                Prefix = "http://localhost:11069";
             
             ServerLogger.LogMessage("Loading server prefixes");
             string[] prefixes = { Prefix + "/connectionCheck/", Prefix + "/diffieTunnel/", Prefix + "/register/", Prefix + "/logIn/", Prefix + "/sendChatMessage/", Prefix + "/contacts/", Prefix + "/messageHistory/", Prefix + "/password/", Prefix + "/status/" };
@@ -64,7 +52,7 @@ namespace Server
                 while(true)
                 {
                     string x = Console.ReadLine();
-                    if( x == "go" )
+                    if( x == "test" )
                     {
                         Test();
                     }
@@ -92,33 +80,10 @@ namespace Server
 
         static void TestT()
         {
-            Console.WriteLine("sending MSG from cipa@protonmail.com to rafixwpt@protonmail.com");
+            Console.WriteLine("Test Method, do here whatever you want.");
+
             try
-            {
-                string UID = Guid.NewGuid().ToString();
-                string targetIP = "192.168.0.5";
-                string target = "mail.rafixwpt@gmail.com";
-                string sender = "cipa@protonmail.com";
-                string content = "TakiTamRandom";
-                Message msg = new Message(UID, sender, target, content);
-                CryptoRSA cryptoService = new CryptoRSA();
-                cryptoService.LoadRsaFromPublicKey("keys/mail.rafixwpt@gmail.com_Public.pem");
-                string encryptedChatMessage = cryptoService.PublicEncrypt(msg.GetJsonString(), cryptoService.PublicRSA);
-                ControlMessage message = new ControlMessage("SERVER", "CHAT_MESSAGE", encryptedChatMessage);
-
-                string responseString = string.Empty;
-                NameValueCollection headers = new NameValueCollection();
-                NameValueCollection data = new NameValueCollection();
-
-                using (var wb = new WebClient())
-                {
-                    wb.Proxy = null;
-                    headers["messageContent"] = message.GetJsonString();
-                    wb.Headers.Add(headers);
-                    data["DateTime"] = DateTime.Now.ToShortDateString();
-                    byte[] responseByte = wb.UploadValues("http://" + targetIP + ":11070/chatMessage/", "POST", data);
-                    responseString = Encoding.UTF8.GetString(responseByte);
-                }
+            { 
             }
             catch(Exception ex)
             {

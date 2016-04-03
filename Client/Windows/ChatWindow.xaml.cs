@@ -73,12 +73,24 @@ namespace Client
                 List<Message> messages = new List<Message>();
                 foreach (DisplayMessage displayedMessaged in ChatMessagesListBox.Items)
                 {
-                    if(displayedMessaged.UserName != "TUNNEL_CREATOR")
+                    if(displayedMessaged.UserName != "TUNNEL CREATOR")
                     {
                         string cipheredContent = _cipher.Encode(displayedMessaged.MessageContent, _token, string.Empty);
-                        string messageSender = displayedMessaged.IsFromSelf ? ConnectionInfo.Sender : displayedMessaged.UserName;
-                        string messageDestionation = displayedMessaged.IsFromSelf ? displayedMessaged.UserName : ConnectionInfo.Sender;
-                        Message message = new Message(displayedMessaged.UID, messageSender, messageDestionation, displayedMessaged.MessageContent, cipheredContent, displayedMessaged.DateTime);
+                        string messageSender;
+                        string messageDestination;
+                        if (displayedMessaged.IsFromSelf)
+                        {
+                            messageSender = ConnectionInfo.Sender;
+                            messageDestination = TargetId;
+
+                        }
+                        else
+                        {
+                            messageSender = TargetId;
+                            messageDestination = ConnectionInfo.Sender;
+                        }
+
+                        Message message = new Message(displayedMessaged.UID, messageSender, messageDestination, displayedMessaged.MessageContent, cipheredContent, displayedMessaged.DateTime);
                         messages.Add(message);
                     }
                 }
@@ -87,11 +99,9 @@ namespace Client
             }
         }
 
-        // We'll send BatchControlMessage but we'll only receive ControlMessage to determine if everything is ok
         private void SendMessagesToArchive(List<Message> messages)
         {
             MessageAggregator messageAggregator = new MessageAggregator(messages);
-            MessageBox.Show(messageAggregator.GetJsonString());
             BatchControlMessage batchControlMessage = ControlMessageParser.CreateResponseBatchMessage(CryptoRSAService.CryptoService,
                 _cipher, ConnectionInfo.Sender, "MESSAGE_SAVE", messageAggregator);
             using (WebClient client = new WebClient())
@@ -175,7 +185,6 @@ namespace Client
             /* This Probaly should be somewhere else    */
             message.UpdateMessageStatus( userName == "TUNNEL CREATOR"? "DELIVERED" : "SENDED");
             /*                                          */
-
 
             _chatWindowMessages.Add(message);
             ChatMessagesListBox.Items.Insert(pos, message);

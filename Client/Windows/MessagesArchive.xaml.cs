@@ -49,7 +49,8 @@ namespace Client.Windows
         private void ArchiveContactsData_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DisplayContact contactView = ArchiveContactsData.SelectedItem as DisplayContact;
-            if( contactView != null ) { 
+            if( contactView != null ) {
+                ArchiveMessagesList.Items.Clear();
                 Contact contact = new Contact(ConnectionInfo.Sender, contactView.ContactID);
                 BatchControlMessage archiveDataControlMessage = ControlMessageParser.CreateResponseBatchMessage(CryptoRSAService.CryptoService, _cipher, ConnectionInfo.Sender, "MESSAGE_GET", contact);
                 using (WebClient client = new WebClient())
@@ -86,7 +87,7 @@ namespace Client.Windows
                     string decryptedMessageContent = _cipher.Decode(message.MessageCipheredContent, _token, string.Empty);
                     if (Sha1Util.CalculateSha(decryptedMessageContent) == message.Checksum)
                     {
-                        filteredMessages.Add(new DisplayMessage(string.Empty, message.MessageSender, decryptedMessageContent, message.MessageSender == ConnectionInfo.Sender ? true : false ));
+                        filteredMessages.Add(new DisplayMessage(string.Empty, message.MessageSender, decryptedMessageContent, message.MessageSender == ConnectionInfo.Sender ? true : false, message.MessageDate));
                     }
                 }
 

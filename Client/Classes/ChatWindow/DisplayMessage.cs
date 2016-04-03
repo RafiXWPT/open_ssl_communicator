@@ -12,14 +12,17 @@ namespace Client
         public bool IsFromSelf { get; }
         public DateTime DateTime { get; }
 
-        public DisplayMessage(string UID, string userName, string messageContent, bool isFromSelf)
+        public DisplayMessage(string UID, string userName, string messageContent, bool isFromSelf) : this(UID, userName, messageContent, isFromSelf, DateTime.Now)
+        { }
+
+        public DisplayMessage(string UID, string userName, string messageContent, bool isFromSelf, DateTime dateTime)
         {
             this.UID = UID;
             UserName = userName;
-            MessageHeader = "[" + DateTime.Now + "] " + UserName + " says:";
+            MessageHeader = "[" + dateTime + "] " + UserName + " says:";
             MessageContent = messageContent;
             IsFromSelf = isFromSelf;
-            DateTime = DateTime.Now;
+            DateTime = dateTime;
             UpdateMessageStatus("SENDED");
         }
 

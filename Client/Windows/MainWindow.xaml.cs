@@ -363,6 +363,13 @@ namespace Client
                 ShowKeysUnloadedBox();
             }
             else { 
+
+                if(ContactsData.Items.Count == 0)
+                {
+                    MessageBox.Show("To see history you have to load your contacts.");
+                    return;
+                }
+
                 MessagesArchive archive = new MessagesArchive(ContactsData.Items);
                 archive.Show();
             }
