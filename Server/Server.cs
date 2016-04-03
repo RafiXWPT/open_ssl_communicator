@@ -28,11 +28,11 @@ namespace Server
 
         static void Main(string[] args)
         {
-//            foreach (string s in args)
-//            {
-//                if (s == "-l")
+            foreach (string s in args)
+            {
+                if (s == "-l")
                     Prefix = "http://localhost:11069";
-//            }
+            }
             if(Prefix == string.Empty)
                 Prefix = "http://" + GetIPv4Address() + ":11069";
             

@@ -28,10 +28,6 @@ namespace CommunicatorCore.Classes.Model
             }
         }
 
-        public CryptoRSA()
-        {
-        }
-
         public void LoadRsaFromPublicKey(string pathToPublicKey)
         {
             string publicKey;

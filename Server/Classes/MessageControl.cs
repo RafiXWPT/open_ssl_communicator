@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 using CommunicatorCore.Classes.Model;
 using Server.Classes.DbAccess;
 
-namespace Server.Classes
+namespace Server
 {
     class MessageControl
     {
-
         private static MessageControl instance;
         public static MessageControl Instance
         {
@@ -25,11 +24,6 @@ namespace Server.Classes
             _messageDao = new MessageDao();            
         }
 
-        public void InsertMessage(Message message)
-        {
-            _messageDao.InsertMessage(message);
-        }
-
         public void InsertMessages(List<Message> messages)
         {
             _messageDao.InsertMessages(messages);
@@ -39,7 +33,5 @@ namespace Server.Classes
         {
             return _messageDao.GetMessages(contact);
         }
-
- 
     }
 }

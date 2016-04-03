@@ -45,10 +45,8 @@ namespace Server.Classes.DbAccess
             List<Message> messages = new List<Message>();
 
             FilterDefinitionBuilder<BsonDocument> builder = Builders<BsonDocument>.Filter;
-            FilterDefinition<BsonDocument> filter = (builder.Eq("from", contactDto.From) &
-              builder.Eq("to", contactDto.To)) | 
-              (builder.Eq("from", contactDto.To) 
-              & builder.Eq("to", contactDto.From));
+            FilterDefinition<BsonDocument> filter = (builder.Eq("from", contactDto.From) & builder.Eq("to", contactDto.To));
+                                                    
             SortDefinition<BsonDocument> sort = Builders<BsonDocument>.Sort.Descending("date");
             IMongoCollection<BsonDocument> messagesCollection = MongoDbAccess.GetMessagesCollection();
 
@@ -60,6 +58,22 @@ namespace Server.Classes.DbAccess
                 }
             }
 
+            Console.WriteLine("Po 1 filtrze: " + messages.Count);
+
+            builder = Builders<BsonDocument>.Filter;
+            filter = (builder.Eq("from", contactDto.To) & builder.Eq("to", contactDto.From));
+
+            sort = Builders<BsonDocument>.Sort.Descending("date");
+            messagesCollection = MongoDbAccess.GetMessagesCollection();
+
+            using (var cursor = messagesCollection.Find(filter).Sort(sort).ToCursor())
+            {
+                while (cursor.MoveNext())
+                {
+                    messages.AddRange(ProcessMessageBatch(cursor.Current));
+                }
+            }
+            Console.WriteLine("Po 2 filtrze: " + messages.Count);
             return messages;
         }
 
@@ -67,7 +81,6 @@ namespace Server.Classes.DbAccess
         {
             return messagesBatch.ToList().ConvertAll(document => new Message
             {
-                MessageUID = document["_id"].AsString,
                 MessageSender = document["from"].AsString,
                 MessageDestination = document["to"].AsString,
                 MessageCipheredContent = document["content"].AsString,

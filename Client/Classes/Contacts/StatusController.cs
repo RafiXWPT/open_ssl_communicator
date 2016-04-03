@@ -18,7 +18,6 @@ namespace Client
             ConfigurationHandler.GetValueFromKey("STATUS_API") + "/");
         private readonly Timer _timer;
         private readonly List<UserConnectionStatus> _contactStatuses = new List<UserConnectionStatus>();
-        private readonly CryptoRSA _crypter;
         private readonly SymmetricCipher _cipher = new SymmetricCipher();
 
         private static StatusController instance;
@@ -30,9 +29,6 @@ namespace Client
             instance = this;
             AutoResetEvent autoResetEvent = new AutoResetEvent(false);
             _timer = new Timer(CheckStatus, autoResetEvent, 0, 10000);
-            _crypter = new CryptoRSA();
-            _crypter.LoadRsaFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
-            _crypter.LoadRsaFromPublicKey("SERVER_Public.pem");
         }
 
         // This method is called by the _timer delegate.
@@ -44,15 +40,24 @@ namespace Client
             if( _contactStatuses.Count > 0 ) { 
                 UserConnectionStatusAggregator userConnectionStatusAggregator = new UserConnectionStatusAggregator(_contactStatuses);
 
-                BatchControlMessage batchMessage = ControlMessageParser.CreateResponseBatchMessage(_crypter, _cipher,
+                BatchControlMessage batchMessage = ControlMessageParser.CreateResponseBatchMessage(CryptoRSAService.CryptoService, _cipher,
                     ConnectionInfo.Sender, "CONTACT_STATUS", userConnectionStatusAggregator);
 
-                using (WebClient client = new WebClient())
+                try
                 {
-                    client.Proxy = null;
-                    string reply = NetworkController.Instance.SendMessage(_contactsUriString, client, batchMessage);
-                    HandleContactsStatusResponse(reply);
+                    using (WebClient client = new WebClient())
+                    {
+                        client.Proxy = null;
+                        string reply = NetworkController.Instance.SendMessage(_contactsUriString, client, batchMessage);
+                        HandleContactsStatusResponse(reply);
+                    }
                 }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                    return;
+                }
+
 
                 MainWindow.Instance.UpdateContactsStatus();
             }
@@ -64,7 +69,7 @@ namespace Client
             BatchControlMessage returnedBatchMessage = new BatchControlMessage();
             returnedBatchMessage.LoadJson(reply);
             ControlMessage returnedControlMessage = returnedBatchMessage.ControlMessage;
-            string decryptedKey = _crypter.PrivateDecrypt(returnedBatchMessage.CipheredKey);
+            string decryptedKey = CryptoRSAService.CryptoService.PrivateDecrypt(returnedBatchMessage.CipheredKey);
             string decryptedContent = _cipher.Decode(returnedControlMessage.MessageContent, decryptedKey, string.Empty);
             UserConnectionStatusAggregator connectionStatusAggregator = new UserConnectionStatusAggregator();
             connectionStatusAggregator.LoadJson(decryptedContent);

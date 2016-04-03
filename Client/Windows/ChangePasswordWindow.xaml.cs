@@ -33,27 +33,23 @@ namespace Client.Windows
 
             ChangePasswordDTO changePasswordDto = new ChangePasswordDTO(ConnectionInfo.Sender, CurrentPasswordBox.Password, ConfirmPasswordBox.Password);
 
-            CryptoRSA cryptoService = new CryptoRSA();
-            cryptoService.LoadRsaFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
-            cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
-
             string plainMessage = changePasswordDto.GetJsonString();
-            string encryptedMessage = cryptoService.PublicEncrypt(plainMessage, cryptoService.PublicRSA);
+            string encryptedMessage = CryptoRSAService.CryptoService.PublicEncrypt(plainMessage);
 
             ControlMessage contactsRequestMessage = new ControlMessage(ConnectionInfo.Sender, "CHANGE_PASSWORD", plainMessage, encryptedMessage);
             using (WebClient client = new WebClient())
             {
                 client.Proxy = null;
                 string reply = NetworkController.Instance.SendMessage(_passwordChangeUrl, client, contactsRequestMessage);
-                HandlePasswordResponse(reply, cryptoService);
+                HandlePasswordResponse(reply);
             }
         }
 
-        private void HandlePasswordResponse(string reply, CryptoRSA cryptoService)
+        private void HandlePasswordResponse(string reply)
         {
             ControlMessage returnedMessage = new ControlMessage();
             returnedMessage.LoadJson(reply);
-            string decryptedContent = cryptoService.PrivateDecrypt(returnedMessage.MessageContent, cryptoService.PrivateRSA);
+            string decryptedContent = CryptoRSAService.CryptoService.PrivateDecrypt(returnedMessage.MessageContent);
             if (returnedMessage.Checksum != Sha1Util.CalculateSha(decryptedContent))
             {
                 MessageBox.Show("Bad checksum message" + decryptedContent);

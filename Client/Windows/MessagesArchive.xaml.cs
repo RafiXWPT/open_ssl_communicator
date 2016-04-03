@@ -28,20 +28,22 @@ namespace Client.Windows
 
         private readonly string _token;
         private readonly SymmetricCipher _cipher;
-        private readonly CryptoRSA _cryptoService;
+        private readonly List<DisplayContact> contactsList = new List<DisplayContact>();
 
 
-        public MessagesArchive(List<DisplayContact> contacts)
+        public MessagesArchive(ItemCollection contacts)
         {
             InitializeComponent();
+            foreach (var contact in contacts)
+            {
+                contactsList.Add(contact as DisplayContact);
+            }
+
             ArchiveContactsData.Items.Clear();
-            contacts.ForEach( contact => ArchiveContactsData.Items.Add(contact));
+            contactsList.ForEach( contact => ArchiveContactsData.Items.Add(contact));
 
             _token = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
             _cipher = new SymmetricCipher();
-            _cryptoService = new CryptoRSA();
-            _cryptoService.LoadRsaFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
-            _cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
         }
 
         private void ArchiveContactsData_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -49,14 +51,13 @@ namespace Client.Windows
             DisplayContact contactView = ArchiveContactsData.SelectedItem as DisplayContact;
             if( contactView != null ) { 
                 Contact contact = new Contact(ConnectionInfo.Sender, contactView.ContactID);
-                BatchControlMessage archiveDataControlMessage = ControlMessageParser.CreateResponseBatchMessage(_cryptoService, _cipher, ConnectionInfo.Sender, "MESSAGE_GET", contact);
+                BatchControlMessage archiveDataControlMessage = ControlMessageParser.CreateResponseBatchMessage(CryptoRSAService.CryptoService, _cipher, ConnectionInfo.Sender, "MESSAGE_GET", contact);
                 using (WebClient client = new WebClient())
                 {
                     client.Proxy = null;
                     string reply = NetworkController.Instance.SendMessage(_messageArchiveUri, client, archiveDataControlMessage);
                     HandleMessageHistoryResponse(reply);
                 }
-
             }
         }
 
@@ -66,9 +67,9 @@ namespace Client.Windows
             returnedMessage.LoadJson(reply);
 
             ControlMessage returnedControlMessage = returnedMessage.ControlMessage;
-            string decryptedAes = _cryptoService.PrivateDecrypt(returnedMessage.CipheredKey);
+            string decryptedAes = CryptoRSAService.CryptoService.PrivateDecrypt(returnedMessage.CipheredKey);
 
-            string decryptedContent = _cipher.Decode(returnedControlMessage.MessageContent, decryptedAes, String.Empty);
+            string decryptedContent = _cipher.Decode(returnedControlMessage.MessageContent, decryptedAes, string.Empty);
             if (returnedControlMessage.Checksum != Sha1Util.CalculateSha(decryptedContent))
             {
                 MessageBox.Show("Bad checksum message" + decryptedContent);
@@ -85,13 +86,14 @@ namespace Client.Windows
                     string decryptedMessageContent = _cipher.Decode(message.MessageCipheredContent, _token, string.Empty);
                     if (Sha1Util.CalculateSha(decryptedMessageContent) == message.Checksum)
                     {
-                        filteredMessages.Add(new DisplayMessage("" /* UID in this case does not matter */, message.MessageSender, decryptedMessageContent, false /* this should also does not matter */ ));
+                        filteredMessages.Add(new DisplayMessage(string.Empty, message.MessageSender, decryptedMessageContent, message.MessageSender == ConnectionInfo.Sender ? true : false ));
                     }
                 }
 
-                MessageBox.Show(decryptedContent + ". Total: " + filteredMessages.Count);
-                
-                // Now my Dear - it's your turn :* 
+                foreach (DisplayMessage message in filteredMessages)
+                {
+                    ArchiveMessagesList.Items.Add(message);
+                }
             }
         }
     }

@@ -25,7 +25,7 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding Path=UserName}"/>
+                            <TextBlock Text="{Binding Path=MessageHeader}"/>
                             <TextBlock Text="{Binding Path=MessageContent}" TextWrapping="Wrap"/>
                             <!-- <Image Width="20" Height="20" Stretch="Fill" Margin="0,0,10,5" HorizontalAlignment="Right" Source="{Binding Path=MessageStatus}"/> -->
                         </StackPanel>

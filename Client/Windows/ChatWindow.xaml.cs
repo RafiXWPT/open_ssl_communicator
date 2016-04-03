@@ -44,8 +44,6 @@ namespace Client
         private readonly MediaPlayer _player = new MediaPlayer();
         private readonly List<DisplayMessage> _chatWindowMessages = new List<DisplayMessage>();
 
-        private readonly CryptoRSA _cryptoService;
-
         public ChatWindow(string target) : this(target, target)
         {
         }
@@ -58,8 +56,6 @@ namespace Client
             
             ChatController.AddNewWindow(this);
 
-            _cryptoService = new CryptoRSA();
-            _cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
             _token = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
             _cipher = new SymmetricCipher();
 
@@ -77,12 +73,16 @@ namespace Client
                 List<Message> messages = new List<Message>();
                 foreach (DisplayMessage displayedMessaged in ChatMessagesListBox.Items)
                 {
-                    string cipheredContent = _cipher.Encode(displayedMessaged.MessageContent, _token, string.Empty);
-                    string messageSender = displayedMessaged.IsFromSelf ? ConnectionInfo.Sender : displayedMessaged.UserName;
-                    string messageDestionation = displayedMessaged.IsFromSelf ? displayedMessaged.UserName : ConnectionInfo.Sender;
-                    Message message = new Message(displayedMessaged.UID, messageSender, messageDestionation, displayedMessaged.MessageContent, cipheredContent, displayedMessaged.DateTime);
-                    messages.Add(message);
+                    if(displayedMessaged.UserName != "TUNNEL_CREATOR")
+                    {
+                        string cipheredContent = _cipher.Encode(displayedMessaged.MessageContent, _token, string.Empty);
+                        string messageSender = displayedMessaged.IsFromSelf ? ConnectionInfo.Sender : displayedMessaged.UserName;
+                        string messageDestionation = displayedMessaged.IsFromSelf ? displayedMessaged.UserName : ConnectionInfo.Sender;
+                        Message message = new Message(displayedMessaged.UID, messageSender, messageDestionation, displayedMessaged.MessageContent, cipheredContent, displayedMessaged.DateTime);
+                        messages.Add(message);
+                    }
                 }
+                
                 SendMessagesToArchive(messages);
             }
         }
@@ -92,7 +92,7 @@ namespace Client
         {
             MessageAggregator messageAggregator = new MessageAggregator(messages);
             MessageBox.Show(messageAggregator.GetJsonString());
-            BatchControlMessage batchControlMessage = ControlMessageParser.CreateResponseBatchMessage(_cryptoService,
+            BatchControlMessage batchControlMessage = ControlMessageParser.CreateResponseBatchMessage(CryptoRSAService.CryptoService,
                 _cipher, ConnectionInfo.Sender, "MESSAGE_SAVE", messageAggregator);
             using (WebClient client = new WebClient())
             {
@@ -106,7 +106,7 @@ namespace Client
         {
             ControlMessage controlMessage = new ControlMessage();
             controlMessage.LoadJson(reply);
-            string decryptedContent = _cryptoService.PrivateDecrypt(controlMessage.MessageContent);
+            string decryptedContent = CryptoRSAService.CryptoService.PrivateDecrypt(controlMessage.MessageContent);
             string outcomeMessage = string.Empty;
             if (Sha1Util.CalculateSha(decryptedContent) != controlMessage.Checksum)
             {
@@ -126,7 +126,7 @@ namespace Client
             thread.Start();
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
             ChatController.CloseWindow(this);
         }
@@ -191,7 +191,7 @@ namespace Client
             try
             {
                 Message chatMessage = new Message(Guid.NewGuid().ToString(), ConnectionInfo.Sender, TargetId, "INIT");
-                string encryptedChatMessage = _cryptoService.PublicEncrypt(chatMessage.GetJsonString(), _cryptoService.PublicRSA);
+                string encryptedChatMessage = CryptoRSAService.CryptoService.PublicEncrypt(chatMessage.GetJsonString());
                 message = new ControlMessage(ConnectionInfo.Sender, "CHAT_INIT", encryptedChatMessage);
 
                 string responseString = string.Empty;
@@ -251,7 +251,7 @@ namespace Client
             {
                 string cipheredContent = _cipher.Encode(textBoxContent, _token, string.Empty);
                 Message chatMessage = new Message(UID, ConnectionInfo.Sender, TargetId, textBoxContent, cipheredContent);
-                string encryptedChatMessage = _cryptoService.PublicEncrypt(chatMessage.GetJsonString(), _cryptoService.PublicRSA);
+                string encryptedChatMessage = CryptoRSAService.CryptoService.PublicEncrypt(chatMessage.GetJsonString());
                 ControlMessage message = new ControlMessage(ConnectionInfo.Sender, "CHAT_MESSAGE", encryptedChatMessage);
 
                 Thread sendReceiveMessageThread = StartThreadWithParam(UID, message);

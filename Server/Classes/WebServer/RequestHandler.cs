@@ -13,7 +13,6 @@ using OpenSSL.Crypto;
 using System.Collections.Specialized;
 using CommunicatorCore.Classes.Exceptions;
 using CommunicatorCore.Classes.Service;
-using Server;
 
 namespace Server
 {
@@ -84,7 +83,7 @@ namespace Server
             SymmetricCipher cipher = new SymmetricCipher();
             string decryptedMessageContent = cipher.Decode(message.MessageContent, decryptedMessageKey,
                 string.Empty);
-            ServerLogger.LogMessage("Received request on contact status from: " + message.MessageSender);
+            ServerLogger.LogMessage("Received request on contact status from: " + message.MessageSender, true);
             if (message.Checksum != Sha1Util.CalculateSha(decryptedMessageContent))
             {
                 ServerLogger.LogMessage(decryptedMessageContent);
@@ -463,7 +462,6 @@ namespace Server
                 string destination = chatMessage.MessageDestination;
                 User user = UserControll.Instance.GetUserFromApplication(destination);
 
-                MessageControl.Instance.InsertMessage(chatMessage);
                 if(user == null)
                 {
                     response = "OFFLINE";
@@ -591,11 +589,10 @@ namespace Server
             CryptoRSA transcoder = GetUserServerCrypter(receivedControlMessage.MessageSender);
 
             INetworkMessage responseMessage;
-            
-
+           
             string decryptedKey = transcoder.PrivateDecrypt(message.CipheredKey);
             string decryptedMessage = cipher.Decode(receivedControlMessage.MessageContent, decryptedKey, string.Empty);
-            ServerLogger.LogMessage(decryptedMessage);
+
             if (Sha1Util.CalculateSha(decryptedMessage) != receivedControlMessage.Checksum)
             {
                 responseMessage = ControlMessageParser.CreateInvalidBatchResponseMessage(transcoder, cipher, MESSAGE_SENDER);
@@ -607,6 +604,7 @@ namespace Server
                 MessageControl.Instance.InsertMessages(messageAggregator.Messages);
 
                 responseMessage = ControlMessageParser.CreateResponseControlMessage(transcoder, MESSAGE_SENDER, "MESSAGE_SAVE", "MESSAGE_SAVE_OK");
+                Console.WriteLine("Sending: MESSAGE_SAVE_OK");
             }
             else if (receivedControlMessage.MessageType == "MESSAGE_GET")
             {

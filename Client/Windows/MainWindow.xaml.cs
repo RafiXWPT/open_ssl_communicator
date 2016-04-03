@@ -92,15 +92,12 @@ namespace Client
 
         private void HandleContactsResponse(string reply)
         {
-            CryptoRSA decoder = new CryptoRSA();
-            decoder.LoadRsaFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
-
             BatchControlMessage returnedBatchMessage = new BatchControlMessage();
             returnedBatchMessage.LoadJson(reply);
             ControlMessage returnedMessage = returnedBatchMessage.ControlMessage;
 
             SymmetricCipher cipher = new SymmetricCipher();
-            string AESKey = decoder.PrivateDecrypt(returnedBatchMessage.CipheredKey, decoder.PrivateRSA);
+            string AESKey = CryptoRSAService.CryptoService.PrivateDecrypt(returnedBatchMessage.CipheredKey);
             string decryptedContent = cipher.Decode(returnedMessage.MessageContent, AESKey, string.Empty);
             
             if (returnedMessage.Checksum != Sha1Util.CalculateSha(decryptedContent))
@@ -280,9 +277,6 @@ namespace Client
                 DisplayContact selectedContact = ContactsData.SelectedItem as DisplayContact;
                 int selectedItemIndex = ContactsData.SelectedIndex;
                 if( selectedContact != null ) {
-                    CryptoRSA cryptoService = new CryptoRSA();
-                    cryptoService.LoadRsaFromPrivateKey(ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
-                    cryptoService.LoadRsaFromPublicKey("SERVER_Public.pem");
 
                     SymmetricCipher cipher = new SymmetricCipher();
                     string token = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");
@@ -292,24 +286,24 @@ namespace Client
                     contact.DisplayName = cipher.Encode(selectedContact.DisplayName, token, string.Empty);
 
                     string plainMessage = contact.GetJsonString();
-                    string encryptedMessage = cryptoService.PublicEncrypt(plainMessage, cryptoService.PublicRSA);
+                    string encryptedMessage = CryptoRSAService.CryptoService.PublicEncrypt(plainMessage);
 
                     ControlMessage contactsRequestMessage = new ControlMessage(ConnectionInfo.Sender, "CONTACT_DELETE", plainMessage, encryptedMessage);
                     using (WebClient client = new WebClient())
                     {
                         client.Proxy = null;
                         string reply = NetworkController.Instance.SendMessage(_contactsUriString, client, contactsRequestMessage);
-                        HandleContactsResponse(reply, cryptoService, contact.To, selectedItemIndex);
+                        HandleContactsResponse(reply, contact.To, selectedItemIndex);
                     }
                 }
             }
         }
 
-        private void HandleContactsResponse(string reply, CryptoRSA cryptoService,string username, int index)
+        private void HandleContactsResponse(string reply, string username, int index)
         {
             ControlMessage returnedMessage = new ControlMessage();
             returnedMessage.LoadJson(reply);
-            string decryptedContent = cryptoService.PrivateDecrypt(returnedMessage.MessageContent, cryptoService.PrivateRSA);
+            string decryptedContent = CryptoRSAService.CryptoService.PrivateDecrypt(returnedMessage.MessageContent);
             if (returnedMessage.Checksum != Sha1Util.CalculateSha(decryptedContent))
             {
                 MessageBox.Show("Z³a checksuma wiadomosci");
@@ -369,12 +363,7 @@ namespace Client
                 ShowKeysUnloadedBox();
             }
             else { 
-                List<DisplayContact> contacts = new List<DisplayContact>();
-                foreach (var contact in ContactsData.Items)
-                {
-                    contacts.Add(contact as DisplayContact);
-                }
-                MessagesArchive archive = new MessagesArchive(contacts);
+                MessagesArchive archive = new MessagesArchive(ContactsData.Items);
                 archive.Show();
             }
         }

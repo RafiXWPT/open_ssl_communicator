@@ -108,6 +108,7 @@
     <Compile Include="Classes\Contacts\DisplayContact.cs" />
     <Compile Include="Classes\IdleController.cs" />
     <Compile Include="Classes\Contacts\StatusController.cs" />
+    <Compile Include="Classes\Security\CryptoRSAService.cs" />
     <Compile Include="Windows\ChangePasswordWindow.xaml.cs">
       <DependentUpon>ChangePasswordWindow.xaml</DependentUpon>
     </Compile>

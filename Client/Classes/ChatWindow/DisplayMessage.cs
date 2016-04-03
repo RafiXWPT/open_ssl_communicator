@@ -6,6 +6,7 @@ namespace Client
     {
         public string UID { get; set; }
         public string UserName { get; }
+        public string MessageHeader { get; }
         public string MessageContent { get; }
         public string MessageStatus { get; set; }
         public bool IsFromSelf { get; }
@@ -14,7 +15,8 @@ namespace Client
         public DisplayMessage(string UID, string userName, string messageContent, bool isFromSelf)
         {
             this.UID = UID;
-            UserName = "[" + DateTime.Now + "] " + userName + " says:";
+            UserName = userName;
+            MessageHeader = "[" + DateTime.Now + "] " + UserName + " says:";
             MessageContent = messageContent;
             IsFromSelf = isFromSelf;
             DateTime = DateTime.Now;

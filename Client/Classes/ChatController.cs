@@ -7,12 +7,6 @@ namespace Client
     public static class ChatController
     {
         static List<ChatWindow> chatWindows = new List<ChatWindow>();
-        static CryptoRSA RSA = new CryptoRSA();
-
-        static ChatController()
-        {
-            RSA.LoadRsaFromPrivateKey(Config.ConfigurationHandler.GetValueFromKey("PATH_TO_PRIVATE_KEY"));
-        }
 
         public static void AddNewWindow(ChatWindow window)
         {
@@ -35,7 +29,7 @@ namespace Client
         public static void DeliverToChatWindow(ControlMessage message)
         {
             Message msg = new Message();
-            string messageContent = RSA.PrivateDecrypt(message.MessageContent, RSA.PrivateRSA);
+            string messageContent = CryptoRSAService.CryptoService.PrivateDecrypt(message.MessageContent);
             msg.LoadJson(messageContent);
             DeliverSTA(msg);
         }
