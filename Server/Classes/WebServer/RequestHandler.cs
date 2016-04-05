@@ -13,6 +13,7 @@ using OpenSSL.Crypto;
 using System.Collections.Specialized;
 using CommunicatorCore.Classes.Exceptions;
 using CommunicatorCore.Classes.Service;
+using System.IO;
 
 namespace Server
 {
@@ -306,16 +307,28 @@ namespace Server
                     {
                         KeyGenerator.GenerateKeyPair(userPasswordData.Username);
                         string userToken = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
-                        UserControll.Instance.AddUserToDatabase(userPasswordData, Sha1Util.CalculateSha(userToken));
-                        string emailContent = "Your unique token for contacts and history access: " + userToken +
-                                              ". DO NOT LOOSE IT!!!";
+
+                        string emailContent = string.Format(ContentProvider.RegistrationEmailContent, userPasswordData.Username, userToken);
+
                         EmailMessage emailMessage = new EmailMessage("Crypto Talk Registration", emailContent, userPasswordData.Username);
-                        emailMessage.Send(true);
+                        if(emailMessage.Send(true))
+                        {
+                            UserControll.Instance.AddUserToDatabase(userPasswordData, Sha1Util.CalculateSha(userToken));
 
-                        returnMessageType = "REGISTER_INFO";
-                        plainContent = "REGISTER_OK";
+                            returnMessageType = "REGISTER_INFO";
+                            plainContent = "REGISTER_OK";
 
-                        ServerLogger.LogMessage("User added to database, registration succesfull");
+                            File.Delete("keys/" + userPasswordData.Username + "_Private.pem");
+
+                            ServerLogger.LogMessage("User added to database, registration succesfull");
+                        }
+                        else
+                        {
+                            returnMessageType = "REGISTER_INFO";
+                            plainContent = "REGISTER_FAIL";
+
+                            ServerLogger.LogMessage("Sending email error. Aborting registration.");
+                        }
                     }
                 }
                 else if (message.MessageType == "RESET_PASSWORD")
@@ -331,18 +344,29 @@ namespace Server
                     {
                         ServerLogger.LogMessage(userPasswordData.Username + " is trying to reset his password.");
                         string generatedPassword =  Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
-                        UserPasswordData generatedUserPasswordData = new UserPasswordData(userPasswordData.Username, generatedPassword);
-                        UserControll.Instance.UpdateUser(generatedUserPasswordData);
-                        string emailContent = "Your new generated password is: " + generatedPassword;
+
+                        string emailContent = string.Format(ContentProvider.ResetPasswordEmailContent, generatedPassword);
                         EmailMessage emailMessage = new EmailMessage("Crypto Talk Password Reset", emailContent, userPasswordData.Username);
-                        emailMessage.Send();
+                        if(emailMessage.Send())
+                        {
+                            UserPasswordData generatedUserPasswordData = new UserPasswordData(userPasswordData.Username, generatedPassword);
+                            UserControll.Instance.UpdateUser(generatedUserPasswordData);
 
-                        returnMessageType = "RESET_PASSWORD";
-                        plainContent = "RESET_OK";
+                            returnMessageType = "RESET_PASSWORD";
+                            plainContent = "RESET_OK";
 
-                        ServerLogger.LogMessage(userPasswordData.Username + " password reset ended successfully.");
+                            ServerLogger.LogMessage(userPasswordData.Username + " password reset ended successfully.");
+                        }
+                        else
+                        {
+                            returnMessageType = "RESET_PASSWORD";
+                            plainContent = "RESET_FAIL";
+
+                            ServerLogger.LogMessage(userPasswordData.Username + " password has not beed restarted. Internal error occured.");
+                        }
                     }
                 }
+
                 INetworkMessage returnedControlMessage = ControlMessageParser.CreateResponseControlMessage(user.Tunnel,
                     MESSAGE_SENDER, returnMessageType, plainContent);
 

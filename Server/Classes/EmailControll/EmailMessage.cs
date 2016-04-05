@@ -34,7 +34,7 @@ namespace Server
             this.destination = destination;
         }
 
-        public void Send(bool withAttachments = false)
+        public bool Send(bool withAttachments = false)
         {
             try
             {
@@ -48,28 +48,32 @@ namespace Server
                 smtp.UseDefaultCredentials = false;
                 smtp.Credentials = new NetworkCredential(from.Address, fromPassword);
 
-                MailMessage messageToSend = new MailMessage(from, to);
-                messageToSend.Subject = subject;
-                messageToSend.Body = message;
-
-                if(withAttachments)
+                using (MailMessage messageToSend = new MailMessage(from, to))
                 {
-                    Attachment attachment;
+                    messageToSend.Subject = subject;
+                    messageToSend.Body = message;
 
-                    attachment = new Attachment("keys/"+destination+"_Private.pem");
-                    attachment.Name = destination + "_Private.pem";
-                    messageToSend.Attachments.Add(attachment);
+                    if (withAttachments)
+                    {
+                        Attachment attachment;
 
-                    attachment = new Attachment("keys/" + destination + "_Public.pem");
-                    attachment.Name = destination + "_Public.pem";
-                    messageToSend.Attachments.Add(attachment);
+                        attachment = new Attachment("keys/" + destination + "_Private.pem");
+                        attachment.Name = destination + "_Private.pem";
+                        messageToSend.Attachments.Add(attachment);
+
+                        attachment = new Attachment("keys/" + destination + "_Public.pem");
+                        attachment.Name = destination + "_Public.pem";
+                        messageToSend.Attachments.Add(attachment);
+                    }
+
+                    smtp.Send(messageToSend);
                 }
-
-                smtp.Send(messageToSend);
+                return true;
             }
             catch (Exception ex)
             {
                 ServerLogger.LogMessage(ex.ToString());
+                return false;
             }
         }
     }

@@ -61,6 +61,7 @@ namespace Config
         public static void SaveConfiguration()
         {
             config.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection("appSettings");
         }
     }
 }

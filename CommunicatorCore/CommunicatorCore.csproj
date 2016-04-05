@@ -60,6 +60,7 @@
     <Compile Include="Classes\Model\ChangePasswordDTO.cs" />
     <Compile Include="Classes\Model\Contact.cs" />
     <Compile Include="Classes\Model\ContactAggregator.cs" />
+    <Compile Include="Classes\Model\ContentProvider.cs" />
     <Compile Include="Classes\Model\CryptoRSA.cs" />
     <Compile Include="Classes\Model\DiffieHellmanTunnel.cs" />
     <Compile Include="Classes\Model\Enums.cs" />

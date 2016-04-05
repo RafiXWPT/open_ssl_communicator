@@ -13,5 +13,6 @@ X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\ManagedO
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\Newtonsoft.Json.dll
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\WpfAnimatedGif.dll
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\bin\Debug\WpfAnimatedGif.xml
+X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\obj\Debug\CommunicatorCore.csprojResolveAssemblyReference.cache
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\obj\Debug\CommunicatorCore.dll
 X:\Visual Studio Projects\OpenSSLComunicator\CommunicatorCore\obj\Debug\CommunicatorCore.pdb

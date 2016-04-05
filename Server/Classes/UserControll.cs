@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using CommunicatorCore.Classes.Model;
 using Server.Classes.DbAccess;
@@ -19,7 +17,7 @@ namespace Server
         }
 
         private readonly UsersDao _usersDao;
-        private readonly System.Timers.Timer _clearingUsers = new System.Timers.Timer(TimeSpan.FromMinutes(1).TotalMilliseconds);
+        private readonly Timer _clearingUsers = new Timer(TimeSpan.FromMinutes(1).TotalMilliseconds);
 
         private readonly ISet<User> _users = new HashSet<User>();
 

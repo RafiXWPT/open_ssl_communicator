@@ -16,7 +16,7 @@ using CommunicatorCore.Classes.Model;
 using CommunicatorCore.Classes.Service;
 using Config;
 
-namespace Client.Windows
+namespace Client
 {
     /// <summary>
     /// Interaction logic for MessagesArchive.xaml

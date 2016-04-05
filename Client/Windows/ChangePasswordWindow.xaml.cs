@@ -4,7 +4,7 @@ using System.Windows;
 using CommunicatorCore.Classes.Model;
 using Config;
 
-namespace Client.Windows
+namespace Client
 {
     /// <summary>
     /// Interaction logic for ChangePassword.xaml
