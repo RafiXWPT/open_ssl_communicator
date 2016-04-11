@@ -219,7 +219,7 @@ namespace Client
             for(int i = 0; i < ContactsData.Items.Count; i++) 
             {
                 DisplayContact contact = ContactsData.Items[i] as DisplayContact;
-                if (contact.ContactID == to)
+                if (contact != null && contact.ContactID == to)
                     return true;
             }
             return false;
@@ -254,8 +254,14 @@ namespace Client
             var selectedContact = ContactsData.SelectedItem as DisplayContact;
             if (selectedContact != null)
             {
-                ChatWindow chatWindow = new ChatWindow(selectedContact.ContactID, selectedContact.DisplayName);
-                chatWindow.Show();
+                if (selectedContact.DisplayName == "INVALID")
+                {
+                    MessageBox.Show("Cannot chat with \"INVALID\" contact");
+                }
+                else { 
+                    ChatWindow chatWindow = new ChatWindow(selectedContact.ContactID, selectedContact.DisplayName);
+                    chatWindow.Show();
+                }
             }
         }
 
@@ -264,8 +270,16 @@ namespace Client
             var selectedContact = ContactsData.SelectedItem as DisplayContact;
             if (selectedContact != null)
             {
-                ContactWindow editContactWindow = new ContactWindow(selectedContact.ContactID, selectedContact.DisplayName);
-                editContactWindow.Show();
+                if (selectedContact.DisplayName == "INVALID")
+                {
+                    MessageBox.Show("Cannot chat with \"INVALID\" contact");
+                }
+                else
+                {
+                    ContactWindow editContactWindow = new ContactWindow(selectedContact.ContactID,
+                        selectedContact.DisplayName);
+                    editContactWindow.Show();
+                }
             }
         }
 
@@ -275,7 +289,7 @@ namespace Client
             if (messageBoxResult == MessageBoxResult.Yes) { 
                 DisplayContact selectedContact = ContactsData.SelectedItem as DisplayContact;
                 int selectedItemIndex = ContactsData.SelectedIndex;
-                if( selectedContact != null ) {
+                if( selectedContact != null && selectedContact.DisplayName != "INVALID" ) {
 
                     SymmetricCipher cipher = new SymmetricCipher();
                     string token = ConfigurationHandler.GetValueFromKey("TOKEN_VALUE");

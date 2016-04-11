@@ -22,7 +22,7 @@
         <Image x:Name="CheckingEmail" gif:ImageBehavior.RepeatBehavior="Forever" gif:ImageBehavior.AnimatedSource="../Image/checking.gif" Margin="215,35,30,165" gif:ImageBehavior.AutoStart="True" Visibility="Hidden" Stretch="Fill"/>
         <Image x:Name="CheckingPassword" gif:ImageBehavior.RepeatBehavior="Forever" gif:ImageBehavior.AnimatedSource="../Image/checking.gif" Margin="215,155,30,45" gif:ImageBehavior.AutoStart="True" Visibility="Hidden" Stretch="Fill"/>
 
-        <Label x:Name="EmailToolTip" Content="Use ProtonMail address" HorizontalAlignment="Left" Margin="48,18,0,0" VerticalAlignment="Top" FontSize="10" FontStyle="Italic"/>
+        <Label x:Name="EmailToolTip" Content="Use secure address (Proton, Tutanota etc.)" HorizontalAlignment="Left" Margin="48,18,0,0" VerticalAlignment="Top" FontSize="10" FontStyle="Italic"/>
         <Label x:Name="PasswordToolTip" Content="At least one big, number and special character" HorizontalAlignment="Left" Margin="70,79,0,0" VerticalAlignment="Top" FontSize="10" FontStyle="Italic"/>
     </Grid>
 </Window>

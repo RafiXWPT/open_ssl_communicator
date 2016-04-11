@@ -9,6 +9,19 @@ namespace Client
 {
     public static class RegisterFormatValidator
     {
+        private static readonly List<string> AllowedEmails = new List<string>(new []
+        {
+            "protonmail.com", // protonmail
+            "tutanota.com", // tutanota
+            "tutanota.de", // tutanota
+            "tutamail.com", // tutanota
+            "tuta.io", // tutanota
+            "keemail.me", // tutanota 
+            "sendinc.com", // sendinc
+            "posteo.net", // posteo
+            "kolabnow.com" // kolab
+        }); 
+
         static bool IsEmailSyntaxValid(string email)
         {
             try
@@ -25,7 +38,7 @@ namespace Client
         static bool IsEmailServerValid(string email)
         {
             string emailServer = email.Split('@')[1];
-            return emailServer == "protonmail.com";
+            return AllowedEmails.Contains(emailServer);
         }
 
         public static bool IsEmailValid(string email)
